@@ -19,13 +19,13 @@ public class DashboardRepository : IDashboardRepository
 
         var sql = @"
             SELECT 
-                (SELECT COUNT(*) FROM parceiro WHERE id_empresa = @IdEmpresa AND ativo = true) as total_parceiros,
-                (SELECT COUNT(*) FROM lead WHERE id_empresa = @IdEmpresa AND ativo = true) as total_leads,
-                (SELECT COUNT(*) FROM lead WHERE id_empresa = @IdEmpresa AND ativo = true AND status = 'novo') as leads_novos,
-                (SELECT COUNT(*) FROM oportunidade WHERE id_empresa = @IdEmpresa AND ativo = true) as total_oportunidades,
-                (SELECT COALESCE(SUM(valor), 0) FROM oportunidade WHERE id_empresa = @IdEmpresa AND ativo = true) as valor_funil,
-                (SELECT COUNT(*) FROM atividade WHERE id_empresa = @IdEmpresa AND ativo = true AND concluida = false) as atividades_pendentes,
-                (SELECT COUNT(*) FROM proposta WHERE id_empresa = @IdEmpresa AND ativo = true AND status = 'enviada') as propostas_enviadas";
+                (SELECT COUNT(*) FROM parceiro WHERE id_empresa = @IdEmpresa AND ativo = true) as TotalParceiros,
+                (SELECT COUNT(*) FROM lead WHERE id_empresa = @IdEmpresa AND ativo = true) as TotalLeads,
+                (SELECT COUNT(*) FROM lead WHERE id_empresa = @IdEmpresa AND ativo = true AND status = 'novo') as LeadsNovos,
+                (SELECT COUNT(*) FROM oportunidade WHERE id_empresa = @IdEmpresa AND ativo = true) as TotalOportunidades,
+                (SELECT COALESCE(SUM(valor), 0) FROM oportunidade WHERE id_empresa = @IdEmpresa AND ativo = true) as ValorFunil,
+                (SELECT COUNT(*) FROM atividade WHERE id_empresa = @IdEmpresa AND ativo = true AND concluida = false) as AtividadesPendentes,
+                (SELECT COUNT(*) FROM proposta WHERE id_empresa = @IdEmpresa AND ativo = true AND status = 'enviada') as PropostasEnviadas";
 
         return await connection.QueryFirstAsync<DashboardResumoDTO>(sql, new { IdEmpresa = idEmpresa });
     }
@@ -34,9 +34,9 @@ public class DashboardRepository : IDashboardRepository
     {
         using var connection = _database.GetConnection();
         const string sql = @"
-            SELECT fe.nome as estagio_nome, 
-                   COUNT(o.id) as quantidade,
-                   COALESCE(SUM(o.valor), 0) as valor
+            SELECT fe.nome as EstagioNome, 
+                   COUNT(o.id) as Quantidade,
+                   COALESCE(SUM(o.valor), 0) as Valor
             FROM funil_estagio fe
             LEFT JOIN oportunidade o ON fe.id = o.id_estagio AND o.ativo = true
             LEFT JOIN funil f ON fe.id_funil = f.id
@@ -51,11 +51,11 @@ public class DashboardRepository : IDashboardRepository
     {
         using var connection = _database.GetConnection();
         const string sql = @"
-            SELECT status, COUNT(*) as quantidade
+            SELECT Status, COUNT(*) as Quantidade
             FROM lead 
             WHERE id_empresa = @IdEmpresa AND ativo = true
-            GROUP BY status
-            ORDER BY status";
+            GROUP BY Status
+            ORDER BY Status";
 
         return (await connection.QueryAsync<DashboardLeadsPorStatusDTO>(sql, new { IdEmpresa = idEmpresa })).ToList();
     }
@@ -64,11 +64,11 @@ public class DashboardRepository : IDashboardRepository
     {
         using var connection = _database.GetConnection();
         const string sql = @"
-            SELECT tipo, COUNT(*) as quantidade
+            SELECT Tipo, COUNT(*) as Quantidade
             FROM atividade 
             WHERE id_empresa = @IdEmpresa AND ativo = true
-            GROUP BY tipo
-            ORDER BY tipo";
+            GROUP BY Tipo
+            ORDER BY Tipo";
 
         return (await connection.QueryAsync<DashboardAtividadesDTO>(sql, new { IdEmpresa = idEmpresa })).ToList();
     }
@@ -77,7 +77,7 @@ public class DashboardRepository : IDashboardRepository
     {
         using var connection = _database.GetConnection();
         const string sql = @"
-            SELECT id, nome, empresa, telefone, status, data_cadastro
+            SELECT Id, Nome, Empresa, Telefone, Status, DataCadastro
             FROM lead 
             WHERE id_empresa = @IdEmpresa AND ativo = true
             ORDER BY data_cadastro DESC
@@ -90,9 +90,9 @@ public class DashboardRepository : IDashboardRepository
     {
         using var connection = _database.GetConnection();
         const string sql = @"
-            SELECT le.nome as estagio_nome, 
-                   COUNT(l.id) as quantidade,
-                   le.cor
+            SELECT le.nome as EstagioNome, 
+                   COUNT(l.id) as Quantidade,
+                   le.cor as Cor
             FROM lead_estagio le
             LEFT JOIN lead l ON le.id = l.id_estagio AND l.ativo = true
             WHERE le.id_empresa = @IdEmpresa

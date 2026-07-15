@@ -251,13 +251,13 @@ public class LeadRepository : ILeadRepository
         using var connection = _database.GetConnection();
         const string sql = @"
             SELECT 
-                COUNT(*) as total,
-                COUNT(*) FILTER (WHERE status = 'novo') as novos,
+                COUNT(*) as Total,
+                COUNT(*) FILTER (WHERE status = 'novo') as Novos,
                 CASE WHEN COUNT(*) > 0 
                     THEN ROUND(COUNT(*) FILTER (WHERE status = 'convertido')::numeric / COUNT(*)::numeric * 100, 1)
                     ELSE 0 
-                END as taxa_conversao,
-                COUNT(*) FILTER (WHERE status IN ('contato', 'qualificado')) as followup_pendente
+                END as TaxaConversao,
+                COUNT(*) FILTER (WHERE status IN ('contato', 'qualificado')) as FollowupPendente
             FROM lead 
             WHERE id_empresa = @IdEmpresa AND ativo = true";
 
