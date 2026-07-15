@@ -1,21 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../api/axios';
-import type { Lead, PaginatedResponse } from '../types';
+import type { Lead, LeadStats, PaginatedResponse } from '../types';
 
 export default function Leads() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [total, setTotal] = useState(0);
+  const [stats, setStats] = useState<LeadStats | null>(null);
   const [pagina, setPagina] = useState(1);
   const [busca, setBusca] = useState('');
   const [statusFiltro, setStatusFiltro] = useState('');
   const [carregando, setCarregando] = useState(true);
+  const [dropdownAberto, setDropdownAberto] = useState<number | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     carregarLeads();
+    carregarStats();
   }, [pagina, busca, statusFiltro]);
+
+  useEffect(() => {
+    const handleClickFora = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownAberto(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickFora);
+    return () => document.removeEventListener('mousedown', handleClickFora);
+  }, []);
 
   const carregarLeads = async () => {
     setCarregando(true);
@@ -32,12 +46,21 @@ export default function Leads() {
     }
   };
 
+  const carregarStats = async () => {
+    try {
+      const response = await api.get<LeadStats>('/lead/stats');
+      setStats(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar stats:', error);
+    }
+  };
+
   const excluirLead = async (id: number) => {
     if (!confirm('Deseja excluir este lead?')) return;
-
     try {
       await api.delete(`/lead/${id}`);
       carregarLeads();
+      carregarStats();
     } catch (error) {
       console.error('Erro ao excluir lead:', error);
     }
@@ -71,6 +94,47 @@ export default function Leads() {
         </div>
       </div>
 
+      {stats && (
+        <div className="stats-cards">
+          <div className="stat-card stat-total">
+            <div className="stat-info">
+              <span className="stat-label">Total Leads</span>
+              <span className="stat-valor">{stats.total}</span>
+            </div>
+            <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+          </div>
+          <div className="stat-card stat-novos">
+            <div className="stat-info">
+              <span className="stat-label">Novos</span>
+              <span className="stat-valor">{stats.novos}</span>
+            </div>
+            <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+            </div>
+          </div>
+          <div className="stat-card stat-conversao">
+            <div className="stat-info">
+              <span className="stat-label">Taxa Conversão</span>
+              <span className="stat-valor">{stats.taxaConversao}%</span>
+            </div>
+            <div className="stat-icon" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
+          </div>
+          <div className="stat-card stat-followup">
+            <div className="stat-info">
+              <span className="stat-label">Follow-up Pendente</span>
+              <span className="stat-valor">{stats.followupPendente}</span>
+            </div>
+            <div className="stat-icon" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="filtros">
         <input
           type="text"
@@ -102,9 +166,8 @@ export default function Leads() {
                 <th>Telefone</th>
                 <th>Status</th>
                 <th>Estágio</th>
-                <th>Origem</th>
                 <th>Responsável</th>
-                <th>Ações</th>
+                <th style={{ width: 50 }}></th>
               </tr>
             </thead>
             <tbody>
@@ -140,7 +203,6 @@ export default function Leads() {
                       </span>
                     </td>
                     <td>{lead.estagioNome || '-'}</td>
-                    <td>{lead.source || '-'}</td>
                     <td>
                       {lead.responsavelNome ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -156,13 +218,30 @@ export default function Leads() {
                       ) : '-'}
                     </td>
                     <td>
-                      <button onClick={() => navigate(`/leads/${lead.id}`, { state: { from: location.pathname } })}>Ver</button>
-                      <button onClick={() => navigate(`/leads/${lead.id}/editar`, { state: { from: location.pathname } })} className="btn-secondary">
-                        Editar
-                      </button>
-                      <button onClick={() => excluirLead(lead.id)} className="btn-danger">
-                        Excluir
-                      </button>
+                      <div className="dropdown-container" ref={dropdownAberto === lead.id ? dropdownRef : undefined}>
+                        <button
+                          className="dropdown-trigger"
+                          onClick={() => setDropdownAberto(dropdownAberto === lead.id ? null : lead.id)}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                        </button>
+                        {dropdownAberto === lead.id && (
+                          <div className="dropdown-menu">
+                            <button onClick={() => { setDropdownAberto(null); navigate(`/leads/${lead.id}`, { state: { from: location.pathname } }); }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                              Ver
+                            </button>
+                            <button onClick={() => { setDropdownAberto(null); navigate(`/leads/${lead.id}/editar`, { state: { from: location.pathname } }); }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                              Editar
+                            </button>
+                            <button className="dropdown-danger" onClick={() => { setDropdownAberto(null); excluirLead(lead.id); }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                              Excluir
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

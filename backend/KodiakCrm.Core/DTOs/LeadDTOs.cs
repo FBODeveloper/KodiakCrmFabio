@@ -98,3 +98,11 @@ public class LeadMoverDTO
 {
     public int IdEstagio { get; set; }
 }
+
+public class LeadStatsDTO
+{
+    public int Total { get; set; }
+    public int Novos { get; set; }
+    public double TaxaConversao { get; set; }
+    public int FollowupPendente { get; set; }
+}

@@ -51,4 +51,20 @@ public class DashboardController : ControllerBase
         var resultado = await _service.ObterAtividadesPorTipoAsync(idEmpresa);
         return Ok(resultado);
     }
+
+    [HttpGet("leads-recentes")]
+    public async Task<ActionResult<List<DashboardLeadRecenteDTO>>> ObterLeadsRecentes([FromQuery] int quantidade = 5)
+    {
+        var idEmpresa = ObterIdEmpresa();
+        var resultado = await _service.ObterLeadsRecentesAsync(idEmpresa, quantidade);
+        return Ok(resultado);
+    }
+
+    [HttpGet("leads-por-estagio")]
+    public async Task<ActionResult<List<DashboardLeadsPorEstagioDTO>>> ObterLeadsPorEstagio()
+    {
+        var idEmpresa = ObterIdEmpresa();
+        var resultado = await _service.ObterLeadsPorEstagioAsync(idEmpresa);
+        return Ok(resultado);
+    }
 }

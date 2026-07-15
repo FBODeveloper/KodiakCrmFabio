@@ -41,6 +41,21 @@ public class LeadController : ControllerBase
         }
     }
 
+    [HttpGet("stats")]
+    public async Task<ActionResult<LeadStatsDTO>> ObterStats()
+    {
+        try
+        {
+            var idEmpresa = ObterIdEmpresa();
+            var stats = await _service.ObterStatsAsync(idEmpresa);
+            return Ok(stats);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { mensagem = "Erro interno ao obter stats", erro = ex.Message });
+        }
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<LeadDTO>> ObterPorId(int id)
     {

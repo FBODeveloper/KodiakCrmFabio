@@ -8,4 +8,6 @@ public interface IDashboardRepository
     Task<List<DashboardFunilDTO>> ObterFunilAsync(string idEmpresa);
     Task<List<DashboardLeadsPorStatusDTO>> ObterLeadsPorStatusAsync(string idEmpresa);
     Task<List<DashboardAtividadesDTO>> ObterAtividadesPorTipoAsync(string idEmpresa);
+    Task<List<DashboardLeadRecenteDTO>> ObterLeadsRecentesAsync(string idEmpresa, int quantidade = 5);
+    Task<List<DashboardLeadsPorEstagioDTO>> ObterLeadsPorEstagioAsync(string idEmpresa);
 }

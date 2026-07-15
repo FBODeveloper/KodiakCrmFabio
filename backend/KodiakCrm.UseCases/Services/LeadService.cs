@@ -204,6 +204,11 @@ public class LeadService
         return true;
     }
 
+    public async Task<LeadStatsDTO> ObterStatsAsync(string idEmpresa)
+    {
+        return await _leadRepository.ObterStatsAsync(idEmpresa);
+    }
+
     private static LeadDTO MapearParaDTO(Lead lead)
     {
         return new LeadDTO

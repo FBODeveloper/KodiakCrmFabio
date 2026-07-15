@@ -31,4 +31,14 @@ public class DashboardService
     {
         return await _repository.ObterAtividadesPorTipoAsync(idEmpresa);
     }
+
+    public async Task<List<DashboardLeadRecenteDTO>> ObterLeadsRecentesAsync(string idEmpresa, int quantidade = 5)
+    {
+        return await _repository.ObterLeadsRecentesAsync(idEmpresa, quantidade);
+    }
+
+    public async Task<List<DashboardLeadsPorEstagioDTO>> ObterLeadsPorEstagioAsync(string idEmpresa)
+    {
+        return await _repository.ObterLeadsPorEstagioAsync(idEmpresa);
+    }
 }

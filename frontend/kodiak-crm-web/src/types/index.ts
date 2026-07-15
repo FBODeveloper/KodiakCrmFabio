@@ -250,6 +250,28 @@ export interface DashboardResumo {
   propostasEnviadas: number;
 }
 
+export interface LeadStats {
+  total: number;
+  novos: number;
+  taxaConversao: number;
+  followupPendente: number;
+}
+
+export interface DashboardLeadRecente {
+  id: number;
+  nome: string;
+  empresa?: string;
+  telefone?: string;
+  status: string;
+  dataCadastro: string;
+}
+
+export interface DashboardLeadsPorEstagio {
+  estagioNome: string;
+  quantidade: number;
+  cor: string;
+}
+
 export interface PaginatedResponse<T> {
   itens: T[];
   total: number;

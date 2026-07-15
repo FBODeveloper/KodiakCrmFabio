@@ -72,4 +72,33 @@ public class DashboardRepository : IDashboardRepository
 
         return (await connection.QueryAsync<DashboardAtividadesDTO>(sql, new { IdEmpresa = idEmpresa })).ToList();
     }
+
+    public async Task<List<DashboardLeadRecenteDTO>> ObterLeadsRecentesAsync(string idEmpresa, int quantidade = 5)
+    {
+        using var connection = _database.GetConnection();
+        const string sql = @"
+            SELECT id, nome, empresa, telefone, status, data_cadastro
+            FROM lead 
+            WHERE id_empresa = @IdEmpresa AND ativo = true
+            ORDER BY data_cadastro DESC
+            LIMIT @Quantidade";
+
+        return (await connection.QueryAsync<DashboardLeadRecenteDTO>(sql, new { IdEmpresa = idEmpresa, Quantidade = quantidade })).ToList();
+    }
+
+    public async Task<List<DashboardLeadsPorEstagioDTO>> ObterLeadsPorEstagioAsync(string idEmpresa)
+    {
+        using var connection = _database.GetConnection();
+        const string sql = @"
+            SELECT le.nome as estagio_nome, 
+                   COUNT(l.id) as quantidade,
+                   le.cor
+            FROM lead_estagio le
+            LEFT JOIN lead l ON le.id = l.id_estagio AND l.ativo = true
+            WHERE le.id_empresa = @IdEmpresa
+            GROUP BY le.nome, le.cor, le.ordem
+            ORDER BY le.ordem";
+
+        return (await connection.QueryAsync<DashboardLeadsPorEstagioDTO>(sql, new { IdEmpresa = idEmpresa })).ToList();
+    }
 }

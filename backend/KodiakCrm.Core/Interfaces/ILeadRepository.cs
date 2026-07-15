@@ -1,3 +1,4 @@
+using KodiakCrm.Core.DTOs;
 using KodiakCrm.Core.Entities;
 
 namespace KodiakCrm.Core.Interfaces;
@@ -16,6 +17,7 @@ public interface ILeadRepository
     Task AtualizarEstagioAsync(LeadEstagio estagio);
     Task ExcluirEstagioAsync(int id, string idEmpresa);
     Task<List<Lead>> ObterPorEstagioAsync(int idEstagio, string idEmpresa);
+    Task<LeadStatsDTO> ObterStatsAsync(string idEmpresa);
 }
 
 public class LeadListResult

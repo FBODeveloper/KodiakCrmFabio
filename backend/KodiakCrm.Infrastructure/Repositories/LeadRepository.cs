@@ -1,4 +1,5 @@
 using Dapper;
+using KodiakCrm.Core.DTOs;
 using KodiakCrm.Core.Entities;
 using KodiakCrm.Core.Interfaces;
 
@@ -243,5 +244,23 @@ public class LeadRepository : ILeadRepository
             ORDER BY l.data_cadastro DESC";
 
         return (await connection.QueryAsync<Lead>(sql, new { IdEstagio = idEstagio, IdEmpresa = idEmpresa })).ToList();
+    }
+
+    public async Task<LeadStatsDTO> ObterStatsAsync(string idEmpresa)
+    {
+        using var connection = _database.GetConnection();
+        const string sql = @"
+            SELECT 
+                COUNT(*) as total,
+                COUNT(*) FILTER (WHERE status = 'novo') as novos,
+                CASE WHEN COUNT(*) > 0 
+                    THEN ROUND(COUNT(*) FILTER (WHERE status = 'convertido')::numeric / COUNT(*)::numeric * 100, 1)
+                    ELSE 0 
+                END as taxa_conversao,
+                COUNT(*) FILTER (WHERE status IN ('contato', 'qualificado')) as followup_pendente
+            FROM lead 
+            WHERE id_empresa = @IdEmpresa AND ativo = true";
+
+        return await connection.QueryFirstAsync<LeadStatsDTO>(sql, new { IdEmpresa = idEmpresa });
     }
 }
