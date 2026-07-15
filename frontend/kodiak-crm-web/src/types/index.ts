@@ -272,6 +272,19 @@ export interface DashboardLeadsPorEstagio {
   cor: string;
 }
 
+export interface Historico {
+  id: number;
+  entidade: string;
+  entidadeId: number;
+  acao: string;
+  descricao: string;
+  dadosAntes?: string;
+  dadosDepois?: string;
+  usuarioId?: number;
+  usuarioNome?: string;
+  dataAcao: string;
+}
+
 export interface PaginatedResponse<T> {
   itens: T[];
   total: number;

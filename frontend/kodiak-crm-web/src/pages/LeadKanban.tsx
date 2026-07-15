@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../api/axios';
-import type { LeadKanban, Lead } from '../types';
+import type { LeadKanban } from '../types';
 
 export default function LeadKanban() {
   const navigate = useNavigate();
@@ -80,7 +80,7 @@ export default function LeadKanban() {
     });
   };
 
-  const handleDragLeave = (e: React.DragEvent, estagioId: number) => {
+  const handleDragLeave = (_e: React.DragEvent, estagioId: number) => {
     setColunasAtivas(prev => {
       const next = new Set(prev);
       next.delete(estagioId);

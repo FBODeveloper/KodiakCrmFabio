@@ -7,7 +7,7 @@ import type { UsuarioCreate } from '../types';
 export default function UsuarioForm() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAdmin, isGerente } = useAuth();
+  const { isAdmin } = useAuth();
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
   const [empresas, setEmpresas] = useState<{ cnpj: string; razaoSocial: string }[]>([]);

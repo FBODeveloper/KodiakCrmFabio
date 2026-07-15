@@ -131,7 +131,7 @@ export default function Dashboard() {
             <div className="pie-chart-container">
               <div className="pie-chart">
                 <svg viewBox="0 0 36 36">
-                  {leadsPorEstagio.reduce<{ element: JSX.Element; offset: number }>((acc, estagio, i) => {
+                  {leadsPorEstagio.reduce<{ element: React.JSX.Element; offset: number }>((acc, estagio, i) => {
                     const percent = totalEstagio > 0 ? (estagio.quantidade / totalEstagio) * 100 : 0;
                     const dashArray = `${percent} ${100 - percent}`;
                     const element = (

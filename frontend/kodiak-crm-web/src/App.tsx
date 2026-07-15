@@ -20,6 +20,7 @@ import Atividades from './pages/Atividades';
 import AtividadeForm from './pages/AtividadeForm';
 import Propostas from './pages/Propostas';
 import PropostaForm from './pages/PropostaForm';
+import HistoricoPage from './pages/HistoricoPage';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -77,6 +78,8 @@ function AppRoutes() {
         <Route path="propostas" element={<Propostas />} />
         <Route path="propostas/novo" element={<PropostaForm />} />
         <Route path="propostas/:id" element={<PropostaForm />} />
+
+        <Route path="historico" element={<HistoricoPage />} />
       </Route>
       
       <Route path="*" element={<Navigate to="/" />} />

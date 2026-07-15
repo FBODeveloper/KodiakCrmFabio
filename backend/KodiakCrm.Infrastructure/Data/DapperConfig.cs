@@ -20,6 +20,7 @@ public static class DapperConfig
         SqlMapper.SetTypeMap(typeof(Atividade), CreateMap<Atividade>());
         SqlMapper.SetTypeMap(typeof(Proposta), CreateMap<Proposta>());
         SqlMapper.SetTypeMap(typeof(PropostaItem), CreateMap<PropostaItem>());
+        SqlMapper.SetTypeMap(typeof(Historico), CreateMap<Historico>());
     }
 
     private static CustomPropertyTypeMap CreateMap<T>() where T : class
