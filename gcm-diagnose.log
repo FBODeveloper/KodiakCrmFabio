@@ -1,0 +1,207 @@
+﻿Diagnose log at 2026-07-15T22:04:29Z
+
+AppPath: C:\Program Files\Git\mingw64\bin\git-credential-manager.exe
+InstallDir: C:\Program Files\Git\mingw64\bin\
+Version: 2.6.1+786ab03440ddc82e807a97c0e540f5247e44cec6
+
+------------
+Diagnostic: Environment
+Skipped: False
+Success: True
+Exception: None
+Log:
+OSType: Windows
+OSVersion: 10.0 (build 19045)
+Reading environment variables... OK
+ Variables:
+HOMEPATH=\Users\FABIO
+DriverData=C:\Windows\System32\Drivers\DriverData
+COMPUTERNAME=DESKTOP-TE9NOSB
+MSYSTEM=MINGW64
+CommonProgramFiles(x86)=C:\Program Files (x86)\Common Files
+PROCESSOR_LEVEL=6
+OneDrive=C:\Users\FABIO\OneDrive
+ProgramFiles(x86)=C:\Program Files (x86)
+CONFIG_SITE=C:/Program Files/Git/etc/config.site
+LC_CTYPE=pt_BR.UTF-8
+USERDOMAIN=DESKTOP-TE9NOSB
+PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC
+ORIGINAL_TEMP=C:/Users/FABIO/AppData/Local/Temp
+USERNAME=FABIO
+MINGW_PREFIX=C:/Program Files/Git/mingw64
+HERMES_HOME=C:\Users\FABIO\AppData\Local\hermes
+GIT_EXEC_PATH=C:/Program Files/Git/mingw64/libexec/git-core
+ACLOCAL_PATH=C:\Program Files\Git\mingw64\share\aclocal;C:\Program Files\Git\usr\share\aclocal
+TEMP=C:\Users\FABIO\AppData\Local\Temp
+LOCALAPPDATA=C:\Users\FABIO\AppData\Local
+MANPATH=C:\Program Files\Git\mingw64\local\man;C:\Program Files\Git\mingw64\share\man;C:\Program Files\Git\usr\local\man;C:\Program Files\Git\usr\share\man;C:\Program Files\Git\usr\man;C:\Program Files\Git\share\man
+SESSIONNAME=Console
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 140 Stepping 1, GenuineIntel
+MSYSTEM_CARCH=x86_64
+PROGRAMFILES=C:\Program Files (x86)
+ProgramData=C:\ProgramData
+TERM_PROGRAM_VERSION=3.7.7
+ORIGINAL_TMP=C:/Users/FABIO/AppData/Local/Temp
+PROCESSOR_REVISION=8c01
+SYSTEMROOT=C:\Windows
+TERM_PROGRAM=mintty
+HERMES_GIT_BASH_PATH=C:\Program Files\Git\bin\bash.exe
+NUMBER_OF_PROCESSORS=8
+SSH_ASKPASS=C:/Program Files/Git/mingw64/bin/git-askpass.exe
+SHLVL=1
+APPDATA=C:\Users\FABIO\AppData\Roaming
+SYSTEMDRIVE=C:
+PSModulePath=C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules
+PUBLIC=C:\Users\Public
+FPS_BROWSER_USER_PROFILE_STRING=Default
+PKG_CONFIG_PATH=C:\Program Files\Git\mingw64\lib\pkgconfig;C:\Program Files\Git\mingw64\share\pkgconfig
+MSYSTEM_CHOST=x86_64-w64-mingw32
+TERM=xterm
+PLINK_PROTOCOL=ssh
+INFOPATH=C:\Program Files\Git\mingw64\local\info;C:\Program Files\Git\mingw64\share\info;C:\Program Files\Git\usr\local\info;C:\Program Files\Git\usr\share\info;C:\Program Files\Git\usr\info;C:\Program Files\Git\share\info
+ProgramW6432=C:\Program Files
+PATH=C:/Program Files/Git/mingw64/libexec/git-core;C:\Users\FABIO\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\FABIO\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32\OpenSSH;C:\Program Files\TortoiseSVN\bin;C:\Program Files\Microsoft SQL Server\150\Tools\Binn;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn;C:\Program Files\Git\cmd;C:\Program Files\Devart\EntityDeveloper\Console;C:\Program Files\Microsoft SQL Server\170\Tools\Binn;C:\Program Files\nodejs;C:\Program Files\dotnet;C:\Users\FABIO\AppData\Local\hermes\hermes-agent\venv\Scripts;C:\Users\FABIO\AppData\Local\hermes\bin;C:\Users\FABIO\AppData\Local\Programs\Python\Python313\Scripts;C:\Users\FABIO\AppData\Local\Programs\Python\Python313;C:\Users\FABIO\AppData\Local\Microsoft\WindowsApps;C:\Users\FABIO\.dotnet\tools;C:\Program Files\Devart\EntityDeveloper\Console;C:\Users\FABIO\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\FABIO\AppData\Roaming\npm;C:\Users\FABIO\AppData\Local\Microsoft\WinGet\Packages\Anthropic.ClaudeCode_Microsoft.Winget.Source_8wekyb3d8bbwe;C:\Users\FABIO\AppData\Local\Programs\Ollama;C:\Users\FABIO\AppData\Local\Microsoft\WinGet\Links;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl
+MINGW_CHOST=x86_64-w64-mingw32
+GIT_TRACE2_PARENT_SID=ea03c41b-732d-4966-9a0e-71cecf80ab46
+FPS_BROWSER_APP_PROFILE_STRING=Internet Explorer
+PKG_CONFIG_SYSTEM_LIBRARY_PATH=C:/Program Files/Git/mingw64/lib
+TMPDIR=C:\Users\FABIO\AppData\Local\Temp
+TMP=C:\Users\FABIO\AppData\Local\Temp
+SHELL=C:\Program Files\Git\usr\bin\bash.exe
+HOME=C:\Users\FABIO
+COMSPEC=C:\Windows\system32\cmd.exe
+ZES_ENABLE_SYSMAN=1
+LOGONSERVER=\\DESKTOP-TE9NOSB
+USERPROFILE=C:\Users\FABIO
+DISPLAY=needs-to-be-defined
+COMMONPROGRAMFILES=C:\Program Files (x86)\Common Files
+WINDIR=C:\Windows
+_=C:/Program Files/Git/mingw64/bin/git
+USERDOMAIN_ROAMINGPROFILE=DESKTOP-TE9NOSB
+CommonProgramW6432=C:\Program Files\Common Files
+HOMEDRIVE=C:
+MSYSTEM_PREFIX=C:/Program Files/Git/mingw64
+MINGW_PACKAGE_PREFIX=mingw-w64-x86_64
+OPENSSL_CONF=C:\Program Files\PostgreSQL\psqlODBC\etc\openssl.cnf
+PWD=D:/Dev/OpenCodeOllama/Teste1/kodiak-crm
+EXEPATH=C:\Program Files\Git
+HOSTNAME=DESKTOP-TE9NOSB
+PROCESSOR_ARCHITEW6432=AMD64
+ORIGINAL_PATH=C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\FABIO\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32\OpenSSH;C:\Program Files\TortoiseSVN\bin;C:\Program Files\Microsoft SQL Server\150\Tools\Binn;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn;C:\Program Files\Git\cmd;C:\Program Files\Devart\EntityDeveloper\Console;C:\Program Files\Microsoft SQL Server\170\Tools\Binn;C:\Program Files\nodejs;C:\Program Files\dotnet;C:\Users\FABIO\AppData\Local\hermes\hermes-agent\venv\Scripts;C:\Users\FABIO\AppData\Local\hermes\bin;C:\Users\FABIO\AppData\Local\Programs\Python\Python313\Scripts;C:\Users\FABIO\AppData\Local\Programs\Python\Python313;C:\Users\FABIO\AppData\Local\Microsoft\WindowsApps;C:\Users\FABIO\.dotnet\tools;C:\Program Files\Devart\EntityDeveloper\Console;C:\Users\FABIO\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\FABIO\AppData\Roaming\npm;C:\Users\FABIO\AppData\Local\Microsoft\WinGet\Packages\Anthropic.ClaudeCode_Microsoft.Winget.Source_8wekyb3d8bbwe;C:\Users\FABIO\AppData\Local\Programs\Ollama;C:\Users\FABIO\AppData\Local\Microsoft\WinGet\Links
+PROCESSOR_ARCHITECTURE=x86
+PS1=\[\033]0;$TITLEPREFIX:$PWD\007\]\n\[\033[32m\]\u@\h \[\033[35m\]$MSYSTEM \[\033[33m\]\w\[\033[36m\]`__git_ps1`\[\033[0m\]\n$ 
+OS=Windows_NT
+VBOX_MSI_INSTALL_PATH=C:\Program Files\Oracle\VirtualBox\
+PKG_CONFIG_SYSTEM_INCLUDE_PATH=C:/Program Files/Git/mingw64/include
+OneDriveConsumer=C:\Users\FABIO\OneDrive
+ALLUSERSPROFILE=C:\ProgramData
+
+
+------------
+Diagnostic: File system
+Skipped: False
+Success: True
+Exception: None
+Log:
+Temporary directory is 'C:\Users\FABIO\AppData\Local\Temp\'...
+Checking basic file I/O...
+Writing to temporary file 'C:\Users\FABIO\AppData\Local\Temp\91e6434a9244ee635a7f4fa7'... OK
+Reading from temporary file 'C:\Users\FABIO\AppData\Local\Temp\91e6434a9244ee635a7f4fa7'... OK
+Deleting temporary file 'C:\Users\FABIO\AppData\Local\Temp\91e6434a9244ee635a7f4fa7'... OK
+Testing IFileSystem instance...
+UserHomePath: C:\Users\FABIO
+UserDataDirectoryPath: C:\Users\FABIO\.gcm
+GetCurrentDirectory(): D:\Dev\OpenCodeOllama\Teste1\kodiak-crm
+
+------------
+Diagnostic: Networking
+Skipped: False
+Success: True
+Exception: None
+Log:
+Checking networking and HTTP stack...
+Creating HTTP client... OK
+IsNetworkAvailable: True
+Sending HEAD request to http://example.com...Sending HEAD request to https://example.com... OK
+ OK
+Acquiring free TCP port... OK
+Testing local HTTP loopback connections...
+Creating new HTTP listener for http://localhost:62070/... OK
+Waiting for loopback connection... OK
+Writing response... OK
+Waiting for response data... OK
+Loopback connection data OK
+
+------------
+Diagnostic: Git
+Skipped: False
+Success: True
+Exception: None
+Log:
+Getting Git version... OK
+Git version is '2.49.0.windows.1'
+Locating current repository...Git repository at 'D:/Dev/OpenCodeOllama/Teste1/kodiak-crm/.git'
+ OK
+Listing all Git configuration... OK
+Git configuration:
+file:C:/Program Files/Git/etc/gitconfig	diff.astextplain.textconv=astextplain
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.clean=git-lfs clean -- %f
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.smudge=git-lfs smudge -- %f
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.process=git-lfs filter-process
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.required=true
+file:C:/Program Files/Git/etc/gitconfig	http.sslbackend=schannel
+file:C:/Program Files/Git/etc/gitconfig	core.autocrlf=true
+file:C:/Program Files/Git/etc/gitconfig	core.fscache=true
+file:C:/Program Files/Git/etc/gitconfig	core.symlinks=false
+file:C:/Program Files/Git/etc/gitconfig	pull.rebase=false
+file:C:/Program Files/Git/etc/gitconfig	credential.helper=manager
+file:C:/Program Files/Git/etc/gitconfig	credential.https://dev.azure.com.usehttppath=true
+file:C:/Program Files/Git/etc/gitconfig	init.defaultbranch=master
+file:C:/Users/FABIO/.gitconfig	user.name=fabioborgesconttrotech
+file:C:/Users/FABIO/.gitconfig	user.email=fabio@conttrotech.com.br
+file:C:/Users/FABIO/.gitconfig	windows.appendatomically=false
+file:.git/config	core.repositoryformatversion=0
+file:.git/config	core.filemode=false
+file:.git/config	core.bare=false
+file:.git/config	core.logallrefupdates=true
+file:.git/config	core.symlinks=false
+file:.git/config	core.ignorecase=true
+file:.git/config	remote.origin.url=https://github.com/fabioborgesconttrotech/KodiakErp-CrmBeta.git
+file:.git/config	remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+
+
+------------
+Diagnostic: Credential storage
+Skipped: False
+Success: True
+Exception: None
+Log:
+ICredentialStore instance is of type: CredentialStore
+Writing test credential... OK
+Reading test credential... OK
+Deleting test credential... OK
+
+------------
+Diagnostic: Microsoft authentication (AAD/MSA)
+Skipped: False
+Success: True
+Exception: None
+Log:
+Broker is not enabled.
+Flow type is: Auto
+Gathering MSAL token cache data... OK
+CacheDirectory: C:\Users\FABIO\AppData\Local\.IdentityService
+CacheFileName: msal.cache
+CacheFilePath: C:\Users\FABIO\AppData\Local\.IdentityService\msal.cache
+Creating cache helper... OK
+Verifying MSAL token cache persistence... OK
+
+------------
+Diagnostic: GitHub API
+Skipped: False
+Success: True
+Exception: None
+Log:
+Using 'https://github.com/' as API target.
+Querying '/meta' endpoint... OK
+

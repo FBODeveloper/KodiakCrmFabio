@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="KodiakCrm.Api/KodiakCrm.Api.csproj" />
+  <Project Path="KodiakCrm.Core/KodiakCrm.Core.csproj" />
+  <Project Path="KodiakCrm.Infrastructure/KodiakCrm.Infrastructure.csproj" />
+  <Project Path="KodiakCrm.UseCases/KodiakCrm.UseCases.csproj" />
+</Solution>
