@@ -293,6 +293,26 @@ export interface LeadConverterResponse {
   oportunidadeTitulo: string;
 }
 
+export interface ClienteDTO {
+  id: number;
+  razaoSocial: string;
+  nomeFantasia?: string;
+  cnpjCpf?: string;
+  email?: string;
+  telefone?: string;
+  celular?: string;
+  endereco?: string;
+  observacao?: string;
+  origem?: string;
+  dataConversao?: string;
+  idOportunidade?: number;
+  responsavelId?: number;
+  responsavelNome?: string;
+  ativo: boolean;
+  dataCadastro: string;
+  idEmpresa: string;
+}
+
 export interface PaginatedResponse<T> {
   itens: T[];
   total: number;
