@@ -43,10 +43,9 @@ export default function SearchBar() {
     try {
       const results: SearchResult[] = [];
 
-      const [leadsRes, clientesRes, parceirosRes, contatosRes] = await Promise.allSettled([
+      const [leadsRes, clientesRes, contatosRes] = await Promise.allSettled([
         api.get('/lead', { params: { busca: query, itensPorPagina: 3 } }),
         api.get('/cliente', { params: { busca: query, itensPorPagina: 3 } }),
-        api.get('/parceiro', { params: { busca: query, itensPorPagina: 3 } }),
         api.get('/contato', { params: { busca: query, itensPorPagina: 3 } })
       ]);
 
@@ -58,11 +57,6 @@ export default function SearchBar() {
       if (clientesRes.status === 'fulfilled') {
         clientesRes.value.data.itens?.forEach((c: any) => {
           results.push({ tipo: 'Cliente', id: c.id, titulo: c.razaoSocial || c.nomeFantasia, subtitulo: c.cnpjCpf, rota: `/clientes/${c.id}` });
-        });
-      }
-      if (parceirosRes.status === 'fulfilled') {
-        parceirosRes.value.data.itens?.forEach((p: any) => {
-          results.push({ tipo: 'Parceiro', id: p.id, titulo: p.razaoSocial || p.nomeFantasia, subtitulo: p.cpfCnpj, rota: `/parceiros/${p.id}` });
         });
       }
       if (contatosRes.status === 'fulfilled') {
@@ -92,7 +86,7 @@ export default function SearchBar() {
         <input
           type="text"
           className="search-input"
-          placeholder="Buscar leads, clientes, parceiros..."
+          placeholder="Buscar leads, clientes, contatos..."
           value={query}
           onChange={e => { setQuery(e.target.value); setAberto(true); }}
           onFocus={() => query.length >= 2 && setAberto(true)}
