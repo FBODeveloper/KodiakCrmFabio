@@ -30,7 +30,7 @@ CRM para o KodiakERP, desenvolvido com .NET 10 (Backend) e React 19 (Frontend).
 - **Senha:** 123!asd
 - **Database:** kodiak_crm
 - **Schema:** snake_case, tabelas no singular
-- **Migrações:** 13 arquivos (001-013). Executar em ordem no PostgreSQL.
+- **Migrações:** 14 arquivos (001-014). Executar em ordem no PostgreSQL.
 
 ### Como executar migrações
 ```bash
@@ -263,12 +263,25 @@ kodiak-crm/
 - **AtividadeForm**: data/hora = now por padrão
 - **Arquivo de teste**: docs/Teste_Frontend_1.md com ~30 problemas documentados
 
+### Fase 17: Correções Teste Frontend 2
+- **Migração 014**: colunas status/cliente_id na tabela atividade
+- **BUG CRÍTICO**: DateOnly vs DateTime no UsuarioRepository (data_nascimento) — corrigido para DateOnly?
+- **BUG CRÍTICO**: Relatórios INSERT com cast ::jsonb no campo parametros
+- **Contatos**: coluna Parceiro removida, data_cadastro auto, Ver = só leitura
+- **Leads**: coluna Status removida, mantida só Estágio, filtro renomeado
+- **Clientes**: data_cadastro auto, Ver = só leitura, filtro data removido
+- **Atividades**: coluna Parceiro→Cliente, campos cliente/responsável/status, botões Concluir/Cancelar
+- **Propostas**: botões status (Enviada/Aprovada/Rejeitada), motivo rejeição, gerar número no editar, coluna Cliente/Contato, data_proposta
+- **Oportunidades**: padronizar botões ícone, Ver = só leitura, DELETE endpoint
+- **GLOBAL**: todos os formulários com ?readonly=true (Lead, Cliente, Contato, Atividade, Proposta, Oportunidade)
+- **Arquivo de teste**: docs/Teste_Frontend_2.md
+
 ## Git Remote
 - `https://github.com/FBODeveloper/KodiakCrmFabio.git` (main branch)
-- Último commit: `b1d0252`
+- Último commit: `488f8bc`
 
 ## Pendente / Próximos Passos
-- Segundo teste frontend para validar correções
+- Terceiro teste frontend para validar correções
 - Exportação CSV dos relatórios
 - Dashboard personalizável
 - Audit log admin
