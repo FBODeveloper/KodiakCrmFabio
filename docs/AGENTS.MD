@@ -30,7 +30,7 @@ CRM para o KodiakERP, desenvolvido com .NET 10 (Backend) e React 19 (Frontend).
 - **Senha:** 123!asd
 - **Database:** kodiak_crm
 - **Schema:** snake_case, tabelas no singular
-- **Migrações:** 12 arquivos (001-012). Executar em ordem no PostgreSQL.
+- **Migrações:** 13 arquivos (001-013). Executar em ordem no PostgreSQL.
 
 ### Como executar migrações
 ```bash
@@ -249,11 +249,26 @@ kodiak-crm/
 - Aplicado em Leads (status/temperatura/datas), Oportunidades (status/datas), Atividades (tipo/concluida/datas), Clientes (origem/datas), Propostas (status/datas)
 - Backend: todos 5 controllers/repositories/services atualizados com WHERE dinâmico
 
+### Fase 16: Correções Teste Frontend 1
+- **Migração 013**: novos campos na tabela proposta (numero, data_proposta, forma_pagamento, prazo_entrega, cliente_id, contato_id)
+- **BUG CRÍTICO**: DateOnly vs DateTime no PropostaRepository (data_validade) — corrigido para DateOnly?
+- **Dashboard**: card Parceiros removido
+- **Ícones CRUD**: dropdown `...` substituído por 3 botões (Eye/Edit/Trash2) em Leads, Clientes, Contatos, Atividades
+- **Lead**: Ver = só leitura (query param ?readonly=true), responsável = usuário atual por padrão, status padrão "em_andamento"
+- **Lead lista**: 50 itens/página
+- **Lead Kanban**: sem limite de cards, botões ver/editar/excluir por card, tooltip nome no avatar
+- **Propostas**: novos campos (nº sequencial, data proposta, forma pgto, prazo entrega), vincular a cliente/contato (remover parceiro), observação após itens, limpar após salvar
+- **Histórico**: 7 controllers com registro de operações (Oportunidade, Atividade, Proposta, Parceiro, Lead, Contato, Cliente)
+- **Filtros**: "Responsável" adicionado em Leads, Atividades, Oportunidades
+- **AtividadeForm**: data/hora = now por padrão
+- **Arquivo de teste**: docs/Teste_Frontend_1.md com ~30 problemas documentados
+
 ## Git Remote
 - `https://github.com/FBODeveloper/KodiakCrmFabio.git` (main branch)
-- Último commit: `d7457e3`
+- Último commit: `b1d0252`
 
 ## Pendente / Próximos Passos
+- Segundo teste frontend para validar correções
 - Exportação CSV dos relatórios
 - Dashboard personalizável
 - Audit log admin
