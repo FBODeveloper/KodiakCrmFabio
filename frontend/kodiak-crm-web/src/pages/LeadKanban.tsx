@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../api/axios';
-import type { LeadKanban } from '../types';
+import type { LeadKanban, LeadEstagio } from '../types';
 
 export default function LeadKanban() {
   const navigate = useNavigate();
@@ -10,6 +10,14 @@ export default function LeadKanban() {
   const [carregando, setCarregando] = useState(true);
   const [leadArrastando, setLeadArrastando] = useState<number | null>(null);
   const [colunasAtivas, setColunasAtivas] = useState<Set<number>>(new Set());
+
+  const [showEstagios, setShowEstagios] = useState(false);
+  const [estagios, setEstagios] = useState<LeadEstagio[]>([]);
+  const [editEstagio, setEditEstagio] = useState<LeadEstagio | null>(null);
+  const [formNome, setFormNome] = useState('');
+  const [formCor, setFormCor] = useState('#3b82f6');
+  const [formOrdem, setFormOrdem] = useState(1);
+  const [erroEstagio, setErroEstagio] = useState('');
 
   useEffect(() => {
     carregarKanban();
@@ -20,10 +28,77 @@ export default function LeadKanban() {
     try {
       const response = await api.get<LeadKanban>('/lead/kanban');
       setKanban(response.data);
+      setEstagios(response.data.estagios);
     } catch (error) {
       console.error('Erro ao carregar kanban:', error);
     } finally {
       setCarregando(false);
+    }
+  };
+
+  const carregarEstagios = async () => {
+    try {
+      const response = await api.get<LeadEstagio[]>('/lead/estagios');
+      setEstagios(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar estágios:', error);
+    }
+  };
+
+  const abrirFormEstagio = (estagio?: LeadEstagio) => {
+    if (estagio) {
+      setEditEstagio(estagio);
+      setFormNome(estagio.nome);
+      setFormCor(estagio.cor);
+      setFormOrdem(estagio.ordem);
+    } else {
+      setEditEstagio(null);
+      setFormNome('');
+      setFormCor('#3b82f6');
+      setFormOrdem(estagios.length + 1);
+    }
+    setErroEstagio('');
+  };
+
+  const salvarEstagio = async () => {
+    if (!formNome.trim()) {
+      setErroEstagio('Nome é obrigatório');
+      return;
+    }
+
+    try {
+      if (editEstagio) {
+        await api.put(`/lead/estagios/${editEstagio.id}`, {
+          nome: formNome.trim(),
+          cor: formCor,
+          ordem: formOrdem
+        });
+      } else {
+        await api.post('/lead/estagios', {
+          nome: formNome.trim(),
+          cor: formCor,
+          ordem: formOrdem
+        });
+      }
+      await carregarEstagios();
+      await carregarKanban();
+      setEditEstagio(null);
+      setFormNome('');
+      setFormCor('#3b82f6');
+      setFormOrdem(estagios.length + 1);
+    } catch (error: any) {
+      setErroEstagio(error.response?.data?.mensagem || 'Erro ao salvar estágio');
+    }
+  };
+
+  const excluirEstagio = async (id: number) => {
+    if (!confirm('Excluir este estágio? Leads nele perderão a vinculação.')) return;
+    try {
+      await api.delete(`/lead/estagios/${id}`);
+      await carregarEstagios();
+      await carregarKanban();
+    } catch (error) {
+      console.error('Erro ao excluir estágio:', error);
     }
   };
 
@@ -113,11 +188,16 @@ export default function LeadKanban() {
       <div className="pagina">
         <div className="pagina-header">
           <h1>Leads - Kanban</h1>
-          <button onClick={() => navigate('/leads')} className="btn-secondary">
-            Voltar
-          </button>
+          <div className="pagina-header-actions">
+            <button onClick={() => setShowEstagios(true)} className="btn-secondary">
+              Gerenciar Estágios
+            </button>
+            <button onClick={() => navigate('/leads')} className="btn-secondary">
+              Voltar
+            </button>
+          </div>
         </div>
-        <p>Nenhum estágio configurado. Cadastre estágios em Leads &gt; Kanban.</p>
+        <p>Nenhum estágio configurado. Clique em "Gerenciar Estágios" para criar.</p>
       </div>
     );
   }
@@ -127,6 +207,9 @@ export default function LeadKanban() {
       <div className="pagina-header">
         <h1>Leads - Kanban</h1>
         <div className="pagina-header-actions">
+          <button onClick={() => setShowEstagios(true)} className="btn-secondary">
+            Gerenciar Estágios
+          </button>
           <button onClick={() => navigate('/leads')} className="btn-secondary">
             Lista
           </button>
@@ -217,6 +300,89 @@ export default function LeadKanban() {
           </div>
         ))}
       </div>
+
+      {showEstagios && (
+        <div className="modal-overlay" onClick={() => setShowEstagios(false)}>
+          <div className="modal modal-lg" onClick={e => e.stopPropagation()}>
+            <h2>Gerenciar Estágios do Pipeline</h2>
+
+            <div className="estagios-lista">
+              {estagios.map(estagio => (
+                <div key={estagio.id} className="estagio-item">
+                  <div className="estagio-info">
+                    <span className="estagio-cor" style={{ backgroundColor: estagio.cor }} />
+                    <span className="estagio-ordem">{estagio.ordem}.</span>
+                    <span className="estagio-nome">{estagio.nome}</span>
+                  </div>
+                  <div className="estagio-acoes">
+                    <button className="btn-small" onClick={() => abrirFormEstagio(estagio)}>
+                      Editar
+                    </button>
+                    <button className="btn-small btn-danger" onClick={() => excluirEstagio(estagio.id)}>
+                      Excluir
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="estagio-form-inline">
+              <h3>{editEstagio ? 'Editar Estágio' : 'Novo Estágio'}</h3>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Nome *</label>
+                  <input
+                    type="text"
+                    value={formNome}
+                    onChange={e => setFormNome(e.target.value)}
+                    placeholder="Ex: Novo, Contato, Proposta..."
+                  />
+                </div>
+                <div className="form-group" style={{ maxWidth: 100 }}>
+                  <label>Ordem</label>
+                  <input
+                    type="number"
+                    value={formOrdem}
+                    onChange={e => setFormOrdem(parseInt(e.target.value) || 1)}
+                    min={1}
+                  />
+                </div>
+                <div className="form-group" style={{ maxWidth: 100 }}>
+                  <label>Cor</label>
+                  <input
+                    type="color"
+                    value={formCor}
+                    onChange={e => setFormCor(e.target.value)}
+                    style={{ height: 38, padding: 2, cursor: 'pointer' }}
+                  />
+                </div>
+              </div>
+
+              {erroEstagio && <div className="erro">{erroEstagio}</div>}
+
+              <div className="form-actions">
+                {editEstagio && (
+                  <button
+                    className="btn-secondary"
+                    onClick={() => { setEditEstagio(null); setFormNome(''); setFormCor('#3b82f6'); setFormOrdem(estagios.length + 1); }}
+                  >
+                    Cancelar
+                  </button>
+                )}
+                <button className="btn-primary" onClick={salvarEstagio}>
+                  {editEstagio ? 'Atualizar' : 'Criar'}
+                </button>
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setShowEstagios(false)}>
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

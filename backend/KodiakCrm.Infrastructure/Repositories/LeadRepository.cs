@@ -80,7 +80,8 @@ public class LeadRepository : ILeadRepository
                    l.temperatura, l.id_estagio, l.id_parceiro, l.observacao,
                    l.responsavel_id, l.responsavel_nome, l.responsavel_avatar,
                    l.ativo, l.data_cadastro,
-                   u.nome as responsavel_nome, u.avatar as responsavel_avatar
+                   COALESCE(u.nome, l.responsavel_nome) as responsavel_nome,
+                   COALESCE(u.avatar, l.responsavel_avatar) as responsavel_avatar
             FROM lead l
             LEFT JOIN usuario u ON l.responsavel_id = u.id
             {whereClause}
@@ -102,10 +103,12 @@ public class LeadRepository : ILeadRepository
         const string sql = @"
             INSERT INTO lead (id_empresa, id_estabelecimento, cnpj_empresa,
                               nome, empresa, email, telefone, source, status,
-                              temperatura, id_estagio, id_parceiro, observacao, responsavel_id)
+                              temperatura, id_estagio, id_parceiro, observacao,
+                              responsavel_id, responsavel_nome, responsavel_avatar, ativo)
             VALUES (@IdEmpresa, @IdEstabelecimento, @CnpjEmpresa,
                     @Nome, @Empresa, @Email, @Telefone, @Source, @Status,
-                    @Temperatura, @IdEstagio, @IdParceiro, @Observacao, @ResponsavelId)
+                    @Temperatura, @IdEstagio, @IdParceiro, @Observacao,
+                    @ResponsavelId, @ResponsavelNome, @ResponsavelAvatar, @Ativo)
             RETURNING id";
 
         return await connection.ExecuteScalarAsync<int>(sql, new
@@ -123,7 +126,10 @@ public class LeadRepository : ILeadRepository
             lead.IdEstagio,
             lead.IdParceiro,
             lead.Observacao,
-            lead.ResponsavelId
+            lead.ResponsavelId,
+            lead.ResponsavelNome,
+            lead.ResponsavelAvatar,
+            Ativo = true
         });
     }
 
@@ -142,7 +148,9 @@ public class LeadRepository : ILeadRepository
                 id_estagio = @IdEstagio,
                 id_parceiro = @IdParceiro,
                 observacao = @Observacao,
-                responsavel_id = @ResponsavelId
+                responsavel_id = @ResponsavelId,
+                responsavel_nome = @ResponsavelNome,
+                responsavel_avatar = @ResponsavelAvatar
             WHERE id = @Id AND id_empresa = @IdEmpresa";
 
         await connection.ExecuteAsync(sql, new
@@ -159,7 +167,9 @@ public class LeadRepository : ILeadRepository
             lead.IdEstagio,
             lead.IdParceiro,
             lead.Observacao,
-            lead.ResponsavelId
+            lead.ResponsavelId,
+            lead.ResponsavelNome,
+            lead.ResponsavelAvatar
         });
     }
 

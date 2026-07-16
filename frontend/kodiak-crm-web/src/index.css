@@ -735,6 +735,65 @@ button:disabled {
   transform: rotate(2deg);
 }
 
+/* Estágios do Pipeline */
+.estagios-lista {
+  margin-bottom: 1.5rem;
+}
+
+.estagio-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  background: var(--surface);
+}
+
+.estagio-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.estagio-cor {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.estagio-ordem {
+  color: var(--text-muted);
+  font-weight: 600;
+  min-width: 20px;
+}
+
+.estagio-nome {
+  font-weight: 500;
+}
+
+.estagio-acoes {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.estagio-form-inline {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+.estagio-form-inline h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.modal-lg {
+  max-width: 600px;
+}
+
 .kanban-coluna-hover {
   background: var(--background);
   outline: 2px dashed var(--primary);

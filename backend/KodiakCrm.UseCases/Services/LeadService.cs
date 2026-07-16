@@ -64,6 +64,14 @@ public class LeadService
             Observacao = dto.Observacao
         };
 
+        if (lead.IdEstagio == null)
+        {
+            var estagios = await _leadRepository.ObterEstagiosAsync(idEmpresa);
+            var estagioNovo = estagios.FirstOrDefault(e => e.Nome.ToLower() == "novo");
+            if (estagioNovo != null)
+                lead.IdEstagio = estagioNovo.Id;
+        }
+
         var id = await _leadRepository.CriarAsync(lead);
         lead.Id = id;
 
@@ -152,6 +160,32 @@ public class LeadService
     {
         var estagios = await _leadRepository.ObterEstagiosAsync(idEmpresa);
 
+        if (estagios.Count == 0)
+        {
+            var defaults = new[]
+            {
+                new { Nome = "Novo", Ordem = 1, Cor = "#3b82f6" },
+                new { Nome = "Contato", Ordem = 2, Cor = "#f59e0b" },
+                new { Nome = "Qualificado", Ordem = 3, Cor = "#10b981" },
+                new { Nome = "Proposta", Ordem = 4, Cor = "#8b5cf6" },
+                new { Nome = "Ganho", Ordem = 5, Cor = "#22c55e" },
+                new { Nome = "Perdido", Ordem = 6, Cor = "#ef4444" },
+            };
+
+            foreach (var d in defaults)
+            {
+                await _leadRepository.CriarEstagioAsync(new LeadEstagio
+                {
+                    IdEmpresa = idEmpresa,
+                    Nome = d.Nome,
+                    Ordem = d.Ordem,
+                    Cor = d.Cor
+                });
+            }
+
+            estagios = await _leadRepository.ObterEstagiosAsync(idEmpresa);
+        }
+
         var kanban = new LeadKanbanDTO
         {
             Estagios = estagios.Select(e => new LeadEstagioDTO
@@ -183,6 +217,33 @@ public class LeadService
     public async Task<List<LeadEstagioDTO>> ObterEstagiosAsync(string idEmpresa)
     {
         var estagios = await _leadRepository.ObterEstagiosAsync(idEmpresa);
+
+        if (estagios.Count == 0)
+        {
+            var defaults = new[]
+            {
+                new { Nome = "Novo", Ordem = 1, Cor = "#3b82f6" },
+                new { Nome = "Contato", Ordem = 2, Cor = "#f59e0b" },
+                new { Nome = "Qualificado", Ordem = 3, Cor = "#10b981" },
+                new { Nome = "Proposta", Ordem = 4, Cor = "#8b5cf6" },
+                new { Nome = "Ganho", Ordem = 5, Cor = "#22c55e" },
+                new { Nome = "Perdido", Ordem = 6, Cor = "#ef4444" },
+            };
+
+            foreach (var d in defaults)
+            {
+                await _leadRepository.CriarEstagioAsync(new LeadEstagio
+                {
+                    IdEmpresa = idEmpresa,
+                    Nome = d.Nome,
+                    Ordem = d.Ordem,
+                    Cor = d.Cor
+                });
+            }
+
+            estagios = await _leadRepository.ObterEstagiosAsync(idEmpresa);
+        }
+
         return estagios.Select(e => new LeadEstagioDTO
         {
             Id = e.Id,
