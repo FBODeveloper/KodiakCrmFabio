@@ -51,11 +51,11 @@ public class DashboardRepository : IDashboardRepository
     {
         using var connection = _database.GetConnection();
         const string sql = @"
-            SELECT Status, COUNT(*) as Quantidade
+            SELECT status, COUNT(*) as Quantidade
             FROM lead 
             WHERE id_empresa = @IdEmpresa AND ativo = true
-            GROUP BY Status
-            ORDER BY Status";
+            GROUP BY status
+            ORDER BY status";
 
         return (await connection.QueryAsync<DashboardLeadsPorStatusDTO>(sql, new { IdEmpresa = idEmpresa })).ToList();
     }
@@ -64,11 +64,11 @@ public class DashboardRepository : IDashboardRepository
     {
         using var connection = _database.GetConnection();
         const string sql = @"
-            SELECT Tipo, COUNT(*) as Quantidade
+            SELECT tipo, COUNT(*) as Quantidade
             FROM atividade 
             WHERE id_empresa = @IdEmpresa AND ativo = true
-            GROUP BY Tipo
-            ORDER BY Tipo";
+            GROUP BY tipo
+            ORDER BY tipo";
 
         return (await connection.QueryAsync<DashboardAtividadesDTO>(sql, new { IdEmpresa = idEmpresa })).ToList();
     }
@@ -77,7 +77,7 @@ public class DashboardRepository : IDashboardRepository
     {
         using var connection = _database.GetConnection();
         const string sql = @"
-            SELECT Id, Nome, Empresa, Telefone, Status, DataCadastro
+            SELECT id, nome, empresa, telefone, status, data_cadastro as DataCadastro
             FROM lead 
             WHERE id_empresa = @IdEmpresa AND ativo = true
             ORDER BY data_cadastro DESC
