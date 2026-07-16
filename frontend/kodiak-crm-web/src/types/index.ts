@@ -313,6 +313,25 @@ export interface ClienteDTO {
   idEmpresa: string;
 }
 
+export interface ContatoDTO {
+  id: number;
+  nome: string;
+  cargo?: string;
+  email?: string;
+  telefone?: string;
+  celular?: string;
+  idCliente?: number;
+  clienteNome?: string;
+  idParceiro?: number;
+  parceiroNome?: string;
+  observacao?: string;
+  responsavelId?: number;
+  responsavelNome?: string;
+  ativo: boolean;
+  dataCadastro: string;
+  idEmpresa: string;
+}
+
 export interface PaginatedResponse<T> {
   itens: T[];
   total: number;

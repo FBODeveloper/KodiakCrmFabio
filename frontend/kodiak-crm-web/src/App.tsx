@@ -23,6 +23,8 @@ import PropostaForm from './pages/PropostaForm';
 import HistoricoPage from './pages/HistoricoPage';
 import Clientes from './pages/Clientes';
 import ClienteForm from './pages/ClienteForm';
+import Contatos from './pages/Contatos';
+import ContatoForm from './pages/ContatoForm';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -86,6 +88,10 @@ function AppRoutes() {
         <Route path="clientes" element={<Clientes />} />
         <Route path="clientes/novo" element={<ClienteForm />} />
         <Route path="clientes/:id" element={<ClienteForm />} />
+
+        <Route path="contatos" element={<Contatos />} />
+        <Route path="contatos/novo" element={<ContatoForm />} />
+        <Route path="contatos/:id" element={<ContatoForm />} />
       </Route>
       
       <Route path="*" element={<Navigate to="/" />} />
