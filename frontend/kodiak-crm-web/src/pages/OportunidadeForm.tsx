@@ -17,8 +17,12 @@ export default function OportunidadeForm() {
     funilId: '',
     valor: '',
     dataPrevisao: '',
-    observacao: ''
+    observacao: '',
+    motivoPerda: ''
   });
+  const [showPerder, setShowPerder] = useState(false);
+  const [motivoPerdaInput, setMotivoPerdaInput] = useState('');
+  const [perdendo, setPerdendo] = useState(false);
 
   const isEdicao = !!id;
 
@@ -58,7 +62,8 @@ export default function OportunidadeForm() {
         funilId: data.funilId?.toString() || '',
         valor: data.valor?.toString() || '',
         dataPrevisao: data.dataPrevisao?.split('T')[0] || '',
-        observacao: data.observacao || ''
+        observacao: data.observacao || '',
+        motivoPerda: data.motivoPerda || ''
       });
       if (data.funilId) {
         carregarEstagios(data.funilId);
@@ -89,7 +94,8 @@ export default function OportunidadeForm() {
         idEstagio: form.idEstagio ? parseInt(form.idEstagio) : null,
         valor: form.valor ? parseFloat(form.valor) : null,
         dataPrevisao: form.dataPrevisao || null,
-        observacao: form.observacao || null
+        observacao: form.observacao || null,
+        motivoPerda: form.motivoPerda || null
       };
 
       if (isEdicao) {
@@ -105,6 +111,29 @@ export default function OportunidadeForm() {
     }
   };
 
+  const handleMarcarPerdida = async () => {
+    if (!id) return;
+    setPerdendo(true);
+    setErro('');
+
+    try {
+      await api.put(`/oportunidade/${id}`, {
+        titulo: form.titulo,
+        idParceiro: form.idParceiro ? parseInt(form.idParceiro) : null,
+        idEstagio: form.idEstagio ? parseInt(form.idEstagio) : null,
+        valor: form.valor ? parseFloat(form.valor) : null,
+        dataPrevisao: form.dataPrevisao || null,
+        observacao: form.observacao || null,
+        motivoPerda: motivoPerdaInput || null
+      });
+      navigate('/oportunidades');
+    } catch (error: any) {
+      setErro(error.response?.data?.mensagem || 'Erro ao marcar como perdida');
+    } finally {
+      setPerdendo(false);
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -113,10 +142,23 @@ export default function OportunidadeForm() {
     <div className="pagina">
       <div className="pagina-header">
         <h1>{isEdicao ? 'Editar Oportunidade' : 'Nova Oportunidade'}</h1>
-        <button onClick={() => navigate('/oportunidades')} className="btn-secondary">
-          Voltar
-        </button>
+        <div className="header-actions">
+          {isEdicao && !form.motivoPerda && (
+            <button onClick={() => setShowPerder(true)} className="btn-danger">
+              Marcar como Perdida
+            </button>
+          )}
+          <button onClick={() => navigate('/oportunidades')} className="btn-secondary">
+            Voltar
+          </button>
+        </div>
       </div>
+      
+      {form.motivoPerda && (
+        <div className="alert alert-danger">
+          <strong>Perdida:</strong> {form.motivoPerda}
+        </div>
+      )}
       
       <form onSubmit={handleSubmit} className="form">
         <div className="form-group">
@@ -194,6 +236,46 @@ export default function OportunidadeForm() {
           </button>
         </div>
       </form>
+
+      {showPerder && (
+        <div className="modal-overlay" onClick={() => setShowPerder(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h2>Marcar Oportunidade como Perdida</h2>
+            <p className="modal-subtitle">
+              Tem certeza que deseja marcar esta oportunidade como perdida?
+            </p>
+
+            <div className="form">
+              <div className="form-group">
+                <label>Motivo da Perda</label>
+                <textarea
+                  value={motivoPerdaInput}
+                  onChange={e => setMotivoPerdaInput(e.target.value)}
+                  rows={3}
+                  placeholder="Descreva o motivo da perda..."
+                />
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button
+                className="btn-secondary"
+                onClick={() => setShowPerder(false)}
+                disabled={perdendo}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn-danger"
+                onClick={handleMarcarPerdida}
+                disabled={perdendo}
+              >
+                {perdendo ? 'Salvando...' : 'Confirmar Perda'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

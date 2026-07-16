@@ -170,6 +170,7 @@ public class OportunidadeService
         oportunidade.DataPrevisao = dto.DataPrevisao;
         oportunidade.ResponsavelId = dto.ResponsavelId;
         oportunidade.Observacao = dto.Observacao;
+        oportunidade.MotivoPerda = dto.MotivoPerda;
 
         await _repository.AtualizarAsync(oportunidade);
 
@@ -229,6 +230,7 @@ public class OportunidadeService
             DataPrevisao = oportunidade.DataPrevisao,
             ResponsavelId = oportunidade.ResponsavelId,
             Observacao = oportunidade.Observacao,
+            MotivoPerda = oportunidade.MotivoPerda,
             Ativo = oportunidade.Ativo,
             DataCadastro = oportunidade.DataCadastro
         };

@@ -178,6 +178,7 @@ export interface Oportunidade {
   responsavelId?: number;
   responsavelNome?: string;
   observacao?: string;
+  motivoPerda?: string;
   ativo: boolean;
   dataCadastro: string;
   idEmpresa: string;

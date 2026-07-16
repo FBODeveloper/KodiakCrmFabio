@@ -66,7 +66,12 @@ export default function Oportunidades() {
             <tbody>
               {oportunidades.map((oportunidade) => (
                 <tr key={oportunidade.id}>
-                  <td>{oportunidade.titulo}</td>
+                  <td>
+                    {oportunidade.titulo}
+                    {oportunidade.motivoPerda && (
+                      <span className="badge-perdida">Perdida</span>
+                    )}
+                  </td>
                   <td>{oportunidade.parceiroNome || '-'}</td>
                   <td>{oportunidade.estagioNome || '-'}</td>
                   <td>

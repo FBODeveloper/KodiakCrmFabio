@@ -44,6 +44,7 @@ public class OportunidadeDTO
     public int? ResponsavelId { get; set; }
     public string? ResponsavelNome { get; set; }
     public string? Observacao { get; set; }
+    public string? MotivoPerda { get; set; }
     public bool Ativo { get; set; }
     public DateTime DataCadastro { get; set; }
     public string IdEmpresa { get; set; } = string.Empty;
@@ -68,6 +69,7 @@ public class OportunidadeUpdateDTO
     public DateTime? DataPrevisao { get; set; }
     public int? ResponsavelId { get; set; }
     public string? Observacao { get; set; }
+    public string? MotivoPerda { get; set; }
 }
 
 public class OportunidadeMoverDTO

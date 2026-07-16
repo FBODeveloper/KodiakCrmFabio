@@ -25,4 +25,5 @@ public class Oportunidade : BaseEntity
     public DateTime? DataPrevisao { get; set; }
     public int? ResponsavelId { get; set; }
     public string? Observacao { get; set; }
+    public string? MotivoPerda { get; set; }
 }

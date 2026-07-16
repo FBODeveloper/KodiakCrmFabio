@@ -114,7 +114,7 @@ public class OportunidadeRepository : IOportunidadeRepository
         const string sql = @"
             SELECT id, id_empresa, id_estabelecimento, cnpj_empresa,
                    titulo, id_parceiro, id_estagio, valor,
-                   data_previsao, responsavel_id, observacao, ativo, data_cadastro
+                   data_previsao, responsavel_id, observacao, motivo_perda, ativo, data_cadastro
             FROM oportunidade 
             WHERE id = @Id AND id_empresa = @IdEmpresa";
 
@@ -157,7 +157,7 @@ public class OportunidadeRepository : IOportunidadeRepository
         var sql = $@"
             SELECT o.id, o.id_empresa, o.id_estabelecimento, o.cnpj_empresa,
                    o.titulo, o.id_parceiro, o.id_estagio, o.valor,
-                   o.data_previsao, o.responsavel_id, o.observacao, o.ativo, o.data_cadastro,
+                   o.data_previsao, o.responsavel_id, o.observacao, o.motivo_perda, o.ativo, o.data_cadastro,
                    p.razao_social as parceiro_nome,
                    fe.nome as estagio_nome,
                    f.id as funil_id, f.nome as funil_nome,
@@ -186,7 +186,7 @@ public class OportunidadeRepository : IOportunidadeRepository
         const string sql = @"
             SELECT id, id_empresa, id_estabelecimento, cnpj_empresa,
                    titulo, id_parceiro, id_estagio, valor,
-                   data_previsao, responsavel_id, observacao, ativo, data_cadastro
+                   data_previsao, responsavel_id, observacao, motivo_perda, ativo, data_cadastro
             FROM oportunidade 
             WHERE id_estagio = @IdEstagio AND id_empresa = @IdEmpresa AND ativo = true
             ORDER BY data_cadastro DESC";
@@ -200,10 +200,10 @@ public class OportunidadeRepository : IOportunidadeRepository
         const string sql = @"
             INSERT INTO oportunidade (id_empresa, id_estabelecimento, cnpj_empresa,
                                       titulo, id_parceiro, id_estagio, valor,
-                                      data_previsao, responsavel_id, observacao)
+                                      data_previsao, responsavel_id, observacao, motivo_perda)
             VALUES (@IdEmpresa, @IdEstabelecimento, @CnpjEmpresa,
                     @Titulo, @IdParceiro, @IdEstagio, @Valor,
-                    @DataPrevisao, @ResponsavelId, @Observacao)
+                    @DataPrevisao, @ResponsavelId, @Observacao, @MotivoPerda)
             RETURNING id";
 
         return await connection.ExecuteScalarAsync<int>(sql, new
@@ -217,7 +217,8 @@ public class OportunidadeRepository : IOportunidadeRepository
             oportunidade.Valor,
             oportunidade.DataPrevisao,
             oportunidade.ResponsavelId,
-            oportunidade.Observacao
+            oportunidade.Observacao,
+            oportunidade.MotivoPerda
         });
     }
 
@@ -232,7 +233,8 @@ public class OportunidadeRepository : IOportunidadeRepository
                 valor = @Valor,
                 data_previsao = @DataPrevisao,
                 responsavel_id = @ResponsavelId,
-                observacao = @Observacao
+                observacao = @Observacao,
+                motivo_perda = @MotivoPerda
             WHERE id = @Id AND id_empresa = @IdEmpresa";
 
         await connection.ExecuteAsync(sql, new
@@ -245,7 +247,8 @@ public class OportunidadeRepository : IOportunidadeRepository
             oportunidade.Valor,
             oportunidade.DataPrevisao,
             oportunidade.ResponsavelId,
-            oportunidade.Observacao
+            oportunidade.Observacao,
+            oportunidade.MotivoPerda
         });
     }
 }
