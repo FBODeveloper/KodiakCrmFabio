@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../api/axios';
 import type { Lead, LeadStats, PaginatedResponse } from '../types';
@@ -10,10 +10,8 @@ export default function Leads() {
   const [stats, setStats] = useState<LeadStats | null>(null);
   const [pagina, setPagina] = useState(1);
   const [busca, setBusca] = useState('');
-  const [filtros, setFiltros] = useState<Record<string, string>>({status: '', temperatura: '', dataInicio: '', dataFim: ''});
+  const [filtros, setFiltros] = useState<Record<string, string>>({status: '', temperatura: '', responsavel: '', dataInicio: '', dataFim: ''});
   const [carregando, setCarregando] = useState(true);
-  const [dropdownAberto, setDropdownAberto] = useState<number | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -40,6 +38,12 @@ export default function Leads() {
         { valor: 'frio', label: 'Frio' },
       ],
     },
+    {
+      campo: 'responsavel',
+      label: 'Responsável',
+      tipo: 'texto',
+      placeholder: 'Buscar por responsável...',
+    },
     { campo: 'dataInicio', label: 'Data Inicio', tipo: 'data' },
     { campo: 'dataFim', label: 'Data Fim', tipo: 'data' },
   ];
@@ -49,21 +53,11 @@ export default function Leads() {
     carregarStats();
   }, [pagina, busca, filtros]);
 
-  useEffect(() => {
-    const handleClickFora = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownAberto(null);
-      }
-    };
-    document.addEventListener('mousedown', handleClickFora);
-    return () => document.removeEventListener('mousedown', handleClickFora);
-  }, []);
-
   const carregarLeads = async () => {
     setCarregando(true);
     try {
       const response = await api.get<PaginatedResponse<Lead>>('/lead', {
-        params: { pagina, itensPorPagina: 20, busca, ...filtros }
+        params: { pagina, itensPorPagina: 50, busca, ...filtros }
       });
       setLeads(response.data.itens);
       setTotal(response.data.total);
@@ -114,7 +108,7 @@ export default function Leads() {
   };
 
   const handleFiltroLimpar = () => {
-    setFiltros({ status: '', temperatura: '', dataInicio: '', dataFim: '' });
+    setFiltros({ status: '', temperatura: '', responsavel: '', dataInicio: '', dataFim: '' });
     setPagina(1);
   };
 
@@ -204,7 +198,7 @@ export default function Leads() {
                 <th>Status</th>
                 <th>Estágio</th>
                 <th>Responsável</th>
-                <th style={{ width: 50 }}></th>
+                <th style={{ width: 100 }}></th>
               </tr>
             </thead>
             <tbody>
@@ -255,29 +249,16 @@ export default function Leads() {
                       ) : '-'}
                     </td>
                     <td>
-                      <div className="dropdown-container" ref={dropdownAberto === lead.id ? dropdownRef : undefined}>
-                        <button
-                          className="dropdown-trigger"
-                          onClick={() => setDropdownAberto(dropdownAberto === lead.id ? null : lead.id)}
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                      <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
+                        <button className="icon-btn" title="Ver" onClick={() => navigate(`/leads/${lead.id}?readonly=true`, { state: { from: location.pathname } })}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
-                        {dropdownAberto === lead.id && (
-                          <div className="dropdown-menu">
-                            <button onClick={() => { setDropdownAberto(null); navigate(`/leads/${lead.id}`, { state: { from: location.pathname } }); }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                              Ver
-                            </button>
-                            <button onClick={() => { setDropdownAberto(null); navigate(`/leads/${lead.id}/editar`, { state: { from: location.pathname } }); }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                              Editar
-                            </button>
-                            <button className="dropdown-danger" onClick={() => { setDropdownAberto(null); excluirLead(lead.id); }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                              Excluir
-                            </button>
-                          </div>
-                        )}
+                        <button className="icon-btn" title="Editar" onClick={() => navigate(`/leads/${lead.id}/editar`, { state: { from: location.pathname } })}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button className="icon-btn icon-btn-danger" title="Excluir" onClick={() => excluirLead(lead.id)}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -290,8 +271,8 @@ export default function Leads() {
             <button disabled={pagina <= 1} onClick={() => setPagina(p => p - 1)}>
               Anterior
             </button>
-            <span>Página {pagina} de {Math.ceil(total / 20) || 1}</span>
-            <button disabled={pagina >= Math.ceil(total / 20)} onClick={() => setPagina(p => p + 1)}>
+            <span>Página {pagina} de {Math.ceil(total / 50) || 1}</span>
+            <button disabled={pagina >= Math.ceil(total / 50)} onClick={() => setPagina(p => p + 1)}>
               Próxima
             </button>
           </div>

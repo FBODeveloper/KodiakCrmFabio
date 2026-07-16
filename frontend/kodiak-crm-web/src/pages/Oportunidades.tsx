@@ -12,6 +12,7 @@ export default function Oportunidades() {
   const [carregando, setCarregando] = useState(true);
   const [valoresFiltro, setValoresFiltro] = useState<Record<string, string>>({
     status: '',
+    responsavel: '',
     dataInicio: '',
     dataFim: '',
   });
@@ -28,6 +29,12 @@ export default function Oportunidades() {
         { valor: 'perdida', label: 'Perdida' },
       ],
     },
+    {
+      campo: 'responsavel',
+      label: 'Responsável',
+      tipo: 'texto',
+      placeholder: 'Buscar por responsável...',
+    },
     { campo: 'dataInicio', label: 'Data Início', tipo: 'data' },
     { campo: 'dataFim', label: 'Data Fim', tipo: 'data' },
   ];
@@ -37,6 +44,7 @@ export default function Oportunidades() {
     try {
       const params: Record<string, string | number> = { pagina, itensPorPagina: 20, busca };
       if (valoresFiltro.status) params.status = valoresFiltro.status;
+      if (valoresFiltro.responsavel) params.responsavel = valoresFiltro.responsavel;
       if (valoresFiltro.dataInicio) params.dataInicio = valoresFiltro.dataInicio;
       if (valoresFiltro.dataFim) params.dataFim = valoresFiltro.dataFim;
 
@@ -60,7 +68,7 @@ export default function Oportunidades() {
   };
 
   const handleLimparFiltros = () => {
-    setValoresFiltro({ status: '', dataInicio: '', dataFim: '' });
+    setValoresFiltro({ status: '', responsavel: '', dataInicio: '', dataFim: '' });
     setPagina(1);
   };
 

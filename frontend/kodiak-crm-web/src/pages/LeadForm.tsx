@@ -1,17 +1,22 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
+import { useAuth } from '../contexts/AuthContext';
 import type { LeadCreate, LeadEstagio, UsuarioGestao, PaginatedResponse } from '../types';
 
 export default function LeadForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const readonly = searchParams.get('readonly') === 'true';
   const origem = (location.state as any)?.from || '/leads';
+  const { usuario, isGerente } = useAuth();
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
   const [estagios, setEstagios] = useState<LeadEstagio[]>([]);
   const [usuarios, setUsuarios] = useState<UsuarioGestao[]>([]);
+  const isEdicao = !!id;
   const [form, setForm] = useState<LeadCreate>({
     nome: '',
     empresa: '',
@@ -19,7 +24,7 @@ export default function LeadForm() {
     telefone: '',
     source: '',
     temperatura: 'frio',
-    responsavelId: undefined,
+    responsavelId: !isEdicao ? usuario?.id : undefined,
     observacao: ''
   });
 
@@ -28,9 +33,7 @@ export default function LeadForm() {
   const [convPrevisao, setConvPrevisao] = useState('');
   const [convObservacao, setConvObservacao] = useState('');
   const [convertendo, setConvertendo] = useState(false);
-  const [leadStatus, setLeadStatus] = useState('novo');
-
-  const isEdicao = !!id;
+  const [leadStatus, setLeadStatus] = useState('em_andamento');
 
   useEffect(() => {
     carregarDados();
@@ -129,7 +132,7 @@ export default function LeadForm() {
   return (
     <div className="pagina">
       <div className="pagina-header">
-        <h1>{isEdicao ? 'Editar Lead' : 'Novo Lead'}</h1>
+        <h1>{readonly ? 'Lead' : isEdicao ? 'Editar Lead' : 'Novo Lead'}</h1>
         <div className="header-actions">
           {podeConverter && (
             <button onClick={() => setShowConverter(true)} className="btn-success">
@@ -152,6 +155,7 @@ export default function LeadForm() {
               value={form.nome}
               onChange={handleChange}
               required
+              disabled={readonly}
             />
           </div>
 
@@ -162,6 +166,7 @@ export default function LeadForm() {
               name="empresa"
               value={form.empresa}
               onChange={handleChange}
+              disabled={readonly}
             />
           </div>
         </div>
@@ -174,6 +179,7 @@ export default function LeadForm() {
               name="email"
               value={form.email}
               onChange={handleChange}
+              disabled={readonly}
             />
           </div>
 
@@ -184,6 +190,7 @@ export default function LeadForm() {
               name="telefone"
               value={form.telefone}
               onChange={handleChange}
+              disabled={readonly}
             />
           </div>
         </div>
@@ -195,6 +202,7 @@ export default function LeadForm() {
               name="temperatura"
               value={form.temperatura}
               onChange={handleChange}
+              disabled={readonly}
             >
               <option value="frio">Frio</option>
               <option value="morno">Morno</option>
@@ -209,6 +217,7 @@ export default function LeadForm() {
                 name="idEstagio"
                 value={form.idEstagio || ''}
                 onChange={handleSelectChange}
+                disabled={readonly}
               >
                 <option value="">Selecione...</option>
                 {estagios.map(estagio => (
@@ -228,6 +237,7 @@ export default function LeadForm() {
               name="responsavelId"
               value={form.responsavelId || ''}
               onChange={handleSelectChange}
+              disabled={readonly || (!isEdicao && !isGerente)}
             >
               <option value="">Sem responsável</option>
               {usuarios.map(usuario => (
@@ -246,6 +256,7 @@ export default function LeadForm() {
               value={form.source}
               onChange={handleChange}
               placeholder="Ex: Site, Indicação, Feira"
+              disabled={readonly}
             />
           </div>
         </div>
@@ -257,16 +268,19 @@ export default function LeadForm() {
             value={form.observacao}
             onChange={handleChange}
             rows={4}
+            disabled={readonly}
           />
         </div>
 
         {erro && <div className="erro">{erro}</div>}
 
-        <div className="form-actions">
-          <button type="submit" className="btn-primary" disabled={carregando}>
-            {carregando ? 'Salvando...' : 'Salvar'}
-          </button>
-        </div>
+        {!readonly && (
+          <div className="form-actions">
+            <button type="submit" className="btn-primary" disabled={carregando}>
+              {carregando ? 'Salvando...' : 'Salvar'}
+            </button>
+          </div>
+        )}
       </form>
 
       {showConverter && (

@@ -65,11 +65,6 @@ export default function Dashboard() {
       
       <div className="dashboard-grid">
         <div className="dashboard-card">
-          <h3>Parceiros</h3>
-          <p className="numero">{resumo?.totalParceiros || 0}</p>
-        </div>
-        
-        <div className="dashboard-card">
           <h3>Leads</h3>
           <p className="numero">{resumo?.totalLeads || 0}</p>
           <p className="subtitulo">{resumo?.leadsNovos || 0} novos</p>

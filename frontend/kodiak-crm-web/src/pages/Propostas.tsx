@@ -78,6 +78,16 @@ export default function Propostas() {
     setPagina(1);
   };
 
+  const handleExcluir = async (id: number) => {
+    if (!confirm('Tem certeza que deseja excluir esta proposta?')) return;
+    try {
+      await api.delete(`/proposta/${id}`);
+      carregarPropostas();
+    } catch (error) {
+      console.error('Erro ao excluir proposta:', error);
+    }
+  };
+
   const statusColors: Record<string, string> = {
     rascunho: '#6b7280',
     enviada: '#3b82f6',
@@ -118,8 +128,9 @@ export default function Propostas() {
           <table className="tabela">
             <thead>
               <tr>
+                <th>Número</th>
                 <th>Título</th>
-                <th>Parceiro</th>
+                <th>Cliente</th>
                 <th>Valor Total</th>
                 <th>Validade</th>
                 <th>Status</th>
@@ -129,8 +140,9 @@ export default function Propostas() {
             <tbody>
               {propostas.map((proposta) => (
                 <tr key={proposta.id}>
+                  <td>{proposta.numero || '-'}</td>
                   <td>{proposta.titulo}</td>
-                  <td>{proposta.parceiroNome || '-'}</td>
+                  <td>{proposta.clienteNome || proposta.parceiroNome || '-'}</td>
                   <td>
                     {proposta.valorTotal
                       ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(proposta.valorTotal)
@@ -148,6 +160,9 @@ export default function Propostas() {
                   <td>
                     <button onClick={() => navigate(`/propostas/${proposta.id}`)}>
                       Editar
+                    </button>
+                    <button onClick={() => handleExcluir(proposta.id)} className="btn-danger btn-small">
+                      Excluir
                     </button>
                   </td>
                 </tr>

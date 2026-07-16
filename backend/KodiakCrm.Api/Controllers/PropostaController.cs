@@ -12,28 +12,37 @@ namespace KodiakCrm.Api.Controllers;
 public class PropostaController : ControllerBase
 {
     private readonly PropostaService _service;
+    private readonly HistoricoService _historico;
 
-    public PropostaController(PropostaService service)
+    public PropostaController(PropostaService service, HistoricoService historico)
     {
         _service = service;
+        _historico = historico;
     }
 
     private string ObterIdEmpresa() => User.FindFirst("id_empresa")?.Value ?? string.Empty;
     private string ObterIdEstabelecimento() => User.FindFirst("id_estabelecimento")?.Value ?? string.Empty;
     private string ObterCnpjEmpresa() => User.FindFirst("cnpj_empresa")?.Value ?? string.Empty;
+    private int? ObterUsuarioId()
+    {
+        var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.TryParse(claim, out var id) ? id : null;
+    }
+    private string ObterUsuarioNome() => User.FindFirst("nome")?.Value ?? string.Empty;
 
     [HttpGet]
     public async Task<ActionResult<PropostaListDTO>> ObterLista(
         [FromQuery] string? busca,
         [FromQuery] string? status,
         [FromQuery] int? idParceiro,
+        [FromQuery] int? clienteId,
         [FromQuery] DateTime? dataInicio,
         [FromQuery] DateTime? dataFim,
         [FromQuery] int pagina = 1,
         [FromQuery] int itensPorPagina = 20)
     {
         var idEmpresa = ObterIdEmpresa();
-        var resultado = await _service.ObterListaAsync(idEmpresa, busca, status, idParceiro, dataInicio, dataFim, pagina, itensPorPagina);
+        var resultado = await _service.ObterListaAsync(idEmpresa, busca, status, idParceiro, clienteId, dataInicio, dataFim, pagina, itensPorPagina);
         return Ok(resultado);
     }
 
@@ -62,6 +71,22 @@ public class PropostaController : ControllerBase
         try
         {
             var proposta = await _service.CriarAsync(dto, idEmpresa, idEstabelecimento, cnpjEmpresa);
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _historico.RegistrarAsync(
+                        idEmpresa, idEstabelecimento, cnpjEmpresa,
+                        "proposta", proposta.Id, "criado",
+                        $"Proposta \"{proposta.Numero}\" criada",
+                        dadosDepois: new { proposta.Numero, proposta.Status, proposta.ValorTotal },
+                        usuarioId: ObterUsuarioId(),
+                        usuarioNome: ObterUsuarioNome());
+                }
+                catch { }
+            });
+
             return CreatedAtAction(nameof(ObterPorId), new { id = proposta.Id }, proposta);
         }
         catch (Exception ex)
@@ -82,6 +107,21 @@ public class PropostaController : ControllerBase
         if (proposta == null)
             return NotFound(new { mensagem = "Proposta não encontrada" });
 
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "proposta", id, "alterado",
+                    $"Proposta \"{proposta.Numero}\" atualizada",
+                    dadosDepois: new { proposta.Numero, proposta.Status, proposta.ValorTotal },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
+        });
+
         return Ok(proposta);
     }
 
@@ -94,7 +134,53 @@ public class PropostaController : ControllerBase
         if (proposta == null)
             return NotFound(new { mensagem = "Proposta não encontrada" });
 
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "proposta", id, "status_alterada",
+                    $"Proposta \"{proposta.Numero}\" status alterado para \"{dto.Status}\"",
+                    dadosDepois: new { proposta.Status },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
+        });
+
         return Ok(proposta);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Excluir(int id)
+    {
+        var idEmpresa = ObterIdEmpresa();
+        var proposta = await _service.ObterPorIdAsync(id, idEmpresa);
+        var excluido = await _service.ExcluirAsync(id, idEmpresa);
+
+        if (!excluido)
+            return NotFound(new { mensagem = "Proposta não encontrada" });
+
+        if (proposta != null)
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _historico.RegistrarAsync(
+                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                        "proposta", id, "excluido",
+                        $"Proposta \"{proposta.Numero}\" excluída",
+                        dadosAntes: new { proposta.Numero, proposta.Status, proposta.ValorTotal },
+                        usuarioId: ObterUsuarioId(),
+                        usuarioNome: ObterUsuarioNome());
+                }
+                catch { }
+            });
+        }
+
+        return NoContent();
     }
 }
 

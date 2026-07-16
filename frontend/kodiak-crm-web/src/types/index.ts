@@ -248,10 +248,18 @@ export interface Atividade {
 export interface Proposta {
   id: number;
   titulo: string;
+  numero?: string;
+  dataProposta?: string;
+  formaPagamento?: string;
+  prazoEntrega?: string;
   idParceiro?: number;
   parceiroNome?: string;
   idOportunidade?: number;
   oportunidadeTitulo?: string;
+  clienteId?: number;
+  clienteNome?: string;
+  contatoId?: number;
+  contatoNome?: string;
   valorTotal?: number;
   dataValidade?: string;
   status: string;

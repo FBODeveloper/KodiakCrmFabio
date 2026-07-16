@@ -549,6 +549,7 @@ button:disabled {
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   margin-bottom: 1rem;
+  overflow: hidden;
 }
 
 .itens-section h3 {
@@ -564,6 +565,7 @@ button:disabled {
   margin-bottom: 0.75rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--border);
+  overflow: hidden;
 }
 
 .item-row:last-of-type {
@@ -916,6 +918,33 @@ button:disabled {
 
 .dropdown-danger:hover {
   background: rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Inline Action Buttons */
+.icon-btn {
+  background: none;
+  border: none;
+  padding: 0.375rem;
+  cursor: pointer;
+  border-radius: 6px;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.icon-btn:hover {
+  background: var(--background);
+  color: var(--text);
+}
+
+.icon-btn.icon-btn-danger {
+  color: var(--danger);
+}
+
+.icon-btn.icon-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
 }
 
 /* Dashboard Row */
@@ -1918,4 +1947,16 @@ button:disabled {
 .filter-limpar:hover {
   border-color: var(--danger);
   color: var(--danger);
+}
+
+/* Proposta Form responsive */
+@media (max-width: 600px) {
+  .item-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .item-row .item-total {
+    text-align: left;
+  }
 }

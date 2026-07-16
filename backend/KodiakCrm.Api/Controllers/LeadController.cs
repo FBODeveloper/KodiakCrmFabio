@@ -276,6 +276,21 @@ public class LeadController : ControllerBase
             if (lead == null)
                 return NotFound(new { mensagem = "Lead não encontrado" });
 
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _historico.RegistrarAsync(
+                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                        "lead", id, "etapa_alterada",
+                        $"Lead \"{lead.Nome}\" movido para estágio {lead.EstagioNome}",
+                        dadosDepois: new { lead.IdEstagio, lead.EstagioNome },
+                        usuarioId: ObterUsuarioId(),
+                        usuarioNome: ObterUsuarioNome());
+                }
+                catch { }
+            });
+
             return Ok(lead);
         }
         catch (Exception ex)

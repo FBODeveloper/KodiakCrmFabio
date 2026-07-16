@@ -22,9 +22,9 @@ public class PropostaService
         return MapearParaDTO(proposta, itens);
     }
 
-    public async Task<PropostaListDTO> ObterListaAsync(string idEmpresa, string? busca, string? status, int? idParceiro, DateTime? dataInicio, DateTime? dataFim, int pagina, int itensPorPagina)
+    public async Task<PropostaListDTO> ObterListaAsync(string idEmpresa, string? busca, string? status, int? idParceiro, int? clienteId, DateTime? dataInicio, DateTime? dataFim, int pagina, int itensPorPagina)
     {
-        var resultado = await _repository.ObterListaAsync(idEmpresa, busca, status, idParceiro, dataInicio, dataFim, pagina, itensPorPagina);
+        var resultado = await _repository.ObterListaAsync(idEmpresa, busca, status, idParceiro, clienteId, dataInicio, dataFim, pagina, itensPorPagina);
         return new PropostaListDTO
         {
             Itens = resultado.Itens.Select(p => MapearParaDTO(p, new List<PropostaItem>())).ToList(),
@@ -36,14 +36,22 @@ public class PropostaService
 
     public async Task<PropostaDTO> CriarAsync(PropostaCreateDTO dto, string idEmpresa, string idEstabelecimento, string cnpjEmpresa)
     {
+        var numero = await _repository.GerarProximoNumeroAsync(idEmpresa);
+
         var proposta = new Proposta
         {
             IdEmpresa = idEmpresa,
             IdEstabelecimento = idEstabelecimento,
             CnpjEmpresa = cnpjEmpresa,
             Titulo = dto.Titulo,
+            Numero = numero,
+            DataProposta = dto.DataProposta,
+            FormaPagamento = dto.FormaPagamento,
+            PrazoEntrega = dto.PrazoEntrega,
             IdParceiro = dto.IdParceiro,
             IdOportunidade = dto.IdOportunidade,
+            ClienteId = dto.ClienteId,
+            ContatoId = dto.ContatoId,
             DataValidade = dto.DataValidade,
             Observacao = dto.Observacao,
             Status = "rascunho"
@@ -91,8 +99,13 @@ public class PropostaService
         if (proposta == null) return null;
 
         proposta.Titulo = dto.Titulo;
+        proposta.DataProposta = dto.DataProposta;
+        proposta.FormaPagamento = dto.FormaPagamento;
+        proposta.PrazoEntrega = dto.PrazoEntrega;
         proposta.IdParceiro = dto.IdParceiro;
         proposta.IdOportunidade = dto.IdOportunidade;
+        proposta.ClienteId = dto.ClienteId;
+        proposta.ContatoId = dto.ContatoId;
         proposta.DataValidade = dto.DataValidade;
         proposta.Observacao = dto.Observacao;
 
@@ -143,6 +156,15 @@ public class PropostaService
         return MapearParaDTO(proposta, itens);
     }
 
+    public async Task<bool> ExcluirAsync(int id, string idEmpresa)
+    {
+        var proposta = await _repository.ObterPorIdAsync(id, idEmpresa);
+        if (proposta == null) return false;
+
+        await _repository.ExcluirAsync(id, idEmpresa);
+        return true;
+    }
+
     private static PropostaDTO MapearParaDTO(Proposta proposta, List<PropostaItem> itens)
     {
         return new PropostaDTO
@@ -150,8 +172,14 @@ public class PropostaService
             Id = proposta.Id,
             IdEmpresa = proposta.IdEmpresa,
             Titulo = proposta.Titulo,
+            Numero = proposta.Numero,
+            DataProposta = proposta.DataProposta,
+            FormaPagamento = proposta.FormaPagamento,
+            PrazoEntrega = proposta.PrazoEntrega,
             IdParceiro = proposta.IdParceiro,
             IdOportunidade = proposta.IdOportunidade,
+            ClienteId = proposta.ClienteId,
+            ContatoId = proposta.ContatoId,
             ValorTotal = proposta.ValorTotal,
             DataValidade = proposta.DataValidade,
             Status = proposta.Status,

@@ -118,6 +118,21 @@ public class ClienteController : ControllerBase
             if (cliente == null)
                 return NotFound(new { mensagem = "Cliente não encontrado" });
 
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _historico.RegistrarAsync(
+                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                        "cliente", id, "alterado",
+                        $"Cliente \"{cliente.RazaoSocial}\" atualizado",
+                        dadosDepois: new { cliente.RazaoSocial, cliente.CnpjCpf, cliente.Email },
+                        usuarioId: ObterUsuarioId(),
+                        usuarioNome: ObterUsuarioNome());
+                }
+                catch { }
+            });
+
             return Ok(cliente);
         }
         catch (Exception ex)
@@ -132,10 +147,29 @@ public class ClienteController : ControllerBase
         try
         {
             var idEmpresa = ObterIdEmpresa();
+            var cliente = await _service.ObterPorIdAsync(id, idEmpresa);
             var excluido = await _service.ExcluirAsync(id, idEmpresa);
 
             if (!excluido)
                 return NotFound(new { mensagem = "Cliente não encontrado" });
+
+            if (cliente != null)
+            {
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _historico.RegistrarAsync(
+                            idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                            "cliente", id, "excluido",
+                            $"Cliente \"{cliente.RazaoSocial}\" excluído",
+                            dadosAntes: new { cliente.RazaoSocial, cliente.CnpjCpf, cliente.Email },
+                            usuarioId: ObterUsuarioId(),
+                            usuarioNome: ObterUsuarioNome());
+                    }
+                    catch { }
+                });
+            }
 
             return NoContent();
         }

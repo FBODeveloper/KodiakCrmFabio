@@ -10,6 +10,7 @@ public static class DapperConfig
     public static void Configure()
     {
         SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+        SqlMapper.AddTypeHandler(new NullableDateOnlyTypeHandler());
         SqlMapper.SetTypeMap(typeof(Usuario), CreateMap<Usuario>());
         SqlMapper.SetTypeMap(typeof(Empresa), CreateMap<Empresa>());
         SqlMapper.SetTypeMap(typeof(Parceiro), CreateMap<Parceiro>());
@@ -61,5 +62,25 @@ public class DateOnlyTypeHandler : SqlMapper.TypeHandler<DateOnly>
     public override void SetValue(System.Data.IDbDataParameter parameter, DateOnly value)
     {
         parameter.Value = value.ToDateTime(TimeOnly.MinValue);
+    }
+}
+
+public class NullableDateOnlyTypeHandler : SqlMapper.TypeHandler<DateOnly?>
+{
+    public override DateOnly? Parse(object value)
+    {
+        return value switch
+        {
+            DateTime dt => DateOnly.FromDateTime(dt),
+            DateOnly d => d,
+            DBNull => null,
+            null => null,
+            _ => throw new InvalidCastException($"Cannot convert {value.GetType()} to DateOnly?")
+        };
+    }
+
+    public override void SetValue(System.Data.IDbDataParameter parameter, DateOnly? value)
+    {
+        parameter.Value = value?.ToDateTime(TimeOnly.MinValue) ?? (object)DBNull.Value;
     }
 }

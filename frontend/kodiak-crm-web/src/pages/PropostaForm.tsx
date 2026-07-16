@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../api/axios';
+import type { ClienteDTO, ContatoDTO } from '../types';
 
 interface PropostaItemForm {
   descricao: string;
@@ -8,41 +9,102 @@ interface PropostaItemForm {
   valorUnitario: number;
 }
 
+interface PropostaFormState {
+  titulo: string;
+  dataProposta: string;
+  formaPagamento: string;
+  prazoEntrega: string;
+  clienteId: string;
+  contatoId: string;
+  idOportunidade: string;
+  dataValidade: string;
+  observacao: string;
+}
+
+const emptyForm: PropostaFormState = {
+  titulo: '',
+  dataProposta: '',
+  formaPagamento: '',
+  prazoEntrega: '',
+  clienteId: '',
+  contatoId: '',
+  idOportunidade: '',
+  dataValidade: '',
+  observacao: ''
+};
+
+const emptyItem: PropostaItemForm = { descricao: '', quantidade: 1, valorUnitario: 0 };
+
 export default function PropostaForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
-  const [form, setForm] = useState({
-    titulo: '',
-    idParceiro: '',
-    idOportunidade: '',
-    dataValidade: '',
-    observacao: ''
-  });
-  const [itens, setItens] = useState<PropostaItemForm[]>([
-    { descricao: '', quantidade: 1, valorUnitario: 0 }
-  ]);
+  const [form, setForm] = useState<PropostaFormState>(emptyForm);
+  const [itens, setItens] = useState<PropostaItemForm[]>([{ ...emptyItem }]);
+  const [numeroGerado, setNumeroGerado] = useState('');
+
+  const [clientes, setClientes] = useState<ClienteDTO[]>([]);
+  const [contatos, setContatos] = useState<ContatoDTO[]>([]);
 
   const isEdicao = !!id;
 
   useEffect(() => {
+    carregarClientes();
     if (id) {
       carregarProposta(parseInt(id));
     }
   }, [id]);
 
+  useEffect(() => {
+    if (form.clienteId) {
+      carregarContatos(parseInt(form.clienteId));
+    } else {
+      setContatos([]);
+      if (form.contatoId) {
+        setForm(prev => ({ ...prev, contatoId: '' }));
+      }
+    }
+  }, [form.clienteId]);
+
+  const carregarClientes = async () => {
+    try {
+      const response = await api.get('/cliente', { params: { itensPorPagina: 9999 } });
+      setClientes(response.data.itens || []);
+    } catch (error) {
+      console.error('Erro ao carregar clientes:', error);
+    }
+  };
+
+  const carregarContatos = async (clienteId: number) => {
+    try {
+      const response = await api.get(`/contato/cliente/${clienteId}`);
+      setContatos(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error('Erro ao carregar contatos:', error);
+      setContatos([]);
+    }
+  };
+
   const carregarProposta = async (propostaId: number) => {
     try {
       const response = await api.get(`/proposta/${propostaId}`);
       const data = response.data;
+      setNumeroGerado(data.numero || '');
       setForm({
-        titulo: data.titulo,
-        idParceiro: data.idParceiro?.toString() || '',
+        titulo: data.titulo || '',
+        dataProposta: data.dataProposta?.split('T')[0] || '',
+        formaPagamento: data.formaPagamento || '',
+        prazoEntrega: data.prazoEntrega || '',
+        clienteId: data.clienteId?.toString() || '',
+        contatoId: data.contatoId?.toString() || '',
         idOportunidade: data.idOportunidade?.toString() || '',
         dataValidade: data.dataValidade?.split('T')[0] || '',
         observacao: data.observacao || ''
       });
+      if (data.clienteId) {
+        await carregarContatos(data.clienteId);
+      }
       if (data.itens && data.itens.length > 0) {
         setItens(data.itens.map((item: any) => ({
           descricao: item.descricao,
@@ -55,6 +117,14 @@ export default function PropostaForm() {
     }
   };
 
+  const resetForm = () => {
+    setForm({ ...emptyForm });
+    setItens([{ ...emptyItem }]);
+    setContatos([]);
+    setNumeroGerado('');
+    setErro('');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
@@ -63,8 +133,12 @@ export default function PropostaForm() {
     try {
       const payload = {
         titulo: form.titulo,
-        idParceiro: form.idParceiro ? parseInt(form.idParceiro) : null,
+        clienteId: form.clienteId ? parseInt(form.clienteId) : null,
+        contatoId: form.contatoId ? parseInt(form.contatoId) : null,
         idOportunidade: form.idOportunidade ? parseInt(form.idOportunidade) : null,
+        dataProposta: form.dataProposta || null,
+        formaPagamento: form.formaPagamento || null,
+        prazoEntrega: form.prazoEntrega || null,
         dataValidade: form.dataValidade || null,
         observacao: form.observacao || null,
         itens: itens.filter(item => item.descricao.trim() !== '').map(item => ({
@@ -79,7 +153,13 @@ export default function PropostaForm() {
       } else {
         await api.post('/proposta', payload);
       }
-      navigate('/propostas');
+
+      if (!isEdicao) {
+        resetForm();
+        setErro('');
+      } else {
+        navigate('/propostas');
+      }
     } catch (error: any) {
       setErro(error.response?.data?.mensagem || 'Erro ao salvar proposta');
     } finally {
@@ -98,7 +178,7 @@ export default function PropostaForm() {
   };
 
   const addItem = () => {
-    setItens([...itens, { descricao: '', quantidade: 1, valorUnitario: 0 }]);
+    setItens([...itens, { ...emptyItem }]);
   };
 
   const removeItem = (index: number) => {
@@ -117,20 +197,40 @@ export default function PropostaForm() {
           Voltar
         </button>
       </div>
-      
+
       <form onSubmit={handleSubmit} className="form">
-        <div className="form-group">
-          <label>Título *</label>
-          <input
-            type="text"
-            name="titulo"
-            value={form.titulo}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
         <div className="form-row">
+          <div className="form-group">
+            <label>Número</label>
+            <input
+              type="text"
+              value={isEdicao ? numeroGerado : '(gerado ao salvar)'}
+              readOnly
+              style={{ backgroundColor: 'var(--background)', cursor: 'not-allowed' }}
+            />
+          </div>
+          <div className="form-group">
+            <label>Título *</label>
+            <input
+              type="text"
+              name="titulo"
+              value={form.titulo}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label>Data da Proposta</label>
+            <input
+              type="date"
+              name="dataProposta"
+              value={form.dataProposta}
+              onChange={handleChange}
+            />
+          </div>
           <div className="form-group">
             <label>Data de Validade</label>
             <input
@@ -141,20 +241,69 @@ export default function PropostaForm() {
             />
           </div>
         </div>
-        
-        <div className="form-group">
-          <label>Observação</label>
-          <textarea
-            name="observacao"
-            value={form.observacao}
-            onChange={handleChange}
-            rows={3}
-          />
+
+        <div className="form-row">
+          <div className="form-group">
+            <label>Cliente</label>
+            <select
+              name="clienteId"
+              value={form.clienteId}
+              onChange={handleChange}
+            >
+              <option value="">Selecione o cliente</option>
+              {clientes.map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.razaoSocial}{c.nomeFantasia ? ` (${c.nomeFantasia})` : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Contato</label>
+            <select
+              name="contatoId"
+              value={form.contatoId}
+              onChange={handleChange}
+              disabled={!form.clienteId}
+            >
+              <option value="">
+                {form.clienteId ? 'Selecione o contato' : 'Selecione um cliente primeiro'}
+              </option>
+              {contatos.map(ct => (
+                <option key={ct.id} value={ct.id}>
+                  {ct.nome}{ct.cargo ? ` - ${ct.cargo}` : ''}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-        
+
+        <div className="form-row">
+          <div className="form-group">
+            <label>Forma de Pagamento</label>
+            <input
+              type="text"
+              name="formaPagamento"
+              value={form.formaPagamento}
+              onChange={handleChange}
+              placeholder="Ex: PIX, Boleto, Cartão..."
+            />
+          </div>
+          <div className="form-group">
+            <label>Prazo de Entrega</label>
+            <input
+              type="text"
+              name="prazoEntrega"
+              value={form.prazoEntrega}
+              onChange={handleChange}
+              placeholder="Ex: 15 dias úteis"
+            />
+          </div>
+        </div>
+
         <div className="itens-section">
           <h3>Itens da Proposta</h3>
-          
+
           {itens.map((item, index) => (
             <div key={index} className="item-row">
               <div className="form-group item-descricao">
@@ -166,7 +315,7 @@ export default function PropostaForm() {
                   placeholder="Descrição do item"
                 />
               </div>
-              
+
               <div className="form-group item-quantidade">
                 <label>Qtd</label>
                 <input
@@ -176,7 +325,7 @@ export default function PropostaForm() {
                   min="1"
                 />
               </div>
-              
+
               <div className="form-group item-valor">
                 <label>Valor Unit.</label>
                 <input
@@ -187,7 +336,7 @@ export default function PropostaForm() {
                   min="0"
                 />
               </div>
-              
+
               <div className="form-group item-total">
                 <label>Total</label>
                 <p className="item-total-valor">
@@ -195,7 +344,7 @@ export default function PropostaForm() {
                     .format(item.quantidade * item.valorUnitario)}
                 </p>
               </div>
-              
+
               {itens.length > 1 && (
                 <button type="button" onClick={() => removeItem(index)} className="btn-danger btn-small">
                   Remover
@@ -203,23 +352,38 @@ export default function PropostaForm() {
               )}
             </div>
           ))}
-          
+
           <button type="button" onClick={addItem} className="btn-secondary">
             + Adicionar Item
           </button>
-          
+
           <div className="proposta-total">
             <strong>Valor Total: </strong>
             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorTotal)}
           </div>
         </div>
-        
+
+        <div className="form-group">
+          <label>Observação</label>
+          <textarea
+            name="observacao"
+            value={form.observacao}
+            onChange={handleChange}
+            rows={3}
+          />
+        </div>
+
         {erro && <div className="erro">{erro}</div>}
-        
+
         <div className="form-actions">
           <button type="submit" className="btn-primary" disabled={carregando}>
             {carregando ? 'Salvando...' : 'Salvar'}
           </button>
+          {!isEdicao && (
+            <button type="button" className="btn-secondary" onClick={resetForm}>
+              Limpar
+            </button>
+          )}
         </div>
       </form>
     </div>

@@ -5,10 +5,16 @@ namespace KodiakCrm.Core.Entities;
 public class Proposta : BaseEntity
 {
     public string Titulo { get; set; } = string.Empty;
+    public string? Numero { get; set; }
+    public DateOnly? DataProposta { get; set; }
+    public string? FormaPagamento { get; set; }
+    public string? PrazoEntrega { get; set; }
     public int? IdParceiro { get; set; }
     public int? IdOportunidade { get; set; }
+    public int? ClienteId { get; set; }
+    public int? ContatoId { get; set; }
     public decimal? ValorTotal { get; set; }
-    public DateTime? DataValidade { get; set; }
+    public DateOnly? DataValidade { get; set; }
     public string Status { get; set; } = "rascunho";
     public string? Observacao { get; set; }
 }

@@ -12,10 +12,12 @@ namespace KodiakCrm.Api.Controllers;
 public class AtividadeController : ControllerBase
 {
     private readonly AtividadeService _service;
+    private readonly HistoricoService _historico;
 
-    public AtividadeController(AtividadeService service)
+    public AtividadeController(AtividadeService service, HistoricoService historico)
     {
         _service = service;
+        _historico = historico;
     }
 
     private string ObterIdEmpresa() => User.FindFirst("id_empresa")?.Value ?? string.Empty;
@@ -26,6 +28,7 @@ public class AtividadeController : ControllerBase
         var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         return int.TryParse(claim, out var id) ? id : null;
     }
+    private string ObterUsuarioNome() => User.FindFirst("nome")?.Value ?? string.Empty;
 
     [HttpGet]
     public async Task<ActionResult<AtividadeListDTO>> ObterLista(
@@ -79,6 +82,22 @@ public class AtividadeController : ControllerBase
         try
         {
             var atividade = await _service.CriarAsync(dto, idEmpresa, idEstabelecimento, cnpjEmpresa, responsavelId);
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _historico.RegistrarAsync(
+                        idEmpresa, idEstabelecimento, cnpjEmpresa,
+                        "atividade", atividade.Id, "criado",
+                        $"Atividade \"{atividade.Titulo}\" criada",
+                        dadosDepois: new { atividade.Titulo, atividade.Tipo, atividade.DataInicio },
+                        usuarioId: responsavelId,
+                        usuarioNome: ObterUsuarioNome());
+                }
+                catch { }
+            });
+
             return CreatedAtAction(nameof(ObterPorId), new { id = atividade.Id }, atividade);
         }
         catch (Exception ex)
@@ -98,6 +117,21 @@ public class AtividadeController : ControllerBase
 
         if (atividade == null)
             return NotFound(new { mensagem = "Atividade não encontrada" });
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "atividade", id, "alterado",
+                    $"Atividade \"{atividade.Titulo}\" atualizada",
+                    dadosDepois: new { atividade.Titulo, atividade.Tipo, atividade.Concluida },
+                    usuarioId: ObterResponsavelId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
+        });
 
         return Ok(atividade);
     }

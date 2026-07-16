@@ -7,16 +7,23 @@ export default function AtividadeForm() {
   const navigate = useNavigate();
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
-  const [form, setForm] = useState({
-    tipo: 'ligacao',
-    titulo: '',
-    descricao: '',
-    idParceiro: '',
-    dataInicio: '',
-    dataFim: ''
-  });
+  const formatarDateTimeLocal = (date: Date) => {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  };
 
   const isEdicao = !!id;
+  const [form, setForm] = useState(() => {
+    const now = formatarDateTimeLocal(new Date());
+    return {
+      tipo: 'ligacao',
+      titulo: '',
+      descricao: '',
+      idParceiro: '',
+      dataInicio: now,
+      dataFim: ''
+    };
+  });
 
   useEffect(() => {
     if (id) {

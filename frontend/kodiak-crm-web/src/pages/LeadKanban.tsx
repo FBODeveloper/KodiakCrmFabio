@@ -130,6 +130,16 @@ export default function LeadKanban() {
     }
   };
 
+  const excluirLead = async (id: number) => {
+    if (!confirm('Deseja excluir este lead?')) return;
+    try {
+      await api.delete(`/lead/${id}`);
+      carregarKanban();
+    } catch (error) {
+      console.error('Erro ao excluir lead:', error);
+    }
+  };
+
   const handleDragStart = (e: React.DragEvent, leadId: number) => {
     e.dataTransfer.setData('text/plain', leadId.toString());
     e.dataTransfer.effectAllowed = 'move';
@@ -281,12 +291,15 @@ export default function LeadKanban() {
                       <p className="kanban-card-contato">{lead.email}</p>
                     )}
 
-                    <div className="kanban-card-acoes">
-                      <button
-                        onClick={() => navigate(`/leads/${lead.id}`, { state: { from: location.pathname } })}
-                        className="btn-small"
-                      >
-                        Ver
+                    <div className="kanban-card-acoes" style={{ display: 'flex', gap: '2px', justifyContent: 'flex-end' }}>
+                      <button className="icon-btn" title="Ver" onClick={() => navigate(`/leads/${lead.id}?readonly=true`, { state: { from: location.pathname } })}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      </button>
+                      <button className="icon-btn" title="Editar" onClick={() => navigate(`/leads/${lead.id}/editar`, { state: { from: location.pathname } })}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button className="icon-btn icon-btn-danger" title="Excluir" onClick={() => excluirLead(lead.id)}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                       </button>
                     </div>
                   </div>

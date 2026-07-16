@@ -147,6 +147,21 @@ public class ContatoController : ControllerBase
             if (contato == null)
                 return NotFound(new { mensagem = "Contato não encontrado" });
 
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _historico.RegistrarAsync(
+                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                        "contato", id, "alterado",
+                        $"Contato \"{contato.Nome}\" atualizado",
+                        dadosDepois: new { contato.Nome, contato.Cargo, contato.Email },
+                        usuarioId: ObterUsuarioId(),
+                        usuarioNome: ObterUsuarioNome());
+                }
+                catch { }
+            });
+
             return Ok(contato);
         }
         catch (Exception ex)
@@ -161,10 +176,29 @@ public class ContatoController : ControllerBase
         try
         {
             var idEmpresa = ObterIdEmpresa();
+            var contato = await _service.ObterPorIdAsync(id, idEmpresa);
             var excluido = await _service.ExcluirAsync(id, idEmpresa);
 
             if (!excluido)
                 return NotFound(new { mensagem = "Contato não encontrado" });
+
+            if (contato != null)
+            {
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _historico.RegistrarAsync(
+                            idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                            "contato", id, "excluido",
+                            $"Contato \"{contato.Nome}\" excluído",
+                            dadosAntes: new { contato.Nome, contato.Cargo, contato.Email },
+                            usuarioId: ObterUsuarioId(),
+                            usuarioNome: ObterUsuarioNome());
+                    }
+                    catch { }
+                });
+            }
 
             return NoContent();
         }

@@ -73,15 +73,23 @@ public class FunilController : ControllerBase
 public class OportunidadeController : ControllerBase
 {
     private readonly OportunidadeService _service;
+    private readonly HistoricoService _historico;
 
-    public OportunidadeController(OportunidadeService service)
+    public OportunidadeController(OportunidadeService service, HistoricoService historico)
     {
         _service = service;
+        _historico = historico;
     }
 
     private string ObterIdEmpresa() => User.FindFirst("id_empresa")?.Value ?? string.Empty;
     private string ObterIdEstabelecimento() => User.FindFirst("id_estabelecimento")?.Value ?? string.Empty;
     private string ObterCnpjEmpresa() => User.FindFirst("cnpj_empresa")?.Value ?? string.Empty;
+    private int? ObterUsuarioId()
+    {
+        var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.TryParse(claim, out var id) ? id : null;
+    }
+    private string ObterUsuarioNome() => User.FindFirst("nome")?.Value ?? string.Empty;
 
     [HttpGet]
     public async Task<ActionResult<OportunidadeListDTO>> ObterLista(
@@ -139,6 +147,22 @@ public class OportunidadeController : ControllerBase
         try
         {
             var oportunidade = await _service.CriarAsync(dto, idEmpresa, idEstabelecimento, cnpjEmpresa);
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _historico.RegistrarAsync(
+                        idEmpresa, idEstabelecimento, cnpjEmpresa,
+                        "oportunidade", oportunidade.Id, "criado",
+                        $"Oportunidade \"{oportunidade.Titulo}\" criada",
+                        dadosDepois: new { oportunidade.Titulo, oportunidade.Valor },
+                        usuarioId: ObterUsuarioId(),
+                        usuarioNome: ObterUsuarioNome());
+                }
+                catch { }
+            });
+
             return CreatedAtAction(nameof(ObterPorId), new { id = oportunidade.Id }, oportunidade);
         }
         catch (Exception ex)
@@ -159,6 +183,21 @@ public class OportunidadeController : ControllerBase
         if (oportunidade == null)
             return NotFound(new { mensagem = "Oportunidade não encontrada" });
 
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "oportunidade", id, "alterado",
+                    $"Oportunidade \"{oportunidade.Titulo}\" atualizada",
+                    dadosDepois: new { oportunidade.Titulo, oportunidade.Valor },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
+        });
+
         return Ok(oportunidade);
     }
 
@@ -170,6 +209,21 @@ public class OportunidadeController : ControllerBase
 
         if (oportunidade == null)
             return NotFound(new { mensagem = "Oportunidade não encontrada" });
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "oportunidade", id, "etapa_alterada",
+                    $"Oportunidade \"{oportunidade.Titulo}\" movida para etapa {oportunidade.EstagioNome}",
+                    dadosDepois: new { oportunidade.IdEstagio, oportunidade.EstagioNome },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
+        });
 
         return Ok(oportunidade);
     }
