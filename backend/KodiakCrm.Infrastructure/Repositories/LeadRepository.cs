@@ -29,7 +29,7 @@ public class LeadRepository : ILeadRepository
         return await connection.QueryFirstOrDefaultAsync<Lead>(sql, new { Id = id, IdEmpresa = idEmpresa });
     }
 
-    public async Task<LeadListResult> ObterListaAsync(string idEmpresa, string? busca, string? status, int pagina, int itensPorPagina)
+    public async Task<LeadListResult> ObterListaAsync(string idEmpresa, string? busca, string? status, string? temperatura, DateTime? dataInicio, DateTime? dataFim, int pagina, int itensPorPagina)
     {
         using var connection = _database.GetConnection();
 
@@ -47,6 +47,24 @@ public class LeadRepository : ILeadRepository
         {
             whereClause += " AND l.status = @Status";
             parameters.Add("Status", status);
+        }
+
+        if (!string.IsNullOrWhiteSpace(temperatura))
+        {
+            whereClause += " AND l.temperatura = @Temperatura";
+            parameters.Add("Temperatura", temperatura);
+        }
+
+        if (dataInicio.HasValue)
+        {
+            whereClause += " AND l.data_cadastro >= @DataInicio";
+            parameters.Add("DataInicio", dataInicio.Value);
+        }
+
+        if (dataFim.HasValue)
+        {
+            whereClause += " AND l.data_cadastro <= @DataFim";
+            parameters.Add("DataFim", dataFim.Value.AddDays(1));
         }
 
         var countSql = $"SELECT COUNT(*) FROM lead l {whereClause}";

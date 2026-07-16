@@ -26,7 +26,7 @@ public class AtividadeRepository : IAtividadeRepository
         return await connection.QueryFirstOrDefaultAsync<Atividade>(sql, new { Id = id, IdEmpresa = idEmpresa });
     }
 
-    public async Task<AtividadeListResult> ObterListaAsync(string idEmpresa, string? busca, string? tipo, int? idParceiro, int? idOportunidade, int? responsavelId, bool? concluida, int pagina, int itensPorPagina)
+    public async Task<AtividadeListResult> ObterListaAsync(string idEmpresa, string? busca, string? tipo, int? idParceiro, int? idOportunidade, int? responsavelId, bool? concluida, DateTime? dataInicio, DateTime? dataFim, int pagina, int itensPorPagina)
     {
         using var connection = _database.GetConnection();
 
@@ -68,6 +68,18 @@ public class AtividadeRepository : IAtividadeRepository
         {
             whereClause += " AND a.concluida = @Concluida";
             parameters.Add("Concluida", concluida.Value);
+        }
+
+        if (dataInicio.HasValue)
+        {
+            whereClause += " AND a.data_cadastro >= @DataInicio";
+            parameters.Add("DataInicio", dataInicio.Value);
+        }
+
+        if (dataFim.HasValue)
+        {
+            whereClause += " AND a.data_cadastro <= @DataFim";
+            parameters.Add("DataFim", dataFim.Value);
         }
 
         var countSql = $"SELECT COUNT(*) FROM atividade a {whereClause}";

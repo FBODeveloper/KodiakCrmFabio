@@ -2,25 +2,62 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import type { Proposta, PaginatedResponse } from '../types';
+import FilterBar from '../components/FilterBar';
+import type { FiltroConfig } from '../components/FilterBar';
+
+const filtroConfigs: FiltroConfig[] = [
+  {
+    campo: 'status',
+    label: 'Status',
+    tipo: 'select',
+    opcoes: [
+      { valor: 'rascunho', label: 'Rascunho' },
+      { valor: 'enviada', label: 'Enviada' },
+      { valor: 'aprovada', label: 'Aprovada' },
+      { valor: 'rejeitada', label: 'Rejeitada' },
+    ],
+  },
+  {
+    campo: 'dataInicio',
+    label: 'Data Início',
+    tipo: 'data',
+  },
+  {
+    campo: 'dataFim',
+    label: 'Data Fim',
+    tipo: 'data',
+  },
+];
 
 export default function Propostas() {
   const [propostas, setPropostas] = useState<Proposta[]>([]);
   const [total, setTotal] = useState(0);
   const [pagina, setPagina] = useState(1);
   const [busca, setBusca] = useState('');
-  const [statusFiltro, setStatusFiltro] = useState('');
   const [carregando, setCarregando] = useState(true);
+  const [valoresFiltro, setValoresFiltro] = useState<Record<string, string>>({
+    status: '',
+    dataInicio: '',
+    dataFim: '',
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
     carregarPropostas();
-  }, [pagina, busca, statusFiltro]);
+  }, [pagina, busca, valoresFiltro]);
 
   const carregarPropostas = async () => {
     setCarregando(true);
     try {
       const response = await api.get<PaginatedResponse<Proposta>>('/proposta', {
-        params: { pagina, itensPorPagina: 20, busca, status: statusFiltro }
+        params: {
+          pagina,
+          itensPorPagina: 20,
+          busca,
+          status: valoresFiltro.status || undefined,
+          dataInicio: valoresFiltro.dataInicio || undefined,
+          dataFim: valoresFiltro.dataFim || undefined,
+        },
       });
       setPropostas(response.data.itens);
       setTotal(response.data.total);
@@ -29,6 +66,16 @@ export default function Propostas() {
     } finally {
       setCarregando(false);
     }
+  };
+
+  const handleMudarFiltro = (campo: string, valor: string) => {
+    setValoresFiltro(prev => ({ ...prev, [campo]: valor }));
+    setPagina(1);
+  };
+
+  const handleLimparFiltros = () => {
+    setValoresFiltro({ status: '', dataInicio: '', dataFim: '' });
+    setPagina(1);
   };
 
   const statusColors: Record<string, string> = {
@@ -47,7 +94,7 @@ export default function Propostas() {
           Nova Proposta
         </button>
       </div>
-      
+
       <div className="filtros">
         <input
           type="text"
@@ -55,16 +102,15 @@ export default function Propostas() {
           value={busca}
           onChange={(e) => { setBusca(e.target.value); setPagina(1); }}
         />
-        <select value={statusFiltro} onChange={(e) => { setStatusFiltro(e.target.value); setPagina(1); }}>
-          <option value="">Todos os status</option>
-          <option value="rascunho">Rascunho</option>
-          <option value="enviada">Enviada</option>
-          <option value="aprovada">Aprovada</option>
-          <option value="rejeitada">Rejeitada</option>
-          <option value="cancelada">Cancelada</option>
-        </select>
       </div>
-      
+
+      <FilterBar
+        filtros={filtroConfigs}
+        valores={valoresFiltro}
+        onMudar={handleMudarFiltro}
+        onLimpar={handleLimparFiltros}
+      />
+
       {carregando ? (
         <div className="carregando">Carregando...</div>
       ) : (
@@ -92,7 +138,7 @@ export default function Propostas() {
                   </td>
                   <td>{proposta.dataValidade ? new Date(proposta.dataValidade).toLocaleDateString('pt-BR') : '-'}</td>
                   <td>
-                    <span 
+                    <span
                       className="status-badge"
                       style={{ backgroundColor: statusColors[proposta.status] || '#6b7280' }}
                     >
@@ -108,7 +154,7 @@ export default function Propostas() {
               ))}
             </tbody>
           </table>
-          
+
           <div className="paginacao">
             <button disabled={pagina <= 1} onClick={() => setPagina(p => p - 1)}>
               Anterior

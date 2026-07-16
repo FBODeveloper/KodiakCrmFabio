@@ -35,11 +35,13 @@ public class AtividadeController : ControllerBase
         [FromQuery] int? idOportunidade,
         [FromQuery] int? responsavelId,
         [FromQuery] bool? concluida,
+        [FromQuery] DateTime? dataInicio,
+        [FromQuery] DateTime? dataFim,
         [FromQuery] int pagina = 1,
         [FromQuery] int itensPorPagina = 20)
     {
         var idEmpresa = ObterIdEmpresa();
-        var resultado = await _service.ObterListaAsync(idEmpresa, busca, tipo, idParceiro, idOportunidade, responsavelId, concluida, pagina, itensPorPagina);
+        var resultado = await _service.ObterListaAsync(idEmpresa, busca, tipo, idParceiro, idOportunidade, responsavelId, concluida, dataInicio, dataFim, pagina, itensPorPagina);
         return Ok(resultado);
     }
 

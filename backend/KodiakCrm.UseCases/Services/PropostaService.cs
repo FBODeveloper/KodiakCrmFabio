@@ -22,9 +22,9 @@ public class PropostaService
         return MapearParaDTO(proposta, itens);
     }
 
-    public async Task<PropostaListDTO> ObterListaAsync(string idEmpresa, string? busca, string? status, int? idParceiro, int pagina, int itensPorPagina)
+    public async Task<PropostaListDTO> ObterListaAsync(string idEmpresa, string? busca, string? status, int? idParceiro, DateTime? dataInicio, DateTime? dataFim, int pagina, int itensPorPagina)
     {
-        var resultado = await _repository.ObterListaAsync(idEmpresa, busca, status, idParceiro, pagina, itensPorPagina);
+        var resultado = await _repository.ObterListaAsync(idEmpresa, busca, status, idParceiro, dataInicio, dataFim, pagina, itensPorPagina);
         return new PropostaListDTO
         {
             Itens = resultado.Itens.Select(p => MapearParaDTO(p, new List<PropostaItem>())).ToList(),

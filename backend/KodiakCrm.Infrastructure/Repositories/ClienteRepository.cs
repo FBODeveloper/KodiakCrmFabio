@@ -30,7 +30,7 @@ public class ClienteRepository : IClienteRepository
         return await connection.QueryFirstOrDefaultAsync<Cliente>(sql, new { Id = id, IdEmpresa = idEmpresa });
     }
 
-    public async Task<ClienteListResult> ObterListaAsync(string idEmpresa, string? busca, int pagina, int itensPorPagina)
+    public async Task<ClienteListResult> ObterListaAsync(string idEmpresa, string? busca, string? origem, DateTime? dataInicio, DateTime? dataFim, int pagina, int itensPorPagina)
     {
         using var connection = _database.GetConnection();
 
@@ -42,6 +42,24 @@ public class ClienteRepository : IClienteRepository
         {
             whereClause += " AND (c.razao_social ILIKE @Busca OR c.nome_fantasia ILIKE @Busca OR c.cnpj_cpf ILIKE @Busca OR c.email ILIKE @Busca)";
             parameters.Add("Busca", $"%{busca}%");
+        }
+
+        if (!string.IsNullOrWhiteSpace(origem))
+        {
+            whereClause += " AND c.origem = @Origem";
+            parameters.Add("Origem", origem);
+        }
+
+        if (dataInicio.HasValue)
+        {
+            whereClause += " AND c.data_cadastro >= @DataInicio";
+            parameters.Add("DataInicio", dataInicio.Value);
+        }
+
+        if (dataFim.HasValue)
+        {
+            whereClause += " AND c.data_cadastro <= @DataFim";
+            parameters.Add("DataFim", dataFim.Value.Date.AddDays(1).AddTicks(-1));
         }
 
         var countSql = $"SELECT COUNT(*) FROM cliente c {whereClause}";

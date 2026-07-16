@@ -20,9 +20,9 @@ public class ClienteService
         return MapearParaDTO(cliente);
     }
 
-    public async Task<ClienteListDTO> ObterListaAsync(string idEmpresa, string? busca, int pagina, int itensPorPagina)
+    public async Task<ClienteListDTO> ObterListaAsync(string idEmpresa, string? busca, string? origem, DateTime? dataInicio, DateTime? dataFim, int pagina, int itensPorPagina)
     {
-        var resultado = await _repository.ObterListaAsync(idEmpresa, busca, pagina, itensPorPagina);
+        var resultado = await _repository.ObterListaAsync(idEmpresa, busca, origem, dataInicio, dataFim, pagina, itensPorPagina);
         return new ClienteListDTO
         {
             Itens = resultado.Itens.Select(MapearParaDTO).ToList(),
@@ -58,7 +58,7 @@ public class ClienteService
 
     public async Task<ClienteDTO?> ConverterDeOportunidadeAsync(int oportunidadeId, string idEmpresa, string idEstabelecimento, string cnpjEmpresa)
     {
-        var clienteExistente = await _repository.ObterListaAsync(idEmpresa, null, 1, 1);
+        var clienteExistente = await _repository.ObterListaAsync(idEmpresa, null, null, null, null, 1, 1);
         // Check if a client was already created from this opportunity
         var existing = clienteExistente.Itens.FirstOrDefault(c => c.IdOportunidade == oportunidadeId);
         if (existing != null) return MapearParaDTO(existing);

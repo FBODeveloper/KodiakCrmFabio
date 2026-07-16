@@ -2,25 +2,49 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import type { ClienteDTO, PaginatedResponse } from '../types';
+import FilterBar, { type FiltroConfig } from '../components/FilterBar';
 
 export default function Clientes() {
   const [clientes, setClientes] = useState<ClienteDTO[]>([]);
   const [total, setTotal] = useState(0);
   const [pagina, setPagina] = useState(1);
   const [busca, setBusca] = useState('');
+  const [filtros, setFiltros] = useState<Record<string, string>>({
+    origem: '',
+    dataInicio: '',
+    dataFim: '',
+  });
   const [carregando, setCarregando] = useState(true);
   const navigate = useNavigate();
 
+  const filtroConfigs: FiltroConfig[] = [
+    {
+      campo: 'origem',
+      label: 'Origem',
+      tipo: 'select',
+      opcoes: [
+        { valor: 'conversao', label: 'Conversão' },
+        { valor: 'cadastro_direto', label: 'Cadastro Direto' },
+        { valor: 'indicacao', label: 'Indicação' },
+        { valor: 'outro', label: 'Outro' },
+      ],
+    },
+    { campo: 'dataInicio', label: 'Data Início', tipo: 'data' },
+    { campo: 'dataFim', label: 'Data Fim', tipo: 'data' },
+  ];
+
   useEffect(() => {
     carregarClientes();
-  }, [pagina, busca]);
+  }, [pagina, busca, filtros]);
 
   const carregarClientes = async () => {
     setCarregando(true);
     try {
-      const response = await api.get<PaginatedResponse<ClienteDTO>>('/cliente', {
-        params: { pagina, itensPorPagina: 20, busca }
-      });
+      const params: Record<string, string | number> = { pagina, itensPorPagina: 20, busca };
+      if (filtros.origem) params.origem = filtros.origem;
+      if (filtros.dataInicio) params.dataInicio = filtros.dataInicio;
+      if (filtros.dataFim) params.dataFim = filtros.dataFim;
+      const response = await api.get<PaginatedResponse<ClienteDTO>>('/cliente', { params });
       setClientes(response.data.itens);
       setTotal(response.data.total);
     } catch (error) {
@@ -28,6 +52,16 @@ export default function Clientes() {
     } finally {
       setCarregando(false);
     }
+  };
+
+  const handleFiltroMudar = (campo: string, valor: string) => {
+    setFiltros(prev => ({ ...prev, [campo]: valor }));
+    setPagina(1);
+  };
+
+  const handleFiltroLimpar = () => {
+    setFiltros({ origem: '', dataInicio: '', dataFim: '' });
+    setPagina(1);
   };
 
   return (
@@ -47,6 +81,13 @@ export default function Clientes() {
           onChange={(e) => { setBusca(e.target.value); setPagina(1); }}
         />
       </div>
+
+      <FilterBar
+        filtros={filtroConfigs}
+        valores={filtros}
+        onMudar={handleFiltroMudar}
+        onLimpar={handleFiltroLimpar}
+      />
       
       {carregando ? (
         <div className="carregando">Carregando...</div>

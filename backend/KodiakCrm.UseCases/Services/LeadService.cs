@@ -34,9 +34,9 @@ public class LeadService
         return dto;
     }
 
-    public async Task<LeadListDTO> ObterListaAsync(string idEmpresa, string? busca, string? status, int pagina, int itensPorPagina)
+    public async Task<LeadListDTO> ObterListaAsync(string idEmpresa, string? busca, string? status, string? temperatura, DateTime? dataInicio, DateTime? dataFim, int pagina, int itensPorPagina)
     {
-        var resultado = await _leadRepository.ObterListaAsync(idEmpresa, busca, status, pagina, itensPorPagina);
+        var resultado = await _leadRepository.ObterListaAsync(idEmpresa, busca, status, temperatura, dataInicio, dataFim, pagina, itensPorPagina);
         return new LeadListDTO
         {
             Itens = resultado.Itens.Select(MapearParaDTO).ToList(),

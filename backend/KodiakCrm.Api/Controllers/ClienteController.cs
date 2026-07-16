@@ -33,13 +33,16 @@ public class ClienteController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<ClienteListDTO>> ObterLista(
         [FromQuery] string? busca,
+        [FromQuery] string? origem,
+        [FromQuery] DateTime? dataInicio,
+        [FromQuery] DateTime? dataFim,
         [FromQuery] int pagina = 1,
         [FromQuery] int itensPorPagina = 20)
     {
         try
         {
             var idEmpresa = ObterIdEmpresa();
-            var resultado = await _service.ObterListaAsync(idEmpresa, busca, pagina, itensPorPagina);
+            var resultado = await _service.ObterListaAsync(idEmpresa, busca, origem, dataInicio, dataFim, pagina, itensPorPagina);
             return Ok(resultado);
         }
         catch (Exception ex)

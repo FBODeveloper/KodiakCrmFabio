@@ -88,11 +88,14 @@ public class OportunidadeController : ControllerBase
         [FromQuery] string? busca,
         [FromQuery] int? idEstagio,
         [FromQuery] int? responsavelId,
+        [FromQuery] string? status,
+        [FromQuery] DateTime? dataInicio,
+        [FromQuery] DateTime? dataFim,
         [FromQuery] int pagina = 1,
         [FromQuery] int itensPorPagina = 20)
     {
         var idEmpresa = ObterIdEmpresa();
-        var resultado = await _service.ObterListaAsync(idEmpresa, busca, idEstagio, responsavelId, pagina, itensPorPagina);
+        var resultado = await _service.ObterListaAsync(idEmpresa, busca, idEstagio, responsavelId, status, dataInicio, dataFim, pagina, itensPorPagina);
         return Ok(resultado);
     }
 

@@ -36,13 +36,16 @@ public class LeadController : ControllerBase
     public async Task<ActionResult<LeadListDTO>> ObterLista(
         [FromQuery] string? busca,
         [FromQuery] string? status,
+        [FromQuery] string? temperatura,
+        [FromQuery] DateTime? dataInicio,
+        [FromQuery] DateTime? dataFim,
         [FromQuery] int pagina = 1,
         [FromQuery] int itensPorPagina = 20)
     {
         try
         {
             var idEmpresa = ObterIdEmpresa();
-            var resultado = await _service.ObterListaAsync(idEmpresa, busca, status, pagina, itensPorPagina);
+            var resultado = await _service.ObterListaAsync(idEmpresa, busca, status, temperatura, dataInicio, dataFim, pagina, itensPorPagina);
             return Ok(resultado);
         }
         catch (Exception ex)

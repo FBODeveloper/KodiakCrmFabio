@@ -6,7 +6,7 @@ namespace KodiakCrm.Core.Interfaces;
 public interface ILeadRepository
 {
     Task<Lead?> ObterPorIdAsync(int id, string idEmpresa);
-    Task<LeadListResult> ObterListaAsync(string idEmpresa, string? busca, string? status, int pagina, int itensPorPagina);
+    Task<LeadListResult> ObterListaAsync(string idEmpresa, string? busca, string? status, string? temperatura, DateTime? dataInicio, DateTime? dataFim, int pagina, int itensPorPagina);
     Task<int> CriarAsync(Lead lead);
     Task AtualizarAsync(Lead lead);
     Task ExcluirAsync(int id, string idEmpresa);
@@ -29,7 +29,7 @@ public class LeadListResult
 public interface IOportunidadeRepository
 {
     Task<Oportunidade?> ObterPorIdAsync(int id, string idEmpresa);
-    Task<OportunidadeListResult> ObterListaAsync(string idEmpresa, string? busca, int? idEstagio, int? responsavelId, int pagina, int itensPorPagina);
+    Task<OportunidadeListResult> ObterListaAsync(string idEmpresa, string? busca, int? idEstagio, int? responsavelId, string? status, DateTime? dataInicio, DateTime? dataFim, int pagina, int itensPorPagina);
     Task<List<Oportunidade>> ObterPorEstagioAsync(int idEstagio, string idEmpresa);
     Task<int> CriarAsync(Oportunidade oportunidade);
     Task AtualizarAsync(Oportunidade oportunidade);

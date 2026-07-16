@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import type { Oportunidade, PaginatedResponse } from '../types';
+import FilterBar, { type FiltroConfig } from '../components/FilterBar';
 
 export default function Oportunidades() {
   const [oportunidades, setOportunidades] = useState<Oportunidade[]>([]);
@@ -9,18 +10,37 @@ export default function Oportunidades() {
   const [pagina, setPagina] = useState(1);
   const [busca, setBusca] = useState('');
   const [carregando, setCarregando] = useState(true);
+  const [valoresFiltro, setValoresFiltro] = useState<Record<string, string>>({
+    status: '',
+    dataInicio: '',
+    dataFim: '',
+  });
   const navigate = useNavigate();
 
-  useEffect(() => {
-    carregarOportunidades();
-  }, [pagina, busca]);
+  const filtroConfigs: FiltroConfig[] = [
+    {
+      campo: 'status',
+      label: 'Status',
+      tipo: 'select',
+      opcoes: [
+        { valor: 'aberta', label: 'Aberta' },
+        { valor: 'ganha', label: 'Ganha' },
+        { valor: 'perdida', label: 'Perdida' },
+      ],
+    },
+    { campo: 'dataInicio', label: 'Data Início', tipo: 'data' },
+    { campo: 'dataFim', label: 'Data Fim', tipo: 'data' },
+  ];
 
-  const carregarOportunidades = async () => {
+  const carregarOportunidades = useCallback(async () => {
     setCarregando(true);
     try {
-      const response = await api.get<PaginatedResponse<Oportunidade>>('/oportunidade', {
-        params: { pagina, itensPorPagina: 20, busca }
-      });
+      const params: Record<string, string | number> = { pagina, itensPorPagina: 20, busca };
+      if (valoresFiltro.status) params.status = valoresFiltro.status;
+      if (valoresFiltro.dataInicio) params.dataInicio = valoresFiltro.dataInicio;
+      if (valoresFiltro.dataFim) params.dataFim = valoresFiltro.dataFim;
+
+      const response = await api.get<PaginatedResponse<Oportunidade>>('/oportunidade', { params });
       setOportunidades(response.data.itens);
       setTotal(response.data.total);
     } catch (error) {
@@ -28,6 +48,20 @@ export default function Oportunidades() {
     } finally {
       setCarregando(false);
     }
+  }, [pagina, busca, valoresFiltro]);
+
+  useEffect(() => {
+    carregarOportunidades();
+  }, [carregarOportunidades]);
+
+  const handleMudarFiltro = (campo: string, valor: string) => {
+    setValoresFiltro(prev => ({ ...prev, [campo]: valor }));
+    setPagina(1);
+  };
+
+  const handleLimparFiltros = () => {
+    setValoresFiltro({ status: '', dataInicio: '', dataFim: '' });
+    setPagina(1);
   };
 
   return (
@@ -45,6 +79,12 @@ export default function Oportunidades() {
           placeholder="Buscar oportunidades..."
           value={busca}
           onChange={(e) => { setBusca(e.target.value); setPagina(1); }}
+        />
+        <FilterBar
+          filtros={filtroConfigs}
+          valores={valoresFiltro}
+          onMudar={handleMudarFiltro}
+          onLimpar={handleLimparFiltros}
         />
       </div>
       

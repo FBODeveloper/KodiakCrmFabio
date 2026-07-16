@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../api/axios';
 import type { Lead, LeadStats, PaginatedResponse } from '../types';
+import FilterBar, { type FiltroConfig } from '../components/FilterBar';
 
 export default function Leads() {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -9,17 +10,44 @@ export default function Leads() {
   const [stats, setStats] = useState<LeadStats | null>(null);
   const [pagina, setPagina] = useState(1);
   const [busca, setBusca] = useState('');
-  const [statusFiltro, setStatusFiltro] = useState('');
+  const [filtros, setFiltros] = useState<Record<string, string>>({status: '', temperatura: '', dataInicio: '', dataFim: ''});
   const [carregando, setCarregando] = useState(true);
   const [dropdownAberto, setDropdownAberto] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
+  const filtroConfigs: FiltroConfig[] = [
+    {
+      campo: 'status',
+      label: 'Status',
+      tipo: 'select',
+      opcoes: [
+        { valor: 'novo', label: 'Novo' },
+        { valor: 'contato', label: 'Contato' },
+        { valor: 'qualificado', label: 'Qualificado' },
+        { valor: 'convertido', label: 'Convertido' },
+        { valor: 'perdido', label: 'Perdido' },
+      ],
+    },
+    {
+      campo: 'temperatura',
+      label: 'Temperatura',
+      tipo: 'select',
+      opcoes: [
+        { valor: 'quente', label: 'Quente' },
+        { valor: 'morno', label: 'Morno' },
+        { valor: 'frio', label: 'Frio' },
+      ],
+    },
+    { campo: 'dataInicio', label: 'Data Inicio', tipo: 'data' },
+    { campo: 'dataFim', label: 'Data Fim', tipo: 'data' },
+  ];
+
   useEffect(() => {
     carregarLeads();
     carregarStats();
-  }, [pagina, busca, statusFiltro]);
+  }, [pagina, busca, filtros]);
 
   useEffect(() => {
     const handleClickFora = (e: MouseEvent) => {
@@ -35,7 +63,7 @@ export default function Leads() {
     setCarregando(true);
     try {
       const response = await api.get<PaginatedResponse<Lead>>('/lead', {
-        params: { pagina, itensPorPagina: 20, busca, status: statusFiltro }
+        params: { pagina, itensPorPagina: 20, busca, ...filtros }
       });
       setLeads(response.data.itens);
       setTotal(response.data.total);
@@ -78,6 +106,16 @@ export default function Leads() {
     quente: { color: '#ef4444', label: 'Quente' },
     morno: { color: '#f59e0b', label: 'Morno' },
     frio: { color: '#3b82f6', label: 'Frio' }
+  };
+
+  const handleFiltroMudar = (campo: string, valor: string) => {
+    setFiltros(prev => ({ ...prev, [campo]: valor }));
+    setPagina(1);
+  };
+
+  const handleFiltroLimpar = () => {
+    setFiltros({ status: '', temperatura: '', dataInicio: '', dataFim: '' });
+    setPagina(1);
   };
 
   return (
@@ -142,15 +180,14 @@ export default function Leads() {
           value={busca}
           onChange={(e) => { setBusca(e.target.value); setPagina(1); }}
         />
-        <select value={statusFiltro} onChange={(e) => { setStatusFiltro(e.target.value); setPagina(1); }}>
-          <option value="">Todos os status</option>
-          <option value="novo">Novo</option>
-          <option value="contato">Contato</option>
-          <option value="qualificado">Qualificado</option>
-          <option value="convertido">Convertido</option>
-          <option value="perdido">Perdido</option>
-        </select>
       </div>
+
+      <FilterBar
+        filtros={filtroConfigs}
+        valores={filtros}
+        onMudar={handleFiltroMudar}
+        onLimpar={handleFiltroLimpar}
+      />
 
       {carregando ? (
         <div className="carregando">Carregando...</div>

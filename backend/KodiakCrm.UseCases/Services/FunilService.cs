@@ -125,9 +125,9 @@ public class OportunidadeService
         return MapearParaDTO(oportunidade);
     }
 
-    public async Task<OportunidadeListDTO> ObterListaAsync(string idEmpresa, string? busca, int? idEstagio, int? responsavelId, int pagina, int itensPorPagina)
+    public async Task<OportunidadeListDTO> ObterListaAsync(string idEmpresa, string? busca, int? idEstagio, int? responsavelId, string? status, DateTime? dataInicio, DateTime? dataFim, int pagina, int itensPorPagina)
     {
-        var resultado = await _repository.ObterListaAsync(idEmpresa, busca, idEstagio, responsavelId, pagina, itensPorPagina);
+        var resultado = await _repository.ObterListaAsync(idEmpresa, busca, idEstagio, responsavelId, status, dataInicio, dataFim, pagina, itensPorPagina);
         return new OportunidadeListDTO
         {
             Itens = resultado.Itens.Select(MapearParaDTO).ToList(),

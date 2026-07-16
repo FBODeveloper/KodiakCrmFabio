@@ -26,7 +26,7 @@ public class PropostaRepository : IPropostaRepository
         return await connection.QueryFirstOrDefaultAsync<Proposta>(sql, new { Id = id, IdEmpresa = idEmpresa });
     }
 
-    public async Task<PropostaListResult> ObterListaAsync(string idEmpresa, string? busca, string? status, int? idParceiro, int pagina, int itensPorPagina)
+    public async Task<PropostaListResult> ObterListaAsync(string idEmpresa, string? busca, string? status, int? idParceiro, DateTime? dataInicio, DateTime? dataFim, int pagina, int itensPorPagina)
     {
         using var connection = _database.GetConnection();
 
@@ -50,6 +50,18 @@ public class PropostaRepository : IPropostaRepository
         {
             whereClause += " AND pr.id_parceiro = @IdParceiro";
             parameters.Add("IdParceiro", idParceiro.Value);
+        }
+
+        if (dataInicio.HasValue)
+        {
+            whereClause += " AND pr.data_cadastro >= @DataInicio";
+            parameters.Add("DataInicio", dataInicio.Value);
+        }
+
+        if (dataFim.HasValue)
+        {
+            whereClause += " AND pr.data_cadastro <= @DataFim";
+            parameters.Add("DataFim", dataFim.Value.Date.AddDays(1).AddTicks(-1));
         }
 
         var countSql = $"SELECT COUNT(*) FROM proposta pr {whereClause}";

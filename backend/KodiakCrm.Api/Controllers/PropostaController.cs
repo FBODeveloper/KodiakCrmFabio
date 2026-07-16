@@ -27,11 +27,13 @@ public class PropostaController : ControllerBase
         [FromQuery] string? busca,
         [FromQuery] string? status,
         [FromQuery] int? idParceiro,
+        [FromQuery] DateTime? dataInicio,
+        [FromQuery] DateTime? dataFim,
         [FromQuery] int pagina = 1,
         [FromQuery] int itensPorPagina = 20)
     {
         var idEmpresa = ObterIdEmpresa();
-        var resultado = await _service.ObterListaAsync(idEmpresa, busca, status, idParceiro, pagina, itensPorPagina);
+        var resultado = await _service.ObterListaAsync(idEmpresa, busca, status, idParceiro, dataInicio, dataFim, pagina, itensPorPagina);
         return Ok(resultado);
     }
 

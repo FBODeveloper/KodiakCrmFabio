@@ -121,7 +121,7 @@ public class OportunidadeRepository : IOportunidadeRepository
         return await connection.QueryFirstOrDefaultAsync<Oportunidade>(sql, new { Id = id, IdEmpresa = idEmpresa });
     }
 
-    public async Task<OportunidadeListResult> ObterListaAsync(string idEmpresa, string? busca, int? idEstagio, int? responsavelId, int pagina, int itensPorPagina)
+    public async Task<OportunidadeListResult> ObterListaAsync(string idEmpresa, string? busca, int? idEstagio, int? responsavelId, string? status, DateTime? dataInicio, DateTime? dataFim, int pagina, int itensPorPagina)
     {
         using var connection = _database.GetConnection();
 
@@ -145,6 +145,34 @@ public class OportunidadeRepository : IOportunidadeRepository
         {
             whereClause += " AND o.responsavel_id = @ResponsavelId";
             parameters.Add("ResponsavelId", responsavelId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            switch (status.ToLower())
+            {
+                case "ganha":
+                    whereClause += " AND o.motivo_perda IS NULL AND o.id_parceiro IS NOT NULL";
+                    break;
+                case "perdida":
+                    whereClause += " AND o.motivo_perda IS NOT NULL";
+                    break;
+                case "aberta":
+                    whereClause += " AND o.motivo_perda IS NULL AND o.id_parceiro IS NULL";
+                    break;
+            }
+        }
+
+        if (dataInicio.HasValue)
+        {
+            whereClause += " AND o.data_cadastro >= @DataInicio";
+            parameters.Add("DataInicio", dataInicio.Value);
+        }
+
+        if (dataFim.HasValue)
+        {
+            whereClause += " AND o.data_cadastro <= @DataFim";
+            parameters.Add("DataFim", dataFim.Value.AddDays(1));
         }
 
         var countSql = $"SELECT COUNT(*) FROM oportunidade o {whereClause}";

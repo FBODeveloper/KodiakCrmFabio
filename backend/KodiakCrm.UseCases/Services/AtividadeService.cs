@@ -20,9 +20,9 @@ public class AtividadeService
         return MapearParaDTO(atividade);
     }
 
-    public async Task<AtividadeListDTO> ObterListaAsync(string idEmpresa, string? busca, string? tipo, int? idParceiro, int? idOportunidade, int? responsavelId, bool? concluida, int pagina, int itensPorPagina)
+    public async Task<AtividadeListDTO> ObterListaAsync(string idEmpresa, string? busca, string? tipo, int? idParceiro, int? idOportunidade, int? responsavelId, bool? concluida, DateTime? dataInicio, DateTime? dataFim, int pagina, int itensPorPagina)
     {
-        var resultado = await _repository.ObterListaAsync(idEmpresa, busca, tipo, idParceiro, idOportunidade, responsavelId, concluida, pagina, itensPorPagina);
+        var resultado = await _repository.ObterListaAsync(idEmpresa, busca, tipo, idParceiro, idOportunidade, responsavelId, concluida, dataInicio, dataFim, pagina, itensPorPagina);
         return new AtividadeListDTO
         {
             Itens = resultado.Itens.Select(MapearParaDTO).ToList(),

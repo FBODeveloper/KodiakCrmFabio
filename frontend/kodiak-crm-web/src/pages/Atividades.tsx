@@ -2,26 +2,63 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import type { Atividade, PaginatedResponse } from '../types';
+import FilterBar, { type FiltroConfig } from '../components/FilterBar';
+
+const filtroConfigs: FiltroConfig[] = [
+  {
+    campo: 'tipo',
+    label: 'Tipo',
+    tipo: 'select',
+    opcoes: [
+      { valor: 'reuniao', label: 'Reunião' },
+      { valor: 'ligacao', label: 'Ligação' },
+      { valor: 'email', label: 'E-mail' },
+      { valor: 'tarefa', label: 'Tarefa' },
+      { valor: 'visita', label: 'Visita' },
+      { valor: 'followup', label: 'Follow-up' }
+    ]
+  },
+  {
+    campo: 'concluida',
+    label: 'Status',
+    tipo: 'select',
+    opcoes: [
+      { valor: 'false', label: 'Pendente' },
+      { valor: 'true', label: 'Concluída' }
+    ]
+  },
+  { campo: 'dataInicio', label: 'Data Início', tipo: 'data' },
+  { campo: 'dataFim', label: 'Data Fim', tipo: 'data' }
+];
 
 export default function Atividades() {
   const [atividades, setAtividades] = useState<Atividade[]>([]);
   const [total, setTotal] = useState(0);
   const [pagina, setPagina] = useState(1);
   const [busca, setBusca] = useState('');
-  const [tipoFiltro, setTipoFiltro] = useState('');
+  const [valoresFiltro, setValoresFiltro] = useState<Record<string, string>>({
+    tipo: '',
+    concluida: '',
+    dataInicio: '',
+    dataFim: ''
+  });
   const [carregando, setCarregando] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     carregarAtividades();
-  }, [pagina, busca, tipoFiltro]);
+  }, [pagina, busca, valoresFiltro]);
 
   const carregarAtividades = async () => {
     setCarregando(true);
     try {
-      const response = await api.get<PaginatedResponse<Atividade>>('/atividade', {
-        params: { pagina, itensPorPagina: 20, busca, tipo: tipoFiltro }
-      });
+      const params: Record<string, string | number> = { pagina, itensPorPagina: 20, busca };
+      if (valoresFiltro.tipo) params.tipo = valoresFiltro.tipo;
+      if (valoresFiltro.concluida) params.concluida = valoresFiltro.concluida;
+      if (valoresFiltro.dataInicio) params.dataInicio = valoresFiltro.dataInicio;
+      if (valoresFiltro.dataFim) params.dataFim = valoresFiltro.dataFim;
+
+      const response = await api.get<PaginatedResponse<Atividade>>('/atividade', { params });
       setAtividades(response.data.itens);
       setTotal(response.data.total);
     } catch (error) {
@@ -29,6 +66,16 @@ export default function Atividades() {
     } finally {
       setCarregando(false);
     }
+  };
+
+  const handleMudarFiltro = (campo: string, valor: string) => {
+    setValoresFiltro(prev => ({ ...prev, [campo]: valor }));
+    setPagina(1);
+  };
+
+  const handleLimparFiltros = () => {
+    setValoresFiltro({ tipo: '', concluida: '', dataInicio: '', dataFim: '' });
+    setPagina(1);
   };
 
   const tipoColors: Record<string, string> = {
@@ -56,16 +103,14 @@ export default function Atividades() {
           value={busca}
           onChange={(e) => { setBusca(e.target.value); setPagina(1); }}
         />
-        <select value={tipoFiltro} onChange={(e) => { setTipoFiltro(e.target.value); setPagina(1); }}>
-          <option value="">Todos os tipos</option>
-          <option value="ligacao">Ligação</option>
-          <option value="reuniao">Reunião</option>
-          <option value="visita">Visita</option>
-          <option value="tarefa">Tarefa</option>
-          <option value="email">E-mail</option>
-          <option value="whatsapp">WhatsApp</option>
-        </select>
       </div>
+
+      <FilterBar
+        filtros={filtroConfigs}
+        valores={valoresFiltro}
+        onMudar={handleMudarFiltro}
+        onLimpar={handleLimparFiltros}
+      />
       
       {carregando ? (
         <div className="carregando">Carregando...</div>
