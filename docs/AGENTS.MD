@@ -20,6 +20,8 @@ CRM para o KodiakERP, desenvolvido com .NET 10 (Backend) e React 19 (Frontend).
 - **Rotas:** react-router-dom
 - **HTTP:** Axios (baseURL: `http://localhost:5279/api`)
 - **Estilos:** CSS puro com design system via CSS variables (dark mode)
+- **Módulos visíveis:** Dashboard, Leads, Oportunidades, Clientes, Contatos, Atividades, Propostas, Histórico, Relatórios, Configurações, (Admin: Empresas, Usuários)
+- **Módulos ocultos:** Parceiros (backend mantido para ERP, mas não aparece na sidebar/busca)
 
 ### Banco de Dados
 - **SGBD:** PostgreSQL 18
