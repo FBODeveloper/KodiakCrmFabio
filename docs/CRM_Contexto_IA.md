@@ -36,7 +36,9 @@ Lead → Qualificação → Oportunidade → Proposta → Negociação → Ganha
 
 ### Atividade
 - Tipos: tarefa, ligacao, reunião, email, visita, demonstracao
-- Vinculada a oportunidade, parceiro ou lead
+- Vinculada a oportunidade, cliente ou lead
+- Status: pendente, concluido, cancelado (só pendente pode mudar)
+- Responsável (admin/gerente define, usuário comum = ele mesmo)
 - Notificação automática quando atrasada
 
 ### Proposta
@@ -56,7 +58,7 @@ Lead → Qualificação → Oportunidade → Proposta → Negociação → Ganha
 - Lead criado → follow-up automático em 3 dias + notificação
 - Atividade atrasada → notificação automática
 
-## Funcionalidades (16 Fases Concluídas)
+## Funcionalidades (17 Fases Concluídas)
 
 | Fase | Descrição |
 |------|-----------|
@@ -71,13 +73,15 @@ Lead → Qualificação → Oportunidade → Proposta → Negociação → Ganha
 | 14 | Perfil do usuário |
 | 15 | Filtros avançados (FilterBar reutilizável em 5 páginas) |
 | 16 | Correções Teste Frontend 1 (DateOnly fix, ícones CRUD, propostas campos novos, histórico, filtros) |
+| 17 | Correções Teste Frontend 2 (DateOnly Usuários, jsonb Relatórios, atividades status/cliente, propostas status buttons, readonly global) |
 
 ### Migrações
 - 001-012: criadas anteriormente
 - **013**: novos campos na tabela proposta (numero, data_proposta, forma_pagamento, prazo_entrega, cliente_id, contato_id)
+- **014**: colunas status/cliente_id na tabela atividade
 
 ## Próximos Passos
-- Segundo teste frontend para validar correções
+- Terceiro teste frontend para validar correções
 - Exportação CSV dos relatórios
 - Dashboard personalizável
 - Audit log admin
