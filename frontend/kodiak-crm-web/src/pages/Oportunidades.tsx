@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../api/axios';
 import type { Oportunidade, PaginatedResponse } from '../types';
 import FilterBar, { type FiltroConfig } from '../components/FilterBar';
@@ -17,6 +17,7 @@ export default function Oportunidades() {
     dataFim: '',
   });
   const navigate = useNavigate();
+  const location = useLocation();
 
   const filtroConfigs: FiltroConfig[] = [
     {
@@ -70,6 +71,16 @@ export default function Oportunidades() {
   const handleLimparFiltros = () => {
     setValoresFiltro({ status: '', responsavel: '', dataInicio: '', dataFim: '' });
     setPagina(1);
+  };
+
+  const handleExcluir = async (id: number) => {
+    if (!confirm('Tem certeza que deseja excluir esta oportunidade?')) return;
+    try {
+      await api.delete(`/oportunidade/${id}`);
+      carregarOportunidades();
+    } catch (error) {
+      console.error('Erro ao excluir oportunidade:', error);
+    }
   };
 
   return (
@@ -129,9 +140,29 @@ export default function Oportunidades() {
                   </td>
                   <td>{oportunidade.dataPrevisao ? new Date(oportunidade.dataPrevisao).toLocaleDateString('pt-BR') : '-'}</td>
                   <td>
-                    <button onClick={() => navigate(`/oportunidades/${oportunidade.id}`)}>
-                      Editar
-                    </button>
+                    <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
+                      <button
+                        className="icon-btn"
+                        title="Ver"
+                        onClick={() => navigate(`/oportunidades/${oportunidade.id}?readonly=true`, { state: { from: location.pathname } })}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      </button>
+                      <button
+                        className="icon-btn"
+                        title="Editar"
+                        onClick={() => navigate(`/oportunidades/${oportunidade.id}`, { state: { from: location.pathname } })}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button
+                        className="icon-btn icon-btn-danger"
+                        title="Excluir"
+                        onClick={() => handleExcluir(oportunidade.id)}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

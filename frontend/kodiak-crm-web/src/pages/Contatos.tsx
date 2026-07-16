@@ -65,7 +65,6 @@ export default function Contatos() {
                 <th>Email</th>
                 <th>Telefone</th>
                 <th>Cliente</th>
-                <th>Parceiro</th>
                 <th style={{ width: 100 }}>Ações</th>
               </tr>
             </thead>
@@ -77,10 +76,9 @@ export default function Contatos() {
                   <td>{contato.email || '-'}</td>
                   <td>{contato.telefone || contato.celular || '-'}</td>
                   <td>{contato.clienteNome || '-'}</td>
-                  <td>{contato.parceiroNome || '-'}</td>
                   <td>
                     <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
-                      <button className="icon-btn" title="Ver" onClick={() => navigate(`/contatos/${contato.id}`)}>
+                      <button className="icon-btn" title="Ver" onClick={() => navigate(`/contatos/${contato.id}?readonly=true`)}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                       </button>
                       <button className="icon-btn" title="Editar" onClick={() => navigate(`/contatos/${contato.id}`)}>
@@ -94,7 +92,7 @@ export default function Contatos() {
                 </tr>
               ))}
               {contatos.length === 0 && (
-                <tr><td colSpan={7} className="vazio">Nenhum contato encontrado</td></tr>
+                <tr><td colSpan={6} className="vazio">Nenhum contato encontrado</td></tr>
               )}
             </tbody>
           </table>

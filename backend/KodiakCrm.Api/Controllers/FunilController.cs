@@ -227,4 +227,35 @@ public class OportunidadeController : ControllerBase
 
         return Ok(oportunidade);
     }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Excluir(int id)
+    {
+        var idEmpresa = ObterIdEmpresa();
+        var oportunidade = await _service.ObterPorIdAsync(id, idEmpresa);
+        var excluido = await _service.ExcluirAsync(id, idEmpresa);
+
+        if (!excluido)
+            return NotFound(new { mensagem = "Oportunidade não encontrada" });
+
+        if (oportunidade != null)
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _historico.RegistrarAsync(
+                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                        "oportunidade", id, "excluido",
+                        $"Oportunidade \"{oportunidade.Titulo}\" excluída",
+                        dadosAntes: new { oportunidade.Titulo, oportunidade.Valor },
+                        usuarioId: ObterUsuarioId(),
+                        usuarioNome: ObterUsuarioNome());
+                }
+                catch { }
+            });
+        }
+
+        return NoContent();
+    }
 }

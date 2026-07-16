@@ -11,8 +11,6 @@ export default function Clientes() {
   const [busca, setBusca] = useState('');
   const [filtros, setFiltros] = useState<Record<string, string>>({
     origem: '',
-    dataInicio: '',
-    dataFim: '',
   });
   const [carregando, setCarregando] = useState(true);
   const navigate = useNavigate();
@@ -29,8 +27,6 @@ export default function Clientes() {
         { valor: 'outro', label: 'Outro' },
       ],
     },
-    { campo: 'dataInicio', label: 'Data Início', tipo: 'data' },
-    { campo: 'dataFim', label: 'Data Fim', tipo: 'data' },
   ];
 
   useEffect(() => {
@@ -42,8 +38,6 @@ export default function Clientes() {
     try {
       const params: Record<string, string | number> = { pagina, itensPorPagina: 20, busca };
       if (filtros.origem) params.origem = filtros.origem;
-      if (filtros.dataInicio) params.dataInicio = filtros.dataInicio;
-      if (filtros.dataFim) params.dataFim = filtros.dataFim;
       const response = await api.get<PaginatedResponse<ClienteDTO>>('/cliente', { params });
       setClientes(response.data.itens);
       setTotal(response.data.total);
@@ -60,7 +54,7 @@ export default function Clientes() {
   };
 
   const handleFiltroLimpar = () => {
-    setFiltros({ origem: '', dataInicio: '', dataFim: '' });
+    setFiltros({ origem: '' });
     setPagina(1);
   };
 
@@ -123,7 +117,7 @@ export default function Clientes() {
                   </td>
                   <td>
                     <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
-                      <button className="icon-btn" title="Ver" onClick={() => navigate(`/clientes/${cliente.id}`)}>
+                      <button className="icon-btn" title="Ver" onClick={() => navigate(`/clientes/${cliente.id}?readonly=true`)}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                       </button>
                       <button className="icon-btn" title="Editar" onClick={() => navigate(`/clientes/${cliente.id}`)}>

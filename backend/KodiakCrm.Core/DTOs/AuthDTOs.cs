@@ -23,6 +23,6 @@ public class UsuarioDTO
     public string IdEmpresa { get; set; } = string.Empty;
     public string Perfil { get; set; } = string.Empty;
     public string? Avatar { get; set; }
-    public DateTime? DataNascimento { get; set; }
+    public DateOnly? DataNascimento { get; set; }
     public EmpresaDTO? Empresa { get; set; }
 }

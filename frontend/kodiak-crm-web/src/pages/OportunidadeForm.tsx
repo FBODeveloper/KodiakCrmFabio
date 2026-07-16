@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import type { Funil, FunilEstagio } from '../types';
 
 export default function OportunidadeForm() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const readonly = searchParams.get('readonly') === 'true';
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
   const [funis, setFunis] = useState<Funil[]>([]);
@@ -141,9 +143,9 @@ export default function OportunidadeForm() {
   return (
     <div className="pagina">
       <div className="pagina-header">
-        <h1>{isEdicao ? 'Editar Oportunidade' : 'Nova Oportunidade'}</h1>
+        <h1>{readonly ? 'Oportunidade' : isEdicao ? 'Editar Oportunidade' : 'Nova Oportunidade'}</h1>
         <div className="header-actions">
-          {isEdicao && !form.motivoPerda && (
+          {isEdicao && !readonly && !form.motivoPerda && (
             <button onClick={() => setShowPerder(true)} className="btn-danger">
               Marcar como Perdida
             </button>
@@ -169,13 +171,14 @@ export default function OportunidadeForm() {
             value={form.titulo}
             onChange={handleChange}
             required
+            disabled={readonly}
           />
         </div>
         
         <div className="form-row">
           <div className="form-group">
             <label>Funil</label>
-            <select name="funilId" value={form.funilId} onChange={(e) => handleFunilChange(e.target.value)}>
+            <select name="funilId" value={form.funilId} onChange={(e) => handleFunilChange(e.target.value)} disabled={readonly}>
               <option value="">Selecione o funil</option>
               {funis.map((funil) => (
                 <option key={funil.id} value={funil.id}>{funil.nome}</option>
@@ -185,7 +188,7 @@ export default function OportunidadeForm() {
           
           <div className="form-group">
             <label>Estágio</label>
-            <select name="idEstagio" value={form.idEstagio} onChange={handleChange}>
+            <select name="idEstagio" value={form.idEstagio} onChange={handleChange} disabled={readonly}>
               <option value="">Selecione o estágio</option>
               {estagios.map((estagio) => (
                 <option key={estagio.id} value={estagio.id}>{estagio.nome}</option>
@@ -204,6 +207,7 @@ export default function OportunidadeForm() {
               onChange={handleChange}
               step="0.01"
               min="0"
+              disabled={readonly}
             />
           </div>
           
@@ -214,6 +218,7 @@ export default function OportunidadeForm() {
               name="dataPrevisao"
               value={form.dataPrevisao}
               onChange={handleChange}
+              disabled={readonly}
             />
           </div>
         </div>
@@ -225,16 +230,19 @@ export default function OportunidadeForm() {
             value={form.observacao}
             onChange={handleChange}
             rows={4}
+            disabled={readonly}
           />
         </div>
         
         {erro && <div className="erro">{erro}</div>}
         
-        <div className="form-actions">
-          <button type="submit" className="btn-primary" disabled={carregando}>
-            {carregando ? 'Salvando...' : 'Salvar'}
-          </button>
-        </div>
+        {!readonly && (
+          <div className="form-actions">
+            <button type="submit" className="btn-primary" disabled={carregando}>
+              {carregando ? 'Salvando...' : 'Salvar'}
+            </button>
+          </div>
+        )}
       </form>
 
       {showPerder && (

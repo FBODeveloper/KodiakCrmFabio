@@ -50,7 +50,9 @@ public class AtividadeService
             Descricao = dto.Descricao,
             IdParceiro = dto.IdParceiro,
             IdOportunidade = dto.IdOportunidade,
-            ResponsavelId = responsavelId,
+            ResponsavelId = dto.ResponsavelId ?? responsavelId,
+            ClienteId = dto.ClienteId,
+            Status = "pendente",
             DataInicio = dto.DataInicio,
             DataFim = dto.DataFim
         };
@@ -72,6 +74,9 @@ public class AtividadeService
         atividade.IdParceiro = dto.IdParceiro;
         atividade.IdOportunidade = dto.IdOportunidade;
         atividade.ResponsavelId = dto.ResponsavelId;
+        atividade.ClienteId = dto.ClienteId;
+        if (dto.Status != null)
+            atividade.Status = dto.Status;
         atividade.DataInicio = dto.DataInicio;
         atividade.DataFim = dto.DataFim;
         if (dto.Concluida.HasValue)
@@ -79,6 +84,18 @@ public class AtividadeService
 
         await _repository.AtualizarAsync(atividade);
 
+        return MapearParaDTO(atividade);
+    }
+
+    public async Task<AtividadeDTO?> AlterarStatusAsync(int id, string status, string idEmpresa)
+    {
+        var atividade = await _repository.ObterPorIdAsync(id, idEmpresa);
+        if (atividade == null) return null;
+
+        var atualizado = await _repository.AlterarStatusAsync(id, status, idEmpresa);
+        if (!atualizado) return null;
+
+        atividade.Status = status;
         return MapearParaDTO(atividade);
     }
 
@@ -94,6 +111,8 @@ public class AtividadeService
             IdParceiro = atividade.IdParceiro,
             IdOportunidade = atividade.IdOportunidade,
             ResponsavelId = atividade.ResponsavelId,
+            ClienteId = atividade.ClienteId,
+            Status = atividade.Status,
             DataInicio = atividade.DataInicio,
             DataFim = atividade.DataFim,
             Concluida = atividade.Concluida,

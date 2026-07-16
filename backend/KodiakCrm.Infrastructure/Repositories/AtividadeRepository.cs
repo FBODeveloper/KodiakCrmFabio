@@ -19,7 +19,7 @@ public class AtividadeRepository : IAtividadeRepository
         const string sql = @"
             SELECT id, id_empresa, id_estabelecimento, cnpj_empresa,
                    tipo, titulo, descricao, id_parceiro, id_oportunidade,
-                   responsavel_id, data_inicio, data_fim, concluida, ativo, data_cadastro
+                   responsavel_id, cliente_id, status, data_inicio, data_fim, concluida, ativo, data_cadastro
             FROM atividade 
             WHERE id = @Id AND id_empresa = @IdEmpresa";
 
@@ -92,14 +92,16 @@ public class AtividadeRepository : IAtividadeRepository
         var sql = $@"
             SELECT a.id, a.id_empresa, a.id_estabelecimento, a.cnpj_empresa,
                    a.tipo, a.titulo, a.descricao, a.id_parceiro, a.id_oportunidade,
-                   a.responsavel_id, a.data_inicio, a.data_fim, a.concluida, a.ativo, a.data_cadastro,
+                   a.responsavel_id, a.cliente_id, a.status, a.data_inicio, a.data_fim, a.concluida, a.ativo, a.data_cadastro,
                    p.razao_social as parceiro_nome,
                    o.titulo as oportunidade_titulo,
-                   u.nome as responsavel_nome
+                   u.nome as responsavel_nome,
+                   c.razao_social as cliente_nome
             FROM atividade a
             LEFT JOIN parceiro p ON a.id_parceiro = p.id
             LEFT JOIN oportunidade o ON a.id_oportunidade = o.id
             LEFT JOIN usuario u ON a.responsavel_id = u.id
+            LEFT JOIN cliente c ON a.cliente_id = c.id
             {whereClause}
             ORDER BY a.data_cadastro DESC
             LIMIT @Limit OFFSET @Offset";
@@ -119,7 +121,7 @@ public class AtividadeRepository : IAtividadeRepository
         const string sql = @"
             SELECT id, id_empresa, id_estabelecimento, cnpj_empresa,
                    tipo, titulo, descricao, id_parceiro, id_oportunidade,
-                   responsavel_id, data_inicio, data_fim, concluida, ativo, data_cadastro
+                   responsavel_id, cliente_id, status, data_inicio, data_fim, concluida, ativo, data_cadastro
             FROM atividade 
             WHERE id_parceiro = @IdParceiro AND id_empresa = @IdEmpresa AND ativo = true
             ORDER BY data_cadastro DESC";
@@ -133,10 +135,10 @@ public class AtividadeRepository : IAtividadeRepository
         const string sql = @"
             INSERT INTO atividade (id_empresa, id_estabelecimento, cnpj_empresa,
                                    tipo, titulo, descricao, id_parceiro, id_oportunidade,
-                                   responsavel_id, data_inicio, data_fim, concluida)
+                                   responsavel_id, cliente_id, status, data_inicio, data_fim, concluida)
             VALUES (@IdEmpresa, @IdEstabelecimento, @CnpjEmpresa,
                     @Tipo, @Titulo, @Descricao, @IdParceiro, @IdOportunidade,
-                    @ResponsavelId, @DataInicio, @DataFim, @Concluida)
+                    @ResponsavelId, @ClienteId, @Status, @DataInicio, @DataFim, @Concluida)
             RETURNING id";
 
         return await connection.ExecuteScalarAsync<int>(sql, new
@@ -150,6 +152,8 @@ public class AtividadeRepository : IAtividadeRepository
             atividade.IdParceiro,
             atividade.IdOportunidade,
             atividade.ResponsavelId,
+            atividade.ClienteId,
+            atividade.Status,
             atividade.DataInicio,
             atividade.DataFim,
             atividade.Concluida
@@ -167,6 +171,8 @@ public class AtividadeRepository : IAtividadeRepository
                 id_parceiro = @IdParceiro,
                 id_oportunidade = @IdOportunidade,
                 responsavel_id = @ResponsavelId,
+                cliente_id = @ClienteId,
+                status = @Status,
                 data_inicio = @DataInicio,
                 data_fim = @DataFim,
                 concluida = @Concluida
@@ -182,6 +188,8 @@ public class AtividadeRepository : IAtividadeRepository
             atividade.IdParceiro,
             atividade.IdOportunidade,
             atividade.ResponsavelId,
+            atividade.ClienteId,
+            atividade.Status,
             atividade.DataInicio,
             atividade.DataFim,
             atividade.Concluida
@@ -199,5 +207,17 @@ public class AtividadeRepository : IAtividadeRepository
             LIMIT 50";
 
         return (await connection.QueryAsync<Atividade>(sql, new { DataReferencia = dataReferencia })).ToList();
+    }
+
+    public async Task<bool> AlterarStatusAsync(int id, string status, string idEmpresa)
+    {
+        using var connection = _database.GetConnection();
+        const string sql = @"
+            UPDATE atividade 
+            SET status = @Status
+            WHERE id = @Id AND id_empresa = @IdEmpresa";
+
+        var affected = await connection.ExecuteAsync(sql, new { Id = id, Status = status, IdEmpresa = idEmpresa });
+        return affected > 0;
     }
 }

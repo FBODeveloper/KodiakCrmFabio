@@ -279,4 +279,11 @@ public class OportunidadeRepository : IOportunidadeRepository
             oportunidade.MotivoPerda
         });
     }
+
+    public async Task ExcluirAsync(int id, string idEmpresa)
+    {
+        using var connection = _database.GetConnection();
+        const string sql = "UPDATE oportunidade SET ativo = false WHERE id = @Id AND id_empresa = @IdEmpresa";
+        await connection.ExecuteAsync(sql, new { Id = id, IdEmpresa = idEmpresa });
+    }
 }

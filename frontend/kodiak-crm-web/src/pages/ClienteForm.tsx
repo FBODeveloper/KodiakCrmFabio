@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 
 export default function ClienteForm() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const readonly = searchParams.get('readonly') === 'true';
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
   const [form, setForm] = useState({
@@ -78,6 +80,20 @@ export default function ClienteForm() {
       </div>
       
       <form onSubmit={handleSubmit} className="form">
+        {!isEdicao && (
+          <div className="form-row">
+            <div className="form-group">
+              <label>Data Cadastro</label>
+              <input
+                type="text"
+                value={new Date().toLocaleDateString('pt-BR')}
+                disabled
+              />
+            </div>
+            <div></div>
+          </div>
+        )}
+
         <div className="form-row">
           <div className="form-group">
             <label>Razão Social *</label>
@@ -87,6 +103,7 @@ export default function ClienteForm() {
               value={form.razaoSocial}
               onChange={handleChange}
               required
+              disabled={readonly}
             />
           </div>
           
@@ -97,6 +114,7 @@ export default function ClienteForm() {
               name="nomeFantasia"
               value={form.nomeFantasia}
               onChange={handleChange}
+              disabled={readonly}
             />
           </div>
         </div>
@@ -110,6 +128,7 @@ export default function ClienteForm() {
               value={form.cnpjCpf}
               onChange={handleChange}
               placeholder="000.000.000-00"
+              disabled={readonly}
             />
           </div>
           
@@ -120,6 +139,7 @@ export default function ClienteForm() {
               name="email"
               value={form.email}
               onChange={handleChange}
+              disabled={readonly}
             />
           </div>
         </div>
@@ -133,6 +153,7 @@ export default function ClienteForm() {
               value={form.telefone}
               onChange={handleChange}
               placeholder="(00) 0000-0000"
+              disabled={readonly}
             />
           </div>
           
@@ -144,6 +165,7 @@ export default function ClienteForm() {
               value={form.celular}
               onChange={handleChange}
               placeholder="(00) 00000-0000"
+              disabled={readonly}
             />
           </div>
         </div>
@@ -155,6 +177,7 @@ export default function ClienteForm() {
             name="endereco"
             value={form.endereco}
             onChange={handleChange}
+            disabled={readonly}
           />
         </div>
         
@@ -165,16 +188,19 @@ export default function ClienteForm() {
             value={form.observacao}
             onChange={handleChange}
             rows={4}
+            disabled={readonly}
           />
         </div>
         
         {erro && <div className="erro">{erro}</div>}
         
-        <div className="form-actions">
-          <button type="submit" className="btn-primary" disabled={carregando}>
-            {carregando ? 'Salvando...' : 'Salvar'}
-          </button>
-        </div>
+        {!readonly && (
+          <div className="form-actions">
+            <button type="submit" className="btn-primary" disabled={carregando}>
+              {carregando ? 'Salvando...' : 'Salvar'}
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );

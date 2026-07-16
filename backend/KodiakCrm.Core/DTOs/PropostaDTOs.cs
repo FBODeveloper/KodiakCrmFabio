@@ -79,3 +79,9 @@ public class PropostaListDTO
     public int Pagina { get; set; }
     public int ItensPorPagina { get; set; }
 }
+
+public class AlterarStatusPropostaDTO
+{
+    public string Status { get; set; } = string.Empty;
+    public string? MotivoRejeicao { get; set; }
+}

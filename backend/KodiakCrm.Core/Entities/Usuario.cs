@@ -9,6 +9,6 @@ public class Usuario : BaseEntity
     public string Email { get; set; } = string.Empty;
     public string SenhaHash { get; set; } = string.Empty;
     public string? Avatar { get; set; }
-    public DateTime? DataNascimento { get; set; }
+    public DateOnly? DataNascimento { get; set; }
     public string Perfil { get; set; } = "usuario";
 }

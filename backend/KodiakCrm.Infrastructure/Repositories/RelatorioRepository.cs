@@ -19,7 +19,7 @@ public class RelatorioRepository : IRelatorioRepository
         using var conn = _database.GetConnection();
         const string sql = @"
             INSERT INTO relatorio_gerado (id_empresa, cnpj_empresa, tipo, titulo, parametros, resultado, usuario_id, usuario_nome)
-            VALUES (@IdEmpresa, @CnpjEmpresa, @Tipo, @Titulo, @Parametros, @Resultado::jsonb, @UsuarioId, @UsuarioNome)
+            VALUES (@IdEmpresa, @CnpjEmpresa, @Tipo, @Titulo, @Parametros::jsonb, @Resultado::jsonb, @UsuarioId, @UsuarioNome)
             RETURNING id, data_geracao";
 
         var result = await conn.QueryFirstOrDefaultAsync<RelatorioGerado>(sql, relatorio);

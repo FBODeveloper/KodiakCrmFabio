@@ -33,4 +33,5 @@ public interface IOportunidadeRepository
     Task<List<Oportunidade>> ObterPorEstagioAsync(int idEstagio, string idEmpresa);
     Task<int> CriarAsync(Oportunidade oportunidade);
     Task AtualizarAsync(Oportunidade oportunidade);
+    Task ExcluirAsync(int id, string idEmpresa);
 }

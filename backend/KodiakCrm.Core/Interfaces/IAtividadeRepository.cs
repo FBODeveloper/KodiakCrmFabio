@@ -10,6 +10,7 @@ public interface IAtividadeRepository
     Task<int> CriarAsync(Atividade atividade);
     Task AtualizarAsync(Atividade atividade);
     Task<List<Atividade>> ObterAtividadesAtrasadasAsync(DateTime dataReferencia);
+    Task<bool> AlterarStatusAsync(int id, string status, string idEmpresa);
 }
 
 public class AtividadeListResult

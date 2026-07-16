@@ -12,6 +12,9 @@ public class AtividadeDTO
     public string? OportunidadeTitulo { get; set; }
     public int? ResponsavelId { get; set; }
     public string? ResponsavelNome { get; set; }
+    public int? ClienteId { get; set; }
+    public string? ClienteNome { get; set; }
+    public string Status { get; set; } = "pendente";
     public DateTime? DataInicio { get; set; }
     public DateTime? DataFim { get; set; }
     public bool Concluida { get; set; }
@@ -27,6 +30,8 @@ public class AtividadeCreateDTO
     public string? Descricao { get; set; }
     public int? IdParceiro { get; set; }
     public int? IdOportunidade { get; set; }
+    public int? ClienteId { get; set; }
+    public int? ResponsavelId { get; set; }
     public DateTime? DataInicio { get; set; }
     public DateTime? DataFim { get; set; }
 }
@@ -39,6 +44,8 @@ public class AtividadeUpdateDTO
     public int? IdParceiro { get; set; }
     public int? IdOportunidade { get; set; }
     public int? ResponsavelId { get; set; }
+    public int? ClienteId { get; set; }
+    public string? Status { get; set; }
     public DateTime? DataInicio { get; set; }
     public DateTime? DataFim { get; set; }
     public bool? Concluida { get; set; }
@@ -50,4 +57,9 @@ public class AtividadeListDTO
     public int Total { get; set; }
     public int Pagina { get; set; }
     public int ItensPorPagina { get; set; }
+}
+
+public class AlterarStatusAtividadeDTO
+{
+    public string Status { get; set; } = string.Empty;
 }

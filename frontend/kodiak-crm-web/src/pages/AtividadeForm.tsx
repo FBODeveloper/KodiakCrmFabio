@@ -1,12 +1,30 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
+import { useAuth } from '../contexts/AuthContext';
+
+interface ClienteOption {
+  id: number;
+  razaoSocial: string;
+  nomeFantasia?: string;
+}
+
+interface UsuarioOption {
+  id: number;
+  nome: string;
+}
 
 export default function AtividadeForm() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const readonly = searchParams.get('readonly') === 'true';
   const navigate = useNavigate();
+  const { usuario, isGerente } = useAuth();
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
+  const [clientes, setClientes] = useState<ClienteOption[]>([]);
+  const [usuarios, setUsuarios] = useState<UsuarioOption[]>([]);
+
   const formatarDateTimeLocal = (date: Date) => {
     const pad = (n: number) => n.toString().padStart(2, '0');
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
@@ -20,29 +38,58 @@ export default function AtividadeForm() {
       titulo: '',
       descricao: '',
       idParceiro: '',
+      clienteId: '',
+      responsavelId: '',
+      status: 'pendente',
       dataInicio: now,
       dataFim: ''
     };
   });
+  const [statusOriginal, setStatusOriginal] = useState('pendente');
 
   useEffect(() => {
+    carregarClientes();
+    carregarUsuarios();
     if (id) {
       carregarAtividade(parseInt(id));
     }
   }, [id]);
 
+  const carregarClientes = async () => {
+    try {
+      const response = await api.get('/clientes');
+      setClientes(response.data.itens || response.data || []);
+    } catch (error) {
+      console.error('Erro ao carregar clientes:', error);
+    }
+  };
+
+  const carregarUsuarios = async () => {
+    try {
+      const response = await api.get('/usuarios');
+      setUsuarios(response.data.itens || response.data || []);
+    } catch (error) {
+      console.error('Erro ao carregar usuários:', error);
+    }
+  };
+
   const carregarAtividade = async (atividadeId: number) => {
     try {
       const response = await api.get(`/atividade/${atividadeId}`);
       const data = response.data;
+      const status = data.status || 'pendente';
       setForm({
         tipo: data.tipo,
         titulo: data.titulo,
         descricao: data.descricao || '',
         idParceiro: data.idParceiro?.toString() || '',
+        clienteId: data.clienteId?.toString() || '',
+        responsavelId: data.responsavelId?.toString() || '',
+        status,
         dataInicio: data.dataInicio?.slice(0, 16) || '',
         dataFim: data.dataFim?.slice(0, 16) || ''
       });
+      setStatusOriginal(status);
     } catch (error) {
       console.error('Erro ao carregar atividade:', error);
     }
@@ -59,6 +106,9 @@ export default function AtividadeForm() {
         titulo: form.titulo,
         descricao: form.descricao || null,
         idParceiro: form.idParceiro ? parseInt(form.idParceiro) : null,
+        clienteId: form.clienteId ? parseInt(form.clienteId) : null,
+        responsavelId: form.responsavelId ? parseInt(form.responsavelId) : null,
+        status: form.status,
         dataInicio: form.dataInicio || null,
         dataFim: form.dataFim || null
       };
@@ -80,10 +130,14 @@ export default function AtividadeForm() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const podeEditarStatus = statusOriginal === 'pendente';
+  const podeDefinirResponsavel = isGerente;
+  const responsavelDefault = !podeDefinirResponsavel && usuario ? usuario.id.toString() : form.responsavelId;
+
   return (
     <div className="pagina">
       <div className="pagina-header">
-        <h1>{isEdicao ? 'Editar Atividade' : 'Nova Atividade'}</h1>
+        <h1>{readonly ? 'Ver Atividade' : isEdicao ? 'Editar Atividade' : 'Nova Atividade'}</h1>
         <button onClick={() => navigate('/atividades')} className="btn-secondary">
           Voltar
         </button>
@@ -93,7 +147,7 @@ export default function AtividadeForm() {
         <div className="form-row">
           <div className="form-group">
             <label>Tipo *</label>
-            <select name="tipo" value={form.tipo} onChange={handleChange}>
+            <select name="tipo" value={form.tipo} onChange={handleChange} disabled={readonly}>
               <option value="ligacao">Ligação</option>
               <option value="reuniao">Reunião</option>
               <option value="visita">Visita</option>
@@ -111,6 +165,7 @@ export default function AtividadeForm() {
               value={form.titulo}
               onChange={handleChange}
               required
+              disabled={readonly}
             />
           </div>
         </div>
@@ -122,10 +177,52 @@ export default function AtividadeForm() {
             value={form.descricao}
             onChange={handleChange}
             rows={4}
+            disabled={readonly}
           />
         </div>
-        
+
         <div className="form-row">
+          <div className="form-group">
+            <label>Cliente</label>
+            <select name="clienteId" value={form.clienteId} onChange={handleChange} disabled={readonly}>
+              <option value="">Nenhum</option>
+              {clientes.map(c => (
+                <option key={c.id} value={c.id}>{c.nomeFantasia || c.razaoSocial}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Responsável</label>
+            <select
+              name="responsavelId"
+              value={responsavelDefault}
+              onChange={handleChange}
+              disabled={readonly || !podeDefinirResponsavel}
+            >
+              <option value="">Nenhum</option>
+              {usuarios.map(u => (
+                <option key={u.id} value={u.id}>{u.nome}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label>Status</label>
+            <select
+              name="status"
+              value={form.status}
+              onChange={handleChange}
+              disabled={readonly || !podeEditarStatus}
+            >
+              <option value="pendente">Pendente</option>
+              <option value="concluido">Concluído</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+
           <div className="form-group">
             <label>Data/Hora Início</label>
             <input
@@ -133,6 +230,7 @@ export default function AtividadeForm() {
               name="dataInicio"
               value={form.dataInicio}
               onChange={handleChange}
+              disabled={readonly}
             />
           </div>
           
@@ -143,17 +241,20 @@ export default function AtividadeForm() {
               name="dataFim"
               value={form.dataFim}
               onChange={handleChange}
+              disabled={readonly}
             />
           </div>
         </div>
         
         {erro && <div className="erro">{erro}</div>}
         
-        <div className="form-actions">
-          <button type="submit" className="btn-primary" disabled={carregando}>
-            {carregando ? 'Salvando...' : 'Salvar'}
-          </button>
-        </div>
+        {!readonly && (
+          <div className="form-actions">
+            <button type="submit" className="btn-primary" disabled={carregando}>
+              {carregando ? 'Salvando...' : 'Salvar'}
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );

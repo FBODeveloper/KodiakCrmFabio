@@ -125,11 +125,11 @@ public class PropostaController : ControllerBase
         return Ok(proposta);
     }
 
-    [HttpPut("{id}/status")]
-    public async Task<ActionResult<PropostaDTO>> AlterarStatus(int id, [FromBody] AlterarStatusDTO dto)
+    [HttpPatch("{id}/status")]
+    public async Task<ActionResult<PropostaDTO>> AlterarStatus(int id, [FromBody] AlterarStatusPropostaDTO dto)
     {
         var idEmpresa = ObterIdEmpresa();
-        var proposta = await _service.AlterarStatusAsync(id, dto.Status, idEmpresa);
+        var proposta = await _service.AlterarStatusAsync(id, dto.Status, dto.MotivoRejeicao, idEmpresa);
 
         if (proposta == null)
             return NotFound(new { mensagem = "Proposta não encontrada" });
@@ -138,11 +138,15 @@ public class PropostaController : ControllerBase
         {
             try
             {
+                var descricao = $"Proposta \"{proposta.Numero}\" status alterado para \"{dto.Status}\"";
+                if (!string.IsNullOrEmpty(dto.MotivoRejeicao))
+                    descricao += $" - Motivo: {dto.MotivoRejeicao}";
+
                 await _historico.RegistrarAsync(
                     idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
                     "proposta", id, "status_alterada",
-                    $"Proposta \"{proposta.Numero}\" status alterado para \"{dto.Status}\"",
-                    dadosDepois: new { proposta.Status },
+                    descricao,
+                    dadosDepois: new { proposta.Status, dto.MotivoRejeicao },
                     usuarioId: ObterUsuarioId(),
                     usuarioNome: ObterUsuarioNome());
             }
@@ -182,9 +186,4 @@ public class PropostaController : ControllerBase
 
         return NoContent();
     }
-}
-
-public class AlterarStatusDTO
-{
-    public string Status { get; set; } = string.Empty;
 }

@@ -6,6 +6,7 @@ export default function ContatoForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const readonly = searchParams.get('readonly') === 'true';
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
   const [clientes, setClientes] = useState<{ id: number; razaoSocial: string }[]>([]);
@@ -106,6 +107,20 @@ export default function ContatoForm() {
       </div>
       
       <form onSubmit={handleSubmit} className="form">
+        {!isEdicao && (
+          <div className="form-row">
+            <div className="form-group">
+              <label>Data Cadastro</label>
+              <input
+                type="text"
+                value={new Date().toLocaleDateString('pt-BR')}
+                disabled
+              />
+            </div>
+            <div></div>
+          </div>
+        )}
+
         <div className="form-row">
           <div className="form-group">
             <label>Nome *</label>
@@ -115,6 +130,7 @@ export default function ContatoForm() {
               value={form.nome}
               onChange={handleChange}
               required
+              disabled={readonly}
             />
           </div>
           
@@ -125,6 +141,7 @@ export default function ContatoForm() {
               name="cargo"
               value={form.cargo}
               onChange={handleChange}
+              disabled={readonly}
             />
           </div>
         </div>
@@ -137,6 +154,7 @@ export default function ContatoForm() {
               name="email"
               value={form.email}
               onChange={handleChange}
+              disabled={readonly}
             />
           </div>
           
@@ -148,6 +166,7 @@ export default function ContatoForm() {
               value={form.telefone}
               onChange={handleChange}
               placeholder="(00) 0000-0000"
+              disabled={readonly}
             />
           </div>
         </div>
@@ -161,12 +180,13 @@ export default function ContatoForm() {
               value={form.celular}
               onChange={handleChange}
               placeholder="(00) 00000-0000"
+              disabled={readonly}
             />
           </div>
           
           <div className="form-group">
             <label>Cliente</label>
-            <select name="idCliente" value={form.idCliente} onChange={handleChange}>
+            <select name="idCliente" value={form.idCliente} onChange={handleChange} disabled={readonly}>
               <option value="">Nenhum cliente</option>
               {clientes.map(cliente => (
                 <option key={cliente.id} value={cliente.id}>{cliente.razaoSocial}</option>
@@ -182,16 +202,19 @@ export default function ContatoForm() {
             value={form.observacao}
             onChange={handleChange}
             rows={3}
+            disabled={readonly}
           />
         </div>
         
         {erro && <div className="erro">{erro}</div>}
         
-        <div className="form-actions">
-          <button type="submit" className="btn-primary" disabled={carregando}>
-            {carregando ? 'Salvando...' : 'Salvar'}
-          </button>
-        </div>
+        {!readonly && (
+          <div className="form-actions">
+            <button type="submit" className="btn-primary" disabled={carregando}>
+              {carregando ? 'Salvando...' : 'Salvar'}
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );

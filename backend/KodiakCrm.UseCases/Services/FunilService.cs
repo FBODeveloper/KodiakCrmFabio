@@ -188,6 +188,15 @@ public class OportunidadeService
         return MapearParaDTO(oportunidade);
     }
 
+    public async Task<bool> ExcluirAsync(int id, string idEmpresa)
+    {
+        var oportunidade = await _repository.ObterPorIdAsync(id, idEmpresa);
+        if (oportunidade == null) return false;
+
+        await _repository.ExcluirAsync(id, idEmpresa);
+        return true;
+    }
+
     public async Task<KanbanDTO> ObterKanbanAsync(int funilId, string idEmpresa)
     {
         var funil = await _funilRepository.ObterPorIdAsync(funilId, idEmpresa);

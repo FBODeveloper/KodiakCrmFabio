@@ -7,7 +7,7 @@ public class UsuarioGestaoDTO
     public string Email { get; set; } = string.Empty;
     public string Perfil { get; set; } = string.Empty;
     public string? Avatar { get; set; }
-    public DateTime? DataNascimento { get; set; }
+    public DateOnly? DataNascimento { get; set; }
     public bool Ativo { get; set; }
     public DateTime DataCadastro { get; set; }
 }
@@ -19,7 +19,7 @@ public class UsuarioCreateDTO
     public string Senha { get; set; } = string.Empty;
     public string Perfil { get; set; } = "usuario";
     public string? Avatar { get; set; }
-    public DateTime? DataNascimento { get; set; }
+    public DateOnly? DataNascimento { get; set; }
     public string? IdEmpresa { get; set; }
 }
 
@@ -30,7 +30,7 @@ public class UsuarioUpdateDTO
     public string? Senha { get; set; }
     public string Perfil { get; set; } = "usuario";
     public string? Avatar { get; set; }
-    public DateTime? DataNascimento { get; set; }
+    public DateOnly? DataNascimento { get; set; }
     public bool? Ativo { get; set; }
 }
 

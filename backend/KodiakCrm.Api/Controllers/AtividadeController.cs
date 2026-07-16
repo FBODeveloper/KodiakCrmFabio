@@ -135,4 +135,43 @@ public class AtividadeController : ControllerBase
 
         return Ok(atividade);
     }
+
+    [HttpPatch("{id}/status")]
+    public async Task<ActionResult<AtividadeDTO>> AlterarStatus(int id, [FromBody] AlterarStatusAtividadeDTO dto)
+    {
+        var statusPermitidos = new[] { "pendente", "concluido", "cancelado" };
+        if (!statusPermitidos.Contains(dto.Status))
+            return BadRequest(new { mensagem = "Status inválido. Valores permitidos: pendente, concluido, cancelado" });
+
+        var idEmpresa = ObterIdEmpresa();
+        var atividadeAtual = await _service.ObterPorIdAsync(id, idEmpresa);
+        if (atividadeAtual == null)
+            return NotFound(new { mensagem = "Atividade não encontrada" });
+
+        if (atividadeAtual.Status != "pendente")
+            return BadRequest(new { mensagem = "Só é possível alterar status de atividades com status 'pendente'" });
+
+        if (dto.Status != "concluido" && dto.Status != "cancelado")
+            return BadRequest(new { mensagem = "Só é possível alterar para 'concluido' ou 'cancelado'" });
+
+        var atividade = await _service.AlterarStatusAsync(id, dto.Status, idEmpresa);
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "atividade", id, "status_alterado",
+                    $"Atividade \"{atividade!.Titulo}\" status alterado para \"{dto.Status}\"",
+                    dadosAntes: new { Status = atividadeAtual.Status },
+                    dadosDepois: new { Status = dto.Status },
+                    usuarioId: ObterResponsavelId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
+        });
+
+        return Ok(atividade);
+    }
 }

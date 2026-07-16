@@ -144,10 +144,15 @@ public class PropostaService
         return MapearParaDTO(proposta, itens);
     }
 
-    public async Task<PropostaDTO?> AlterarStatusAsync(int id, string status, string idEmpresa)
+    public async Task<PropostaDTO?> AlterarStatusAsync(int id, string status, string? motivoRejeicao, string idEmpresa)
     {
         var proposta = await _repository.ObterPorIdAsync(id, idEmpresa);
         if (proposta == null) return null;
+
+        if (string.IsNullOrEmpty(proposta.Numero))
+        {
+            proposta.Numero = await _repository.GerarProximoNumeroAsync(idEmpresa);
+        }
 
         proposta.Status = status;
         await _repository.AtualizarAsync(proposta);

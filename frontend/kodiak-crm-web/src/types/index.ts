@@ -237,6 +237,9 @@ export interface Atividade {
   oportunidadeTitulo?: string;
   responsavelId?: number;
   responsavelNome?: string;
+  clienteId?: number;
+  clienteNome?: string;
+  status: string;
   dataInicio?: string;
   dataFim?: string;
   concluida: boolean;

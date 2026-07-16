@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import type { ClienteDTO, ContatoDTO } from '../types';
 
@@ -38,6 +38,8 @@ const emptyItem: PropostaItemForm = { descricao: '', quantidade: 1, valorUnitari
 export default function PropostaForm() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const readonly = searchParams.get('readonly') === 'true';
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
   const [form, setForm] = useState<PropostaFormState>(emptyForm);
@@ -192,7 +194,7 @@ export default function PropostaForm() {
   return (
     <div className="pagina">
       <div className="pagina-header">
-        <h1>{isEdicao ? 'Editar Proposta' : 'Nova Proposta'}</h1>
+        <h1>{readonly ? 'Proposta' : isEdicao ? 'Editar Proposta' : 'Nova Proposta'}</h1>
         <button onClick={() => navigate('/propostas')} className="btn-secondary">
           Voltar
         </button>
@@ -207,6 +209,7 @@ export default function PropostaForm() {
               value={isEdicao ? numeroGerado : '(gerado ao salvar)'}
               readOnly
               style={{ backgroundColor: 'var(--background)', cursor: 'not-allowed' }}
+              disabled={readonly}
             />
           </div>
           <div className="form-group">
@@ -217,6 +220,7 @@ export default function PropostaForm() {
               value={form.titulo}
               onChange={handleChange}
               required
+              disabled={readonly}
             />
           </div>
         </div>
@@ -229,6 +233,7 @@ export default function PropostaForm() {
               name="dataProposta"
               value={form.dataProposta}
               onChange={handleChange}
+              disabled={readonly}
             />
           </div>
           <div className="form-group">
@@ -238,6 +243,7 @@ export default function PropostaForm() {
               name="dataValidade"
               value={form.dataValidade}
               onChange={handleChange}
+              disabled={readonly}
             />
           </div>
         </div>
@@ -249,6 +255,7 @@ export default function PropostaForm() {
               name="clienteId"
               value={form.clienteId}
               onChange={handleChange}
+              disabled={readonly}
             >
               <option value="">Selecione o cliente</option>
               {clientes.map(c => (
@@ -264,7 +271,7 @@ export default function PropostaForm() {
               name="contatoId"
               value={form.contatoId}
               onChange={handleChange}
-              disabled={!form.clienteId}
+              disabled={readonly || !form.clienteId}
             >
               <option value="">
                 {form.clienteId ? 'Selecione o contato' : 'Selecione um cliente primeiro'}
@@ -287,6 +294,7 @@ export default function PropostaForm() {
               value={form.formaPagamento}
               onChange={handleChange}
               placeholder="Ex: PIX, Boleto, Cartão..."
+              disabled={readonly}
             />
           </div>
           <div className="form-group">
@@ -297,6 +305,7 @@ export default function PropostaForm() {
               value={form.prazoEntrega}
               onChange={handleChange}
               placeholder="Ex: 15 dias úteis"
+              disabled={readonly}
             />
           </div>
         </div>
@@ -313,6 +322,7 @@ export default function PropostaForm() {
                   value={item.descricao}
                   onChange={(e) => handleItemChange(index, 'descricao', e.target.value)}
                   placeholder="Descrição do item"
+                  disabled={readonly}
                 />
               </div>
 
@@ -323,6 +333,7 @@ export default function PropostaForm() {
                   value={item.quantidade}
                   onChange={(e) => handleItemChange(index, 'quantidade', parseInt(e.target.value) || 0)}
                   min="1"
+                  disabled={readonly}
                 />
               </div>
 
@@ -334,6 +345,7 @@ export default function PropostaForm() {
                   onChange={(e) => handleItemChange(index, 'valorUnitario', parseFloat(e.target.value) || 0)}
                   step="0.01"
                   min="0"
+                  disabled={readonly}
                 />
               </div>
 
@@ -345,7 +357,7 @@ export default function PropostaForm() {
                 </p>
               </div>
 
-              {itens.length > 1 && (
+              {!readonly && itens.length > 1 && (
                 <button type="button" onClick={() => removeItem(index)} className="btn-danger btn-small">
                   Remover
                 </button>
@@ -353,9 +365,11 @@ export default function PropostaForm() {
             </div>
           ))}
 
-          <button type="button" onClick={addItem} className="btn-secondary">
-            + Adicionar Item
-          </button>
+          {!readonly && (
+            <button type="button" onClick={addItem} className="btn-secondary">
+              + Adicionar Item
+            </button>
+          )}
 
           <div className="proposta-total">
             <strong>Valor Total: </strong>
@@ -370,21 +384,24 @@ export default function PropostaForm() {
             value={form.observacao}
             onChange={handleChange}
             rows={3}
+            disabled={readonly}
           />
         </div>
 
         {erro && <div className="erro">{erro}</div>}
 
-        <div className="form-actions">
-          <button type="submit" className="btn-primary" disabled={carregando}>
-            {carregando ? 'Salvando...' : 'Salvar'}
-          </button>
-          {!isEdicao && (
-            <button type="button" className="btn-secondary" onClick={resetForm}>
-              Limpar
+        {!readonly && (
+          <div className="form-actions">
+            <button type="submit" className="btn-primary" disabled={carregando}>
+              {carregando ? 'Salvando...' : 'Salvar'}
             </button>
-          )}
-        </div>
+            {!isEdicao && (
+              <button type="button" className="btn-secondary" onClick={resetForm}>
+                Limpar
+              </button>
+            )}
+          </div>
+        )}
       </form>
     </div>
   );

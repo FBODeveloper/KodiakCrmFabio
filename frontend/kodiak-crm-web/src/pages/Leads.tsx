@@ -18,7 +18,7 @@ export default function Leads() {
   const filtroConfigs: FiltroConfig[] = [
     {
       campo: 'status',
-      label: 'Status',
+      label: 'Estágio',
       tipo: 'select',
       opcoes: [
         { valor: 'novo', label: 'Novo' },
@@ -195,7 +195,6 @@ export default function Leads() {
                 <th>Empresa</th>
                 <th>Email</th>
                 <th>Telefone</th>
-                <th>Status</th>
                 <th>Estágio</th>
                 <th>Responsável</th>
                 <th style={{ width: 100 }}></th>
@@ -225,14 +224,6 @@ export default function Leads() {
                     <td>{lead.empresa || '-'}</td>
                     <td>{lead.email || '-'}</td>
                     <td>{lead.telefone || '-'}</td>
-                    <td>
-                      <span
-                        className="status-badge"
-                        style={{ backgroundColor: statusColors[lead.status] || '#6b7280' }}
-                      >
-                        {lead.status}
-                      </span>
-                    </td>
                     <td>{lead.estagioNome || '-'}</td>
                     <td>
                       {lead.responsavelNome ? (
