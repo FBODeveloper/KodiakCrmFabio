@@ -2,6 +2,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../api/axios';
+import SearchBar from '../components/SearchBar';
 
 export default function Layout() {
   const { usuario, logout, isAdmin } = useAuth();
@@ -55,6 +56,10 @@ export default function Layout() {
         </div>
 
         <div className="header-right">
+          <div className="header-search">
+            <SearchBar />
+          </div>
+
           <button
             className="header-theme-btn"
             onClick={() => setDarkMode(!darkMode)}
@@ -76,7 +81,7 @@ export default function Layout() {
             {naoLidas > 0 && <span className="header-notif-badge">{naoLidas > 99 ? '99+' : naoLidas}</span>}
           </button>
 
-          <div className="header-user">
+          <div className="header-user" onClick={() => navigate('/perfil')} style={{ cursor: 'pointer' }}>
             {usuario?.avatar ? (
               <img src={usuario.avatar} alt={usuario.nome} className="header-user-avatar" />
             ) : (

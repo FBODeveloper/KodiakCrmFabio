@@ -13,11 +13,13 @@ public class LeadController : ControllerBase
 {
     private readonly LeadService _service;
     private readonly HistoricoService _historico;
+    private readonly AutomacaoService _automacao;
 
-    public LeadController(LeadService service, HistoricoService historico)
+    public LeadController(LeadService service, HistoricoService historico, AutomacaoService automacao)
     {
         _service = service;
         _historico = historico;
+        _automacao = automacao;
     }
 
     private string ObterIdEmpresa() => User.FindFirst("id_empresa")?.Value ?? string.Empty;
@@ -108,6 +110,17 @@ public class LeadController : ControllerBase
                         dadosDepois: new { lead.Nome, lead.Email, lead.Telefone, lead.Empresa, lead.Temperatura },
                         usuarioId: ObterUsuarioId(),
                         usuarioNome: ObterUsuarioNome());
+                }
+                catch { }
+            });
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _automacao.CriarFollowUpLeadAsync(
+                        idEmpresa, lead.Id, lead.Nome,
+                        lead.ResponsavelId, lead.ResponsavelNome ?? "Não atribuído");
                 }
                 catch { }
             });

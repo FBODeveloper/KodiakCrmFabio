@@ -175,4 +175,17 @@ public class AtividadeRepository : IAtividadeRepository
             atividade.Concluida
         });
     }
+
+    public async Task<List<Atividade>> ObterAtividadesAtrasadasAsync(DateTime dataReferencia)
+    {
+        using var connection = _database.GetConnection();
+        const string sql = @"
+            SELECT id, id_empresa, tipo, titulo, responsavel_id, data_fim
+            FROM atividade
+            WHERE concluida = false AND ativo = true AND data_fim < @DataReferencia
+            ORDER BY data_fim ASC
+            LIMIT 50";
+
+        return (await connection.QueryAsync<Atividade>(sql, new { DataReferencia = dataReferencia })).ToList();
+    }
 }

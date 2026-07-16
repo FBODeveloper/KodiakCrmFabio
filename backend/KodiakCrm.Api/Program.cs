@@ -86,6 +86,7 @@ builder.Services.AddScoped<ContatoService>();
 builder.Services.AddScoped<ConfigService>();
 builder.Services.AddScoped<RelatorioService>();
 builder.Services.AddScoped<NotificacaoService>();
+builder.Services.AddScoped<AutomacaoService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? "KodiakCrm_SecretKey_Padrao_2024";

@@ -28,6 +28,8 @@ import ContatoForm from './pages/ContatoForm';
 import Configuracoes from './pages/Configuracoes';
 import Relatorios from './pages/Relatorios';
 import Notificacoes from './pages/Notificacoes';
+import Perfil from './pages/Perfil';
+import { ToastProvider } from './components/Toast';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -99,6 +101,7 @@ function AppRoutes() {
         <Route path="configuracoes" element={<Configuracoes />} />
         <Route path="relatorios" element={<Relatorios />} />
         <Route path="notificacoes" element={<Notificacoes />} />
+        <Route path="perfil" element={<Perfil />} />
       </Route>
       
       <Route path="*" element={<Navigate to="/" />} />
@@ -115,7 +118,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <ToastProvider>
+          <AppRoutes />
+        </ToastProvider>
       </AuthProvider>
     </BrowserRouter>
   );
