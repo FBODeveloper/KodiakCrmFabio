@@ -24,6 +24,8 @@ public static class DapperConfig
         SqlMapper.SetTypeMap(typeof(Cliente), CreateMap<Cliente>());
         SqlMapper.SetTypeMap(typeof(Contato), CreateMap<Contato>());
         SqlMapper.SetTypeMap(typeof(EmpresaConfig), CreateMap<EmpresaConfig>());
+        SqlMapper.SetTypeMap(typeof(RelatorioGerado), CreateMap<RelatorioGerado>());
+        SqlMapper.SetTypeMap(typeof(Notificacao), CreateMap<Notificacao>());
     }
 
     private static CustomPropertyTypeMap CreateMap<T>() where T : class

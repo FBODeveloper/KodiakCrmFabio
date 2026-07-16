@@ -68,6 +68,8 @@ builder.Services.AddScoped<IHistoricoRepository, HistoricoRepository>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IContatoRepository, ContatoRepository>();
 builder.Services.AddScoped<IConfigRepository, ConfigRepository>();
+builder.Services.AddScoped<IRelatorioRepository, RelatorioRepository>();
+builder.Services.AddScoped<INotificacaoRepository, NotificacaoRepository>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<EmpresaService>();
 builder.Services.AddScoped<UsuarioGestaoService>();
@@ -82,6 +84,8 @@ builder.Services.AddScoped<HistoricoService>();
 builder.Services.AddScoped<ClienteService>();
 builder.Services.AddScoped<ContatoService>();
 builder.Services.AddScoped<ConfigService>();
+builder.Services.AddScoped<RelatorioService>();
+builder.Services.AddScoped<NotificacaoService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? "KodiakCrm_SecretKey_Padrao_2024";

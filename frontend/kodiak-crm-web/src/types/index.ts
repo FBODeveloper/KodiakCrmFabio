@@ -389,3 +389,62 @@ export interface PaginatedResponse<T> {
   pagina: number;
   itensPorPagina: number;
 }
+
+export interface RelatorioFiltro {
+  dataInicio?: string;
+  dataFim?: string;
+  status?: string;
+  responsavelId?: number;
+  tipoAtividade?: string;
+}
+
+export interface RelatorioVendas {
+  totalOportunidades: number;
+  oportunidadesGanhas: number;
+  oportunidadesPerdidas: number;
+  oportunidadesAbertas: number;
+  valorTotal: number;
+  valorGanho: number;
+  valorPerdido: number;
+  ticketMedio: number;
+  taxaConversao: number;
+  porPeriodo: { periodo: string; quantidade: number; valor: number }[];
+  porResponsavel: { responsavelNome: string; total: number; ganhas: number; valorTotal: number }[];
+}
+
+export interface RelatorioAtividades {
+  totalAtividades: number;
+  concluidas: number;
+  pendentes: number;
+  taxaConclusao: number;
+  porTipo: { tipo: string; quantidade: number; concluidas: number }[];
+  porResponsavel: { responsavelNome: string; total: number; concluidas: number }[];
+}
+
+export interface RelatorioPerformance {
+  vendedores: {
+    vendedorNome: string;
+    totalLeads: number;
+    totalOportunidades: number;
+    oportunidadesGanhas: number;
+    valorTotal: number;
+    taxaConversao: number;
+    totalAtividades: number;
+  }[];
+}
+
+export interface Notificacao {
+  id: number;
+  titulo: string;
+  mensagem: string;
+  tipo: string;
+  entidade?: string;
+  entidadeId?: number;
+  lida: boolean;
+  dataCriacao: string;
+}
+
+export interface NotificacaoResumo {
+  totalNaoLidas: number;
+  recentes: Notificacao[];
+}

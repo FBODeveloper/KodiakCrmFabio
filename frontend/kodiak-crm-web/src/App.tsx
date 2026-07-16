@@ -26,6 +26,8 @@ import ClienteForm from './pages/ClienteForm';
 import Contatos from './pages/Contatos';
 import ContatoForm from './pages/ContatoForm';
 import Configuracoes from './pages/Configuracoes';
+import Relatorios from './pages/Relatorios';
+import Notificacoes from './pages/Notificacoes';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -95,6 +97,8 @@ function AppRoutes() {
         <Route path="contatos/:id" element={<ContatoForm />} />
 
         <Route path="configuracoes" element={<Configuracoes />} />
+        <Route path="relatorios" element={<Relatorios />} />
+        <Route path="notificacoes" element={<Notificacoes />} />
       </Route>
       
       <Route path="*" element={<Navigate to="/" />} />
