@@ -1,105 +1,74 @@
-# Contexto de CRM
+# Contexto de CRM - KodiakCrm
 
 ## Objetivo
-
-Este documento descreve o fluxo de negócio esperado de um CRM para
-orientar uma IA na compreensão das entidades e suas relações.
+CRM multi-tenant comercializável para empresas clientes gerenciarem seus próprios usuários, leads, oportunidades, atividades, propostas, clientes e contatos.
 
 ## Fluxo principal
+Lead → Qualificação → Oportunidade → Proposta → Negociação → Ganha/Perdida → Cliente
 
-Lead -\> Qualificação -\> Oportunidade -\> Proposta -\> Negociação -\>
-Ganha/Perdida -\> Cliente
+## Stack
+- **Backend:** .NET 10, Dapper + PostgreSQL 18, Clean Architecture
+- **Frontend:** React 19 + TypeScript + Vite
+- **Portas:** API 5279, Frontend 5173
+- **Git:** https://github.com/FBODeveloper/KodiakCrmFabio.git
+
+## Entidades Principais
 
 ### Lead
-
-Pessoa ou empresa que demonstrou interesse. Não representa uma venda.
-
-Campos típicos: - Origem - Nome - Empresa - Contato - Responsável -
-Status
-
-### Qualificação
-
-Verifica necessidade, orçamento, autoridade e prazo. Resultados: -
-Descartado - Permanecer Lead - Converter em Oportunidade
+- Kanban drag-and-drop por estágios do funil
+- Temperatura: quente/morno/frio
+- Email não é único (cada interação = lead separado)
+- Responsável vinculado
 
 ### Oportunidade
-
-Representa um negócio real.
-
-Possui: - Empresa - Contatos - Responsável - Pipeline - Valor previsto -
-Probabilidade - Data prevista de fechamento
-
-Uma empresa pode possuir diversas oportunidades.
-
-### Pipeline
-
-Etapas sugeridas: 1. Nova 2. Primeiro contato 3. Reunião agendada 4.
-Diagnóstico 5. Proposta enviada 6. Negociação 7. Contrato 8. Ganha 9.
-Perdida
-
-### Atividades
-
-Pertencem à oportunidade. Tipos: - Tarefa - Ligação - Reunião - Email -
-Visita - Demonstração
-
-Cada atividade possui: - Responsável - Data - Situação - Observações
-
-### Agenda
-
-Compromissos com data e hora. Pode estar vinculada à oportunidade.
-
-### Histórico
-
-Toda ação deve gerar histórico imutável.
-
-Exemplos: - Lead criado - Ligação realizada - Reunião concluída -
-Proposta enviada - Alteração de etapa - Venda concluída
-
-### Empresa
-
-Centraliza todas as informações comerciais.
-
-Relacionamentos: Empresa ├── Contatos ├── Oportunidades ├── Histórico
-└── Clientes
-
-### Contatos
-
-Uma empresa pode possuir vários contatos.
-
-Exemplo: - Financeiro - Compras - TI - Diretor
+- Criada via conversão de lead (herda responsável/parceiro)
+- Título automático: "Oportunidade de [nome do lead]"
+- Status calculado: aberta/ganha/perdida
+- Motivo de perda obrigatório ao perder
 
 ### Cliente
+- Criado a partir de oportunidade ganha OU cadastro direto
+- Origem: conversao, cadastro_direto, indicacao, outro
+- Contatos vinculados
 
-Uma oportunidade ganha pode converter automaticamente a empresa em
-cliente.
+### Contato
+- Sub-entidade vinculada a cliente OU parceiro
 
-## Regras
+### Atividade
+- Tipos: tarefa, ligacao, reunião, email, visita, demonstracao
+- Vinculada a oportunidade, parceiro ou lead
+- Notificação automática quando atrasada
 
--   Nunca criar oportunidade sem empresa.
--   Nunca apagar histórico.
--   Uma oportunidade pode possuir várias atividades.
--   Uma empresa pode possuir várias oportunidades.
--   Leads descartados permanecem para estatísticas.
--   Oportunidades perdidas registram motivo da perda.
+### Proposta
+- Status: rascunho, enviada, aprovada, rejeitada
+- Itens dinâmicos com quantidade e valor unitário
 
-## Métricas
+### Histórico
+- Append-only com dados_antes/dados_depois em JSON
+- Toda ação gera registro imutável
 
--   Conversão Lead -\> Oportunidade
--   Conversão Oportunidade -\> Venda
--   Tempo médio por etapa
--   Ticket médio
--   Motivos de perda
--   Produtividade por vendedor
+### Automações
+- Lead criado → follow-up automático em 3 dias + notificação
+- Atividade atrasada → notificação automática
 
-## Modelo conceitual
+## Funcionalidades (15 Fases Concluídas)
 
-Empresa └── Contatos
+| Fase | Descrição |
+|------|-----------|
+| 0-6 | Infraestrutura, Auth, Parceiros, Leads, Funil, Oportunidades, Atividades, Propostas |
+| 7 | Métricas avançadas (ticket médio, conversão, produtividade) |
+| 8 | Configurações (empresa, usuários, logs) |
+| 9 | Relatórios (vendas, atividades, performance) |
+| 10 | Notificações (sistema + badge) |
+| 11 | UX (Toast, Pagination, LoadingButton) |
+| 12 | Busca global (SearchBar) |
+| 13 | Automações (follow-up, atividades atrasadas) |
+| 14 | Perfil do usuário |
+| 15 | Filtros avançados (FilterBar reutilizável em 5 páginas) |
 
-Empresa └── Oportunidades ├── Pipeline ├── Atividades ├── Agenda ├──
-Histórico ├── Propostas └── Produtos
-
-Quando a oportunidade é Ganha: 1. Converter em Cliente. 2. Gerar
-orçamento/pedido quando aplicável. 3. Iniciar implantação/onboarding.
-
-Este documento deve ser considerado como a regra de negócio base para
-desenvolvimento de um CRM integrado a um ERP.
+## Próximos Passos
+- Exportação CSV dos relatórios
+- Dashboard personalizável
+- Audit log admin
+- Backup/restore
+- API pública

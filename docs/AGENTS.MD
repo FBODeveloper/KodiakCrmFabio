@@ -2,6 +2,7 @@
 
 ## Visão Geral
 CRM para o KodiakERP, desenvolvido com .NET 10 (Backend) e React 19 (Frontend).
+**Produto comercializável**: CRM multi-tenant onde empresas clientes gerenciam seus próprios usuários.
 
 ## Stack Tecnológica
 
@@ -27,6 +28,7 @@ CRM para o KodiakERP, desenvolvido com .NET 10 (Backend) e React 19 (Frontend).
 - **Senha:** 123!asd
 - **Database:** kodiak_crm
 - **Schema:** snake_case, tabelas no singular
+- **Migrações:** 11 arquivos (001-011)
 
 ## Convenções de Código
 
@@ -53,7 +55,9 @@ CRM para o KodiakERP, desenvolvido com .NET 10 (Backend) e React 19 (Frontend).
 
 ### Mapeamento Dapper
 - `DapperConfig.cs` com `CustomPropertyTypeMap` + `ToPascalCase` para mapear automaticamente snake_case (banco) → PascalCase (C#)
-- Inclui mapeamento explícito da entity `Empresa`
+- **Dapper bug crítico**: DTOs sem type map — aliases SQL devem ser PascalCase. Entidades usam type map automático com snake_case
+- Inclui type maps para: Lead, Oportunidade, Atividade, Proposta, PropostaItem, FunilEstagio, Empresa, Usuario, Parceiro, Historico, Cliente, Contato, EmpresaConfig, RelatorioGerado, Notificacao
+- `DateOnlyTypeHandler` para DateOnly no Dapper
 
 ## Estrutura do Projeto
 
@@ -63,16 +67,22 @@ kodiak-crm/
 │   ├── KodiakCrm.Api/           # Controllers, Program.cs, Swagger
 │   ├── KodiakCrm.Core/          # Entities, DTOs, Interfaces
 │   ├── KodiakCrm.Infrastructure/ # Repositories, Data (DapperConfig, DatabaseConnection)
-│   └── KodiakCrm.UseCases/      # Services (AuthService, etc.)
+│   └── KodiakCrm.UseCases/      # Services
 ├── frontend/
 │   └── kodiak-crm-web/
 │       └── src/
-│           ├── api/axios.ts         # Instância Axios
-│           ├── contexts/AuthContext.tsx  # Auth, isAdmin, isGerente
-│           ├── pages/               # Todas as páginas
-│           ├── types/index.ts       # Interfaces TypeScript
-│           └── index.css            # CSS com dark mode
-├── database/                    # Scripts de migration SQL
+│           ├── api/axios.ts
+│           ├── contexts/AuthContext.tsx
+│           ├── components/        # Componentes reutilizáveis
+│           │   ├── FilterBar.tsx   # Filtros avançados
+│           │   ├── Toast.tsx       # Notificações globais
+│           │   ├── Pagination.tsx  # Paginação
+│           │   ├── LoadingButton.tsx # Botão com spinner
+│           │   └── SearchBar.tsx   # Busca global
+│           ├── pages/             # Todas as páginas
+│           ├── types/index.ts     # Interfaces TypeScript
+│           └── index.css          # CSS com dark mode
+├── database/                    # 11 migrações SQL (001-011)
 └── docs/                        # Documentação
 ```
 
@@ -80,129 +90,158 @@ kodiak-crm/
 
 ### empresa (PK: cnpj)
 - `cnpj` VARCHAR(14) PK
-- `razao_social` VARCHAR
-- `nome_fantasia` VARCHAR
+- `razao_social`, `nome_fantasia` VARCHAR
 - `quantidade_usuarios_contratados` INTEGER (default 1)
+- `telefone`, `email`, `endereco` VARCHAR
 - `ativo` BOOLEAN (default true)
 - `data_cadastro` TIMESTAMP
 
 ### usuario
-- `id` SERIAL PK
-- `id_empresa` VARCHAR(100) FK → empresa.cnpj
-- `id_estabelecimento`, `cnpj_empresa` VARCHAR
+- `id` SERIAL PK, `id_empresa` FK → empresa.cnpj
 - `nome`, `email`, `senha_hash` VARCHAR
 - `perfil` VARCHAR ('admin', 'gerente', 'usuario')
-- `avatar` VARCHAR (URL)
-- `data_nascimento` DATE
+- `avatar` VARCHAR (URL), `data_nascimento` DATE
 - `ativo` BOOLEAN, `data_cadastro` TIMESTAMP
 
 ### parceiro
-- `id` SERIAL PK
-- `id_empresa`, `id_estabelecimento`, `cnpj_empresa` VARCHAR
-- `razao_social`, `nome_fantasia` VARCHAR
-- `cpf_cnpj` VARCHAR
-- `tipo_pessoa` VARCHAR (corrigido de char para string)
+- `id` SERIAL PK, multi-tenant
+- `razao_social`, `nome_fantasia`, `cpf_cnpj` VARCHAR
+- `tipo_pessoa` VARCHAR ('F' ou 'J')
 - `email`, `telefone`, `celular` VARCHAR
 - `id_parceiro_kodiakerp` INTEGER (nullable, vínculo com ERP)
-- `observacao` TEXT
-- `ativo` BOOLEAN, `data_cadastro` TIMESTAMP
+- `observacao` TEXT, `ativo`, `data_cadastro`
 
 ### lead
-- `id` SERIAL PK
-- `id_empresa`, `id_estabelecimento`, `cnpj_empresa` VARCHAR
+- `id` SERIAL PK, multi-tenant
 - `nome`, `empresa`, `email`, `telefone`, `source` VARCHAR
 - `status` VARCHAR ('novo', 'convertido')
+- `temperatura` VARCHAR ('quente', 'morno', 'frio')
+- `estagio_id` INTEGER FK → funil_estagio
 - `id_parceiro` INTEGER (nullable)
-- `responsavel_id` INTEGER (nullable)
-- `observacao` TEXT
-- `ativo` BOOLEAN, `data_cadastro` TIMESTAMP
+- `responsavel_id` INTEGER FK → usuario
+- `observacao` TEXT, `ativo`, `data_cadastro`
 
-### funil, funil_estagio, oportunidade, atividade, proposta, proposta_item
+### funil / funil_estagio / oportunidade / atividade / proposta / proposta_item
 - Seguem padrão multi-tenant com `id_empresa`
+- Oportunidade: `motivo_perda`, `data_previsao`, `data_cadastro`
+- Atividade: `tipo`, `concluida`, `data_atividade`, `responsavel_id`
+- Proposta: `status` (rascunho/enviada/aprovada/rejeitada), `valor_total`
+- PropostaItem: `descricao`, `quantidade`, `valor_unitario`, `valor_total`
 
-## Funcionalidades Implementadas
+### historico
+- `id` SERIAL PK, multi-tenant
+- `tabela` VARCHAR, `registro_id` INTEGER, `acao` VARCHAR (CREATE/UPDATE/DELETE)
+- `dados_antes` JSONB, `dados_depois` JSONB
+- `usuario_id` INTEGER, `data_hora` TIMESTAMP
+- **Append-only** — registros nunca são alterados/excluídos
 
-### Backend (API)
-1. **Auth** - Login JWT com hash SHA256, claims (id_empresa, id_estabelecimento, cnpj_empresa, role)
-2. **Parceiros** - CRUD + sync com ERP (`POST /api/parceiros/sincronizar-erp` AllowAnonymous)
-3. **Leads** - CRUD + conversão para parceiro
-4. **Funil** - CRUD
-5. **Oportunidades** - CRUD + movimentação Kanban
-6. **Atividades** - CRUD + filtro por parceiro/oportunidade
-7. **Propostas** - CRUD + alteração de status + itens
-8. **Dashboard** - Resumo de métricas
-9. **Empresas** - CRUD (admin)
-10. **Usuários Gestão** - CRUD com controle de limite (empresa.QuantidadeUsuariosContratados)
+### empresa_config
+- `id` SERIAL PK, `cnpj_empresa` FK
+- `notificacao_email` BOOLEAN, `notificacao_sistema` BOOLEAN
+- `dias_followup_automatico` INTEGER (default 3)
+- `horario_inicio`, `horario_fim` TIME
 
-### Frontend (React)
-1. **Login** - Formulário com CNPJ + email + senha
-2. **Layout** - Sidebar com navegação + dark mode toggle + avatar do usuário
-3. **Dashboard** - Cards de métricas
-4. **Parceiros** - List, Form, Detalhes
-5. **Leads** - List, Form
-6. **Empresas** - List, Form (admin)
-7. **Usuários** - List, Form com seletor de empresa (admin)
-8. **Oportunidades** - List, Form
-9. **Atividades** - List, Form
-10. **Propostas** - List, Form com itens dinâmicos
+### relatorio_gerado
+- `id` SERIAL PK, multi-tenant
+- `tipo` VARCHAR, `periodo_inicio`, `periodo_fim` DATE
+- `filtros_aplicados` JSONB, `resultado` JSONB
+- `gerado_por` INTEGER FK → usuario
 
-### Dark Mode
-- CSS variables `:root` (light) e `[data-theme="dark"]` (dark)
-- Variáveis: `--sidebar-bg`, `--input-bg`, `--card-shadow`
-- Toggle no sidebar footer (☀️/🌙)
-- Persistência no `localStorage`
-- Aplicação no carregamento via `App.tsx`
+### notificacao
+- `id` SERIAL PK, multi-tenant
+- `usuario_id` INTEGER FK → usuario
+- `titulo`, `mensagem` VARCHAR
+- `tipo` VARCHAR (followup_atrasado, atividade_atrasada, etc.)
+- `lida` BOOLEAN (default false), `data_criacao` TIMESTAMP
 
 ## Regras de Negócio
 
 ### Multi-tenant
-- Todas as queries filtram por `id_empresa`
-- `id_empresa` = CNPJ da empresa (obtido do JWT)
+- Todas as queries filtram por `id_empresa` (CNPJ do JWT)
 
-### Empresa
-- CNPJ é a PK da empresa (formato: 14 dígitos)
-- `quantidade_usuarios_contratados` controla limite de usuários
-
-### Usuários
-- Admin pode criar usuários em qualquer empresa (seletor no formulário)
-- Não-admin cria apenas na própria empresa (via JWT)
+### Usuários (multi-tenant SaaS)
+- **Admin**: acessa qualquer empresa/qualquer perfil (seletor de empresa no form)
+- **Gerente**: só própria empresa, só gerente/usuário
+- **Usuário**: não cria usuários
 - Controle de limite: `ContarPorEmpresaAsync(idEmpresa) < empresa.QuantidadeUsuariosContratados`
-- Perfis: `admin`, `gerente`, `usuario` (claim `role` no JWT)
+- Senhas: SHA256 hash (Base64) antes de comparar
 
-### Parceiros
-- `tipo_pessoa` é string ('F' ou 'J'), não char
-- Endpoint `sincronizar-erp` (AllowAnonymous) para sincronizar do KodiakERP
+### Lead
+- Kanban drag-and-drop por estágios do funil
+- Temperatura: quente/morno/frio
+- Email **não é único** — cada interação é um lead separado
+- Responsável vinculado ao lead
 
-## Bugs Corrigidos
-1. **Login não funcionava** - Dapper não mapeava `senha_hash` → `SenhaHash` (snake_case). Solução: `DapperConfig.cs` com `ToPascalCase`
-2. **TipoPessoa** - Era `char?`, corrigido para `string?` em entidade e todos os DTOs (causava erro no cadastro)
-3. **Empresa Erro ao salvar** - `EmpresaRepository.CriarAsync` usava `ExecuteScalarAsync<int>` com `RETURNING cnpj` (string). Solução: trocado para `ExecuteAsync`
-4. **CNPJ muito longo** - Frontend enviava com formatação (18 chars), banco aceita 14. Solução: `handleChange` filtra só dígitos
-5. **Dark mode sidebar** - Sidebar usava `var(--text)` que fica cinza claro no dark mode. Solução: variável `--sidebar-bg` dedicada
-6. **Catch genérico** - Adicionado `try/catch (Exception)` em todos os controllers (Lead, Funil, Atividade, Proposta, Oportunidade, Empresa)
+### Conversão Lead → Oportunidade
+- `LeadService.ConverterAsync` cria Oportunidade, herda responsável/parceiro
+- Título automático: "Oportunidade de [nome do lead]"
+- Lead status → 'convertido', cria Cliente automaticamente se não existir
 
-## Arquivos Importantes
+### Cliente
+- Criado a partir de oportunidade ganha OU cadastro direto
+- `origem` (conversao/cadastro_direto/indicacao/outro), `data_conversao`, `id_oportunidade`
 
-### Backend
-- `Program.cs` - DI completa
-- `DapperConfig.cs` - Mapeamento snake_case → PascalCase
-- `EmpresaRepository.cs` - CRUD empresa
-- `UsuarioRepository.cs` - CRUD usuário com queries de contagem
-- `UsuarioGestaoService.cs` - Controle de limite de usuários
-- `UsuarioGestaoController.cs` - Aceita `idEmpresa` do DTO para admin
-- `AuthService.cs` - Login JWT com retorno de empresa
+### Contato
+- Sub-entidade vinculada a cliente OU parceiro
 
-### Frontend
-- `App.tsx` - Todas as rotas registradas
-- `AuthContext.tsx` - Auth, isAdmin, isGerente
-- `Layout.tsx` - Sidebar com dark mode toggle
-- `UsuarioForm.tsx` - Seletor de empresa para admin
-- `index.css` - CSS variables + dark mode
-- `types/index.ts` - Todas as interfaces
+### Automações
+- Lead criado → follow-up automático em 3 dias + notificação
+- Atividade atrasada → notificação automática
+
+### Histórico
+- Toda ação gera registro imutável com dados_antes/dados_depois em JSON
+
+### Oportunidades - Filtros
+- `status` na API mapeia para: "ganha" (motivo_perda IS NULL + EXISTS cliente), "perdida" (motivo_perda IS NOT NULL), "aberta" (motivo_perda IS NULL + NOT EXISTS cliente)
+
+## Funcionalidades Implementadas (15 Fases)
+
+### Fase 0-6: Infraestrutura e Funcionalidades Base
+- Auth JWT, Parceiros, Leads (kanban+temperatura), Funil, Oportunidades, Atividades, Propostas
+
+### Fase 7: Métricas Avançadas
+- Dashboard: Ticket médio, conversão, produtividade por vendedor
+- 8 cards métricos + tabela produtividade vendedores
+
+### Fase 8: Configurações
+- Migração 009: colunas empresa + empresa_config
+- ConfigController, Configuracoes.tsx (3 abas: Empresa/Usuários/Logs)
+
+### Fase 9: Relatórios
+- Migração 010: relatorio_gerado JSONB
+- RelatorioService (vendas/atividades/performance)
+- RelatorioController (4 endpoints), Relatorios.tsx (3 abas)
+
+### Fase 10: Notificações
+- Migração 011: tabela notificacao
+- NotificacaoService, NotificacaoController (CRUD + resumo)
+- Notificacoes.tsx, Layout badge vermelho (polling 30s)
+
+### Fase 11: UX Global
+- Toast.tsx (notificação global), Pagination.tsx, LoadingButton.tsx
+
+### Fase 12: Pesquisa Global
+- SearchBar.tsx — busca no header (leads/clientes/parceiros/contatos), debounce 300ms
+
+### Fase 13: Automações
+- AutomacaoService: follow-up automático ao criar lead, notificação atividade atrasada
+
+### Fase 14: Perfil
+- PerfilController (GET/PUT perfil, PUT senha com validação SHA256)
+- Perfil.tsx (avatar, dados, alterar senha), clique avatar → /perfil
+
+### Fase 15: Filtros Avançados
+- FilterBar.tsx componente reutilizável (busca textual/select/data)
+- Aplicado em Leads (status/temperatura/datas), Oportunidades (status/datas), Atividades (tipo/concluida/datas), Clientes (origem/datas), Propostas (status/datas)
+- Backend: todos 5 controllers/repositories/services atualizados com WHERE dinâmico
+
+## Git Remote
+- `https://github.com/FBODeveloper/KodiakCrmFabio.git` (main branch)
+- Último commit: `d7457e3`
 
 ## Pendente / Próximos Passos
-- Testar cadastro de parceiro, oportunidades, atividades e propostas
-- Itens de proposta (CSS já adicionado)
-- Implementar更多 funcionalidades CRM (agendamentos, tarefas, anotações)
-- WhatsApp/Email integration
-- Google Calendar/Outlook integration
+- Exportação CSV dos relatórios
+- Dashboard personalizável
+- Audit log admin
+- Backup/restore
+- API pública
