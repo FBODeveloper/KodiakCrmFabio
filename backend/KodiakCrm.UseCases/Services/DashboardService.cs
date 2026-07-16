@@ -41,4 +41,19 @@ public class DashboardService
     {
         return await _repository.ObterLeadsPorEstagioAsync(idEmpresa);
     }
+
+    public async Task<DashboardMetricaTicketMedioDTO> ObterTicketMedioAsync(string idEmpresa)
+    {
+        return await _repository.ObterTicketMedioAsync(idEmpresa);
+    }
+
+    public async Task<DashboardMetricaConversaoDTO> ObterMetricasConversaoAsync(string idEmpresa)
+    {
+        return await _repository.ObterMetricasConversaoAsync(idEmpresa);
+    }
+
+    public async Task<List<DashboardProdutividadeVendedorDTO>> ObterProdutividadeVendedoresAsync(string idEmpresa)
+    {
+        return await _repository.ObterProdutividadeVendedoresAsync(idEmpresa);
+    }
 }

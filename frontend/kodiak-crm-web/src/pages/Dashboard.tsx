@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import type { DashboardResumo, DashboardLeadRecente, DashboardLeadsPorEstagio } from '../types';
+import type { DashboardResumo, DashboardLeadRecente, DashboardLeadsPorEstagio, DashboardTicketMedio, DashboardConversao, DashboardProdutividade } from '../types';
 
 export default function Dashboard() {
   const [resumo, setResumo] = useState<DashboardResumo | null>(null);
   const [leadsRecentes, setLeadsRecentes] = useState<DashboardLeadRecente[]>([]);
   const [leadsPorEstagio, setLeadsPorEstagio] = useState<DashboardLeadsPorEstagio[]>([]);
+  const [ticketMedio, setTicketMedio] = useState<DashboardTicketMedio | null>(null);
+  const [conversao, setConversao] = useState<DashboardConversao | null>(null);
+  const [produtividade, setProdutividade] = useState<DashboardProdutividade[]>([]);
   const [carregando, setCarregando] = useState(true);
   const navigate = useNavigate();
 
@@ -16,14 +19,20 @@ export default function Dashboard() {
 
   const carregarDados = async () => {
     try {
-      const [resumoRes, recentesRes, estagiosRes] = await Promise.all([
+      const [resumoRes, recentesRes, estagiosRes, ticketRes, convRes, prodRes] = await Promise.all([
         api.get('/dashboard/resumo'),
         api.get('/dashboard/leads-recentes', { params: { quantidade: 5 } }),
-        api.get('/dashboard/leads-por-estagio')
+        api.get('/dashboard/leads-por-estagio'),
+        api.get('/dashboard/ticket-medio'),
+        api.get('/dashboard/conversao'),
+        api.get('/dashboard/produtividade')
       ]);
       setResumo(resumoRes.data);
       setLeadsRecentes(recentesRes.data);
       setLeadsPorEstagio(estagiosRes.data);
+      setTicketMedio(ticketRes.data);
+      setConversao(convRes.data);
+      setProdutividade(prodRes.data);
     } catch (error) {
       console.error('Erro ao carregar dashboard:', error);
     } finally {
@@ -40,6 +49,11 @@ export default function Dashboard() {
   };
 
   const totalEstagio = leadsPorEstagio.reduce((acc, e) => acc + e.quantidade, 0);
+
+  const formatarMoeda = (valor: number) =>
+    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+
+  const formatarPercentual = (valor: number) => `${valor.toFixed(1)}%`;
 
   if (carregando) {
     return <div className="carregando">Carregando...</div>;
@@ -68,20 +82,29 @@ export default function Dashboard() {
         
         <div className="dashboard-card">
           <h3>Valor do Funil</h3>
-          <p className="numero">
-            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
-              .format(resumo?.valorFunil || 0)}
-          </p>
+          <p className="numero">{formatarMoeda(resumo?.valorFunil || 0)}</p>
         </div>
         
         <div className="dashboard-card">
-          <h3>Atividades Pendentes</h3>
-          <p className="numero">{resumo?.atividadesPendentes || 0}</p>
+          <h3>Ticket Médio</h3>
+          <p className="numero">{formatarMoeda(ticketMedio?.ticketMedio || 0)}</p>
+          <p className="subtitulo">{ticketMedio?.totalComValor || 0} com valor</p>
         </div>
         
         <div className="dashboard-card">
-          <h3>Propostas Enviadas</h3>
-          <p className="numero">{resumo?.propostasEnviadas || 0}</p>
+          <h3>Taxa Conversão Lead</h3>
+          <p className="numero">{formatarPercentual(conversao?.taxaConversao || 0)}</p>
+          <p className="subtitulo">{conversao?.leadsConvertidos || 0} de {conversao?.totalLeads || 0}</p>
+        </div>
+        
+        <div className="dashboard-card">
+          <h3>Oportunidades Ganhas</h3>
+          <p className="numero" style={{ color: '#10b981' }}>{conversao?.oportunidadesGanhas || 0}</p>
+        </div>
+        
+        <div className="dashboard-card">
+          <h3>Oportunidades Perdidas</h3>
+          <p className="numero" style={{ color: '#ef4444' }}>{conversao?.oportunidadesPerdidas || 0}</p>
         </div>
       </div>
 
@@ -168,6 +191,36 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {produtividade.length > 0 && (
+        <div className="dashboard-row">
+          <div className="dashboard-panel">
+            <div className="panel-header">
+              <h3>Produtividade por Vendedor</h3>
+            </div>
+            <table className="tabela-mini">
+              <thead>
+                <tr>
+                  <th>Vendedor</th>
+                  <th>Oportunidades</th>
+                  <th>Ganhas</th>
+                  <th>Valor Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {produtividade.map((vendedor) => (
+                  <tr key={vendedor.usuarioId}>
+                    <td><strong>{vendedor.usuarioNome}</strong></td>
+                    <td>{vendedor.totalOportunidades}</td>
+                    <td style={{ color: '#10b981' }}>{vendedor.oportunidadesGanhas}</td>
+                    <td>{formatarMoeda(vendedor.valorTotal)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -273,6 +273,28 @@ export interface DashboardLeadsPorEstagio {
   cor: string;
 }
 
+export interface DashboardTicketMedio {
+  ticketMedio: number;
+  totalComValor: number;
+}
+
+export interface DashboardConversao {
+  totalLeads: number;
+  leadsConvertidos: number;
+  taxaConversao: number;
+  oportunidadesGanhas: number;
+  oportunidadesPerdidas: number;
+  taxaSucesso: number;
+}
+
+export interface DashboardProdutividade {
+  usuarioId: number;
+  usuarioNome: string;
+  totalOportunidades: number;
+  oportunidadesGanhas: number;
+  valorTotal: number;
+}
+
 export interface Historico {
   id: number;
   entidade: string;

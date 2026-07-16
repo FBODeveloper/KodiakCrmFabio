@@ -101,4 +101,58 @@ public class DashboardRepository : IDashboardRepository
 
         return (await connection.QueryAsync<DashboardLeadsPorEstagioDTO>(sql, new { IdEmpresa = idEmpresa })).ToList();
     }
+
+    public async Task<DashboardMetricaTicketMedioDTO> ObterTicketMedioAsync(string idEmpresa)
+    {
+        using var connection = _database.GetConnection();
+        const string sql = @"
+            SELECT 
+                COALESCE(AVG(valor), 0) as TicketMedio,
+                COUNT(CASE WHEN valor IS NOT NULL AND valor > 0 THEN 1 END) as TotalComValor
+            FROM oportunidade 
+            WHERE id_empresa = @IdEmpresa AND ativo = true";
+
+        return await connection.QueryFirstAsync<DashboardMetricaTicketMedioDTO>(sql, new { IdEmpresa = idEmpresa });
+    }
+
+    public async Task<DashboardMetricaConversaoDTO> ObterMetricasConversaoAsync(string idEmpresa)
+    {
+        using var connection = _database.GetConnection();
+        const string sql = @"
+            SELECT 
+                (SELECT COUNT(*) FROM lead WHERE id_empresa = @IdEmpresa AND ativo = true) as TotalLeads,
+                (SELECT COUNT(*) FROM lead WHERE id_empresa = @IdEmpresa AND ativo = true AND status = 'convertido') as LeadsConvertidos,
+                CASE WHEN (SELECT COUNT(*) FROM lead WHERE id_empresa = @IdEmpresa AND ativo = true) > 0
+                    THEN ROUND((SELECT COUNT(*) FROM lead WHERE id_empresa = @IdEmpresa AND ativo = true AND status = 'convertido')::numeric / 
+                         (SELECT COUNT(*) FROM lead WHERE id_empresa = @IdEmpresa AND ativo = true)::numeric * 100, 1)
+                    ELSE 0 END as TaxaConversao,
+                (SELECT COUNT(*) FROM oportunidade o 
+                 JOIN funil_estagio fe ON o.id_estagio = fe.id
+                 JOIN funil f ON fe.id_funil = f.id
+                 WHERE o.id_empresa = @IdEmpresa AND o.ativo = true 
+                 AND fe.nome ILIKE '%ganho%' OR fe.nome ILIKE '%ganha%') as OportunidadesGanhas,
+                (SELECT COUNT(*) FROM oportunidade WHERE id_empresa = @IdEmpresa AND ativo = true AND motivo_perda IS NOT NULL) as OportunidadesPerdidas,
+                0 as TaxaSucesso";
+
+        return await connection.QueryFirstAsync<DashboardMetricaConversaoDTO>(sql, new { IdEmpresa = idEmpresa });
+    }
+
+    public async Task<List<DashboardProdutividadeVendedorDTO>> ObterProdutividadeVendedoresAsync(string idEmpresa)
+    {
+        using var connection = _database.GetConnection();
+        const string sql = @"
+            SELECT 
+                o.responsavel_id as UsuarioId,
+                COALESCE(u.nome, 'Sem responsável') as UsuarioNome,
+                COUNT(o.id) as TotalOportunidades,
+                COUNT(CASE WHEN o.motivo_perda IS NULL AND o.ativo = true THEN 1 END) as OportunidadesGanhas,
+                COALESCE(SUM(o.valor), 0) as ValorTotal
+            FROM oportunidade o
+            LEFT JOIN usuario u ON o.responsavel_id = u.id
+            WHERE o.id_empresa = @IdEmpresa AND o.ativo = true
+            GROUP BY o.responsavel_id, u.nome
+            ORDER BY ValorTotal DESC";
+
+        return (await connection.QueryAsync<DashboardProdutividadeVendedorDTO>(sql, new { IdEmpresa = idEmpresa })).ToList();
+    }
 }

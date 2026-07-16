@@ -67,4 +67,28 @@ public class DashboardController : ControllerBase
         var resultado = await _service.ObterLeadsPorEstagioAsync(idEmpresa);
         return Ok(resultado);
     }
+
+    [HttpGet("ticket-medio")]
+    public async Task<ActionResult<DashboardMetricaTicketMedioDTO>> ObterTicketMedio()
+    {
+        var idEmpresa = ObterIdEmpresa();
+        var resultado = await _service.ObterTicketMedioAsync(idEmpresa);
+        return Ok(resultado);
+    }
+
+    [HttpGet("conversao")]
+    public async Task<ActionResult<DashboardMetricaConversaoDTO>> ObterMetricasConversao()
+    {
+        var idEmpresa = ObterIdEmpresa();
+        var resultado = await _service.ObterMetricasConversaoAsync(idEmpresa);
+        return Ok(resultado);
+    }
+
+    [HttpGet("produtividade")]
+    public async Task<ActionResult<List<DashboardProdutividadeVendedorDTO>>> ObterProdutividade()
+    {
+        var idEmpresa = ObterIdEmpresa();
+        var resultado = await _service.ObterProdutividadeVendedoresAsync(idEmpresa);
+        return Ok(resultado);
+    }
 }

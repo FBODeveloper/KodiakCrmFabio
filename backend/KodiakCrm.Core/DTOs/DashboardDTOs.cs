@@ -46,3 +46,28 @@ public class DashboardLeadsPorEstagioDTO
     public int Quantidade { get; set; }
     public string Cor { get; set; } = "#3b82f6";
 }
+
+public class DashboardMetricaTicketMedioDTO
+{
+    public decimal TicketMedio { get; set; }
+    public int TotalComValor { get; set; }
+}
+
+public class DashboardMetricaConversaoDTO
+{
+    public int TotalLeads { get; set; }
+    public int LeadsConvertidos { get; set; }
+    public double TaxaConversao { get; set; }
+    public int OportunidadesGanhas { get; set; }
+    public int OportunidadesPerdidas { get; set; }
+    public double TaxaSucesso { get; set; }
+}
+
+public class DashboardProdutividadeVendedorDTO
+{
+    public int UsuarioId { get; set; }
+    public string UsuarioNome { get; set; } = string.Empty;
+    public int TotalOportunidades { get; set; }
+    public int OportunidadesGanhas { get; set; }
+    public decimal ValorTotal { get; set; }
+}
