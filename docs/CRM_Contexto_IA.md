@@ -41,7 +41,12 @@ Lead → Qualificação → Oportunidade → Proposta → Negociação → Ganha
 
 ### Proposta
 - Status: rascunho, enviada, aprovada, rejeitada
+- Nº sequencial automático por ano (ex: 1001/2026)
+- Campos: data_proposta, forma_pagamento (texto), prazo_entrega (texto)
+- Vinculada a cliente + contato (parceiro é opcional/legado)
 - Itens dinâmicos com quantidade e valor unitário
+- Observação abaixo dos itens
+- Exclusão lógica (soft delete)
 
 ### Histórico
 - Append-only com dados_antes/dados_depois em JSON
@@ -51,7 +56,7 @@ Lead → Qualificação → Oportunidade → Proposta → Negociação → Ganha
 - Lead criado → follow-up automático em 3 dias + notificação
 - Atividade atrasada → notificação automática
 
-## Funcionalidades (15 Fases Concluídas)
+## Funcionalidades (16 Fases Concluídas)
 
 | Fase | Descrição |
 |------|-----------|
@@ -65,8 +70,14 @@ Lead → Qualificação → Oportunidade → Proposta → Negociação → Ganha
 | 13 | Automações (follow-up, atividades atrasadas) |
 | 14 | Perfil do usuário |
 | 15 | Filtros avançados (FilterBar reutilizável em 5 páginas) |
+| 16 | Correções Teste Frontend 1 (DateOnly fix, ícones CRUD, propostas campos novos, histórico, filtros) |
+
+### Migrações
+- 001-012: criadas anteriormente
+- **013**: novos campos na tabela proposta (numero, data_proposta, forma_pagamento, prazo_entrega, cliente_id, contato_id)
 
 ## Próximos Passos
+- Segundo teste frontend para validar correções
 - Exportação CSV dos relatórios
 - Dashboard personalizável
 - Audit log admin
