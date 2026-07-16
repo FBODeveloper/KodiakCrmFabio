@@ -7,10 +7,14 @@ namespace KodiakCrm.UseCases.Services;
 public class LeadService
 {
     private readonly ILeadRepository _leadRepository;
+    private readonly IOportunidadeRepository _oportunidadeRepository;
+    private readonly IFunilRepository _funilRepository;
 
-    public LeadService(ILeadRepository leadRepository)
+    public LeadService(ILeadRepository leadRepository, IOportunidadeRepository oportunidadeRepository, IFunilRepository funilRepository)
     {
         _leadRepository = leadRepository;
+        _oportunidadeRepository = oportunidadeRepository;
+        _funilRepository = funilRepository;
     }
 
     public async Task<LeadDTO?> ObterPorIdAsync(int id, string idEmpresa)
@@ -105,6 +109,43 @@ public class LeadService
         await _leadRepository.AtualizarAsync(lead);
 
         return MapearParaDTO(lead);
+    }
+
+    public async Task<LeadConverterResponseDTO?> ConverterAsync(int id, LeadConverterDTO dto, string idEmpresa, string idEstabelecimento, string cnpjEmpresa)
+    {
+        var lead = await _leadRepository.ObterPorIdAsync(id, idEmpresa);
+        if (lead == null || lead.Status == "convertido") return null;
+
+        var titulo = !string.IsNullOrWhiteSpace(lead.Empresa)
+            ? $"{lead.Empresa} - {lead.Nome}"
+            : lead.Nome;
+
+        var oportunidade = new Oportunidade
+        {
+            IdEmpresa = idEmpresa,
+            IdEstabelecimento = idEstabelecimento,
+            CnpjEmpresa = cnpjEmpresa,
+            Titulo = titulo,
+            IdParceiro = lead.IdParceiro,
+            IdEstagio = dto.IdEstagio,
+            Valor = dto.Valor,
+            DataPrevisao = dto.DataPrevisao,
+            ResponsavelId = lead.ResponsavelId,
+            Observacao = dto.Observacao ?? lead.Observacao
+        };
+
+        var oportunidadeId = await _oportunidadeRepository.CriarAsync(oportunidade);
+
+        lead.Status = "convertido";
+        await _leadRepository.AtualizarAsync(lead);
+
+        return new LeadConverterResponseDTO
+        {
+            LeadId = lead.Id,
+            LeadNome = lead.Nome,
+            OportunidadeId = oportunidadeId,
+            OportunidadeTitulo = titulo
+        };
     }
 
     public async Task<LeadKanbanDTO> ObterKanbanAsync(string idEmpresa)

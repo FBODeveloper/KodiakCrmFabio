@@ -285,6 +285,13 @@ export interface Historico {
   dataAcao: string;
 }
 
+export interface LeadConverterResponse {
+  leadId: number;
+  leadNome: string;
+  oportunidadeId: number;
+  oportunidadeTitulo: string;
+}
+
 export interface PaginatedResponse<T> {
   itens: T[];
   total: number;

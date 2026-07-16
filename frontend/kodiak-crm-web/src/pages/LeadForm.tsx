@@ -23,6 +23,13 @@ export default function LeadForm() {
     observacao: ''
   });
 
+  const [showConverter, setShowConverter] = useState(false);
+  const [convValor, setConvValor] = useState('');
+  const [convPrevisao, setConvPrevisao] = useState('');
+  const [convObservacao, setConvObservacao] = useState('');
+  const [convertendo, setConvertendo] = useState(false);
+  const [leadStatus, setLeadStatus] = useState('novo');
+
   const isEdicao = !!id;
 
   useEffect(() => {
@@ -60,6 +67,7 @@ export default function LeadForm() {
         responsavelId: data.responsavelId || undefined,
         observacao: data.observacao || ''
       });
+      setLeadStatus(data.status);
     } catch (error) {
       console.error('Erro ao carregar lead:', error);
     }
@@ -84,6 +92,26 @@ export default function LeadForm() {
     }
   };
 
+  const handleConverter = async () => {
+    if (!id) return;
+    setConvertendo(true);
+    setErro('');
+
+    try {
+      const payload: any = {};
+      if (convValor) payload.valor = parseFloat(convValor);
+      if (convPrevisao) payload.dataPrevisao = convPrevisao;
+      if (convObservacao) payload.observacao = convObservacao;
+
+      await api.post(`/lead/${id}/converter`, payload);
+      navigate('/oportunidades');
+    } catch (error: any) {
+      setErro(error.response?.data?.mensagem || 'Erro ao converter lead');
+    } finally {
+      setConvertendo(false);
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -96,13 +124,22 @@ export default function LeadForm() {
     });
   };
 
+  const podeConverter = isEdicao && leadStatus !== 'convertido';
+
   return (
     <div className="pagina">
       <div className="pagina-header">
         <h1>{isEdicao ? 'Editar Lead' : 'Novo Lead'}</h1>
-        <button onClick={() => navigate(origem)} className="btn-secondary">
-          Voltar
-        </button>
+        <div className="header-actions">
+          {podeConverter && (
+            <button onClick={() => setShowConverter(true)} className="btn-success">
+              Converter em Oportunidade
+            </button>
+          )}
+          <button onClick={() => navigate(origem)} className="btn-secondary">
+            Voltar
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="form">
@@ -231,6 +268,69 @@ export default function LeadForm() {
           </button>
         </div>
       </form>
+
+      {showConverter && (
+        <div className="modal-overlay" onClick={() => setShowConverter(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h2>Converter Lead em Oportunidade</h2>
+            <p className="modal-subtitle">
+              Lead: <strong>{form.nome}</strong>
+              {form.empresa && <> — {form.empresa}</>}
+            </p>
+
+            <div className="form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Valor (R$)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={convValor}
+                    onChange={e => setConvValor(e.target.value)}
+                    placeholder="Opcional"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Data Previsão</label>
+                  <input
+                    type="date"
+                    value={convPrevisao}
+                    onChange={e => setConvPrevisao(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Observação da Oportunidade</label>
+                <textarea
+                  value={convObservacao}
+                  onChange={e => setConvObservacao(e.target.value)}
+                  rows={3}
+                  placeholder="Observações sobre a oportunidade..."
+                />
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button
+                className="btn-secondary"
+                onClick={() => setShowConverter(false)}
+                disabled={convertendo}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn-success"
+                onClick={handleConverter}
+                disabled={convertendo}
+              >
+                {convertendo ? 'Convertendo...' : 'Confirmar Conversão'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

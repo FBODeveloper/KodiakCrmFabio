@@ -25,3 +25,12 @@ public class LeadListResult
     public List<Lead> Itens { get; set; } = new();
     public int Total { get; set; }
 }
+
+public interface IOportunidadeRepository
+{
+    Task<Oportunidade?> ObterPorIdAsync(int id, string idEmpresa);
+    Task<OportunidadeListResult> ObterListaAsync(string idEmpresa, string? busca, int? idEstagio, int? responsavelId, int pagina, int itensPorPagina);
+    Task<List<Oportunidade>> ObterPorEstagioAsync(int idEstagio, string idEmpresa);
+    Task<int> CriarAsync(Oportunidade oportunidade);
+    Task AtualizarAsync(Oportunidade oportunidade);
+}

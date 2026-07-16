@@ -106,3 +106,19 @@ public class LeadStatsDTO
     public double TaxaConversao { get; set; }
     public int FollowupPendente { get; set; }
 }
+
+public class LeadConverterDTO
+{
+    public decimal? Valor { get; set; }
+    public DateTime? DataPrevisao { get; set; }
+    public int? IdEstagio { get; set; }
+    public string? Observacao { get; set; }
+}
+
+public class LeadConverterResponseDTO
+{
+    public int LeadId { get; set; }
+    public string LeadNome { get; set; } = string.Empty;
+    public int OportunidadeId { get; set; }
+    public string OportunidadeTitulo { get; set; } = string.Empty;
+}

@@ -12,15 +12,23 @@ namespace KodiakCrm.Api.Controllers;
 public class LeadController : ControllerBase
 {
     private readonly LeadService _service;
+    private readonly HistoricoService _historico;
 
-    public LeadController(LeadService service)
+    public LeadController(LeadService service, HistoricoService historico)
     {
         _service = service;
+        _historico = historico;
     }
 
     private string ObterIdEmpresa() => User.FindFirst("id_empresa")?.Value ?? string.Empty;
     private string ObterIdEstabelecimento() => User.FindFirst("id_estabelecimento")?.Value ?? string.Empty;
     private string ObterCnpjEmpresa() => User.FindFirst("cnpj_empresa")?.Value ?? string.Empty;
+    private int? ObterUsuarioId()
+    {
+        var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.TryParse(claim, out var id) ? id : null;
+    }
+    private string ObterUsuarioNome() => User.FindFirst("nome")?.Value ?? string.Empty;
 
     [HttpGet]
     public async Task<ActionResult<LeadListDTO>> ObterLista(
@@ -88,6 +96,22 @@ public class LeadController : ControllerBase
             var cnpjEmpresa = ObterCnpjEmpresa();
 
             var lead = await _service.CriarAsync(dto, idEmpresa, idEstabelecimento, cnpjEmpresa);
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _historico.RegistrarAsync(
+                        idEmpresa, idEstabelecimento, cnpjEmpresa,
+                        "lead", lead.Id, "criado",
+                        $"Lead \"{lead.Nome}\" criado",
+                        dadosDepois: new { lead.Nome, lead.Email, lead.Telefone, lead.Empresa, lead.Temperatura },
+                        usuarioId: ObterUsuarioId(),
+                        usuarioNome: ObterUsuarioNome());
+                }
+                catch { }
+            });
+
             return CreatedAtAction(nameof(ObterPorId), new { id = lead.Id }, lead);
         }
         catch (InvalidOperationException ex)
@@ -109,10 +133,28 @@ public class LeadController : ControllerBase
         try
         {
             var idEmpresa = ObterIdEmpresa();
+            var leadAntes = await _service.ObterPorIdAsync(id, idEmpresa);
+
             var lead = await _service.AtualizarAsync(id, dto, idEmpresa);
 
             if (lead == null)
                 return NotFound(new { mensagem = "Lead não encontrado" });
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _historico.RegistrarAsync(
+                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                        "lead", id, "alterado",
+                        $"Lead \"{lead.Nome}\" atualizado",
+                        dadosAntes: leadAntes != null ? new { leadAntes.Nome, leadAntes.Status, leadAntes.Temperatura } : null,
+                        dadosDepois: new { lead.Nome, lead.Status, lead.Temperatura },
+                        usuarioId: ObterUsuarioId(),
+                        usuarioNome: ObterUsuarioNome());
+                }
+                catch { }
+            });
 
             return Ok(lead);
         }
@@ -128,16 +170,82 @@ public class LeadController : ControllerBase
         try
         {
             var idEmpresa = ObterIdEmpresa();
+            var lead = await _service.ObterPorIdAsync(id, idEmpresa);
+
             var excluido = await _service.ExcluirAsync(id, idEmpresa);
 
             if (!excluido)
                 return NotFound(new { mensagem = "Lead não encontrado" });
+
+            if (lead != null)
+            {
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _historico.RegistrarAsync(
+                            idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                            "lead", id, "excluido",
+                            $"Lead \"{lead.Nome}\" excluído",
+                            dadosAntes: new { lead.Nome, lead.Email, lead.Empresa, lead.Status },
+                            usuarioId: ObterUsuarioId(),
+                            usuarioNome: ObterUsuarioNome());
+                    }
+                    catch { }
+                });
+            }
 
             return NoContent();
         }
         catch (Exception ex)
         {
             return StatusCode(500, new { mensagem = "Erro interno ao excluir lead", erro = ex.Message });
+        }
+    }
+
+    [HttpPost("{id}/converter")]
+    public async Task<ActionResult<LeadConverterResponseDTO>> Converter(int id, [FromBody] LeadConverterDTO dto)
+    {
+        try
+        {
+            var idEmpresa = ObterIdEmpresa();
+            var resultado = await _service.ConverterAsync(id, dto, idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa());
+
+            if (resultado == null)
+                return NotFound(new { mensagem = "Lead não encontrado ou já convertido" });
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _historico.RegistrarAsync(
+                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                        "lead", id, "convertido",
+                        $"Lead \"{resultado.LeadNome}\" convertido em oportunidade \"{resultado.OportunidadeTitulo}\"",
+                        dadosDepois: new { resultado.LeadId, resultado.OportunidadeId, resultado.OportunidadeTitulo },
+                        usuarioId: ObterUsuarioId(),
+                        usuarioNome: ObterUsuarioNome());
+
+                    await _historico.RegistrarAsync(
+                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                        "oportunidade", resultado.OportunidadeId, "criado",
+                        $"Oportunidade \"{resultado.OportunidadeTitulo}\" criada a partir do lead \"{resultado.LeadNome}\"",
+                        dadosDepois: new { resultado.OportunidadeTitulo, resultado.OportunidadeId },
+                        usuarioId: ObterUsuarioId(),
+                        usuarioNome: ObterUsuarioNome());
+                }
+                catch { }
+            });
+
+            return Ok(resultado);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { mensagem = "Erro interno ao converter lead", erro = ex.Message });
         }
     }
 
