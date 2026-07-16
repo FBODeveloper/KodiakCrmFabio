@@ -2,6 +2,9 @@ export interface Empresa {
   cnpj: string;
   razaoSocial: string;
   nomeFantasia?: string;
+  telefone?: string;
+  email?: string;
+  endereco?: string;
   quantidadeUsuariosContratados: number;
   ativo: boolean;
   dataCadastro: string;
@@ -12,13 +15,39 @@ export interface EmpresaCreate {
   cnpj: string;
   razaoSocial: string;
   nomeFantasia?: string;
+  telefone?: string;
+  email?: string;
+  endereco?: string;
   quantidadeUsuariosContratados: number;
 }
 
 export interface EmpresaUpdate {
   razaoSocial: string;
   nomeFantasia?: string;
+  telefone?: string;
+  email?: string;
+  endereco?: string;
   quantidadeUsuariosContratados: number;
+}
+
+export interface EmpresaConfig {
+  id: number;
+  cnpjEmpresa: string;
+  tema: string;
+  fusoHorario: string;
+  moeda: string;
+  idioma: string;
+  notificacoesEmail: boolean;
+  notificacoesSistema: boolean;
+}
+
+export interface EmpresaConfigUpdate {
+  tema?: string;
+  fusoHorario?: string;
+  moeda?: string;
+  idioma?: string;
+  notificacoesEmail?: boolean;
+  notificacoesSistema?: boolean;
 }
 
 export interface Usuario {

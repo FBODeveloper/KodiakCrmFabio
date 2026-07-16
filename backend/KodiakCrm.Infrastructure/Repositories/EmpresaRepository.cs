@@ -17,7 +17,7 @@ public class EmpresaRepository : IEmpresaRepository
     {
         using var connection = _database.GetConnection();
         const string sql = @"
-            SELECT cnpj, razao_social, nome_fantasia, 
+            SELECT cnpj, razao_social, nome_fantasia, telefone, email, endereco,
                    quantidade_usuarios_contratados, ativo, data_cadastro
             FROM empresa 
             WHERE cnpj = @Cnpj AND ativo = true";
@@ -46,7 +46,7 @@ public class EmpresaRepository : IEmpresaRepository
         parameters.Add("Limit", itensPorPagina);
 
         var sql = $@"
-            SELECT cnpj, razao_social, nome_fantasia, 
+            SELECT cnpj, razao_social, nome_fantasia, telefone, email, endereco,
                    quantidade_usuarios_contratados, ativo, data_cadastro
             FROM empresa 
             {whereClause}
@@ -66,14 +66,17 @@ public class EmpresaRepository : IEmpresaRepository
     {
         using var connection = _database.GetConnection();
         const string sql = @"
-            INSERT INTO empresa (cnpj, razao_social, nome_fantasia, quantidade_usuarios_contratados)
-            VALUES (@Cnpj, @RazaoSocial, @NomeFantasia, @QuantidadeUsuariosContratados)";
+            INSERT INTO empresa (cnpj, razao_social, nome_fantasia, telefone, email, endereco, quantidade_usuarios_contratados)
+            VALUES (@Cnpj, @RazaoSocial, @NomeFantasia, @Telefone, @Email, @Endereco, @QuantidadeUsuariosContratados)";
 
         await connection.ExecuteAsync(sql, new
         {
             empresa.Cnpj,
             empresa.RazaoSocial,
             empresa.NomeFantasia,
+            empresa.Telefone,
+            empresa.Email,
+            empresa.Endereco,
             empresa.QuantidadeUsuariosContratados
         });
     }
@@ -85,6 +88,9 @@ public class EmpresaRepository : IEmpresaRepository
             UPDATE empresa 
             SET razao_social = @RazaoSocial,
                 nome_fantasia = @NomeFantasia,
+                telefone = @Telefone,
+                email = @Email,
+                endereco = @Endereco,
                 quantidade_usuarios_contratados = @QuantidadeUsuariosContratados
             WHERE cnpj = @Cnpj";
 
@@ -93,6 +99,9 @@ public class EmpresaRepository : IEmpresaRepository
             empresa.Cnpj,
             empresa.RazaoSocial,
             empresa.NomeFantasia,
+            empresa.Telefone,
+            empresa.Email,
+            empresa.Endereco,
             empresa.QuantidadeUsuariosContratados
         });
     }

@@ -25,6 +25,9 @@ public class EmpresaService
             Cnpj = empresa.Cnpj,
             RazaoSocial = empresa.RazaoSocial,
             NomeFantasia = empresa.NomeFantasia,
+            Telefone = empresa.Telefone,
+            Email = empresa.Email,
+            Endereco = empresa.Endereco,
             QuantidadeUsuariosContratados = empresa.QuantidadeUsuariosContratados,
             Ativo = empresa.Ativo,
             DataCadastro = empresa.DataCadastro,
@@ -45,6 +48,9 @@ public class EmpresaService
                 Cnpj = empresa.Cnpj,
                 RazaoSocial = empresa.RazaoSocial,
                 NomeFantasia = empresa.NomeFantasia,
+                Telefone = empresa.Telefone,
+                Email = empresa.Email,
+                Endereco = empresa.Endereco,
                 QuantidadeUsuariosContratados = empresa.QuantidadeUsuariosContratados,
                 Ativo = empresa.Ativo,
                 DataCadastro = empresa.DataCadastro,
@@ -74,6 +80,9 @@ public class EmpresaService
             Cnpj = dto.Cnpj,
             RazaoSocial = dto.RazaoSocial,
             NomeFantasia = dto.NomeFantasia,
+            Telefone = dto.Telefone,
+            Email = dto.Email,
+            Endereco = dto.Endereco,
             QuantidadeUsuariosContratados = dto.QuantidadeUsuariosContratados
         };
 
@@ -85,6 +94,9 @@ public class EmpresaService
             Cnpj = criada!.Cnpj,
             RazaoSocial = criada.RazaoSocial,
             NomeFantasia = criada.NomeFantasia,
+            Telefone = criada.Telefone,
+            Email = criada.Email,
+            Endereco = criada.Endereco,
             QuantidadeUsuariosContratados = criada.QuantidadeUsuariosContratados,
             Ativo = criada.Ativo,
             DataCadastro = criada.DataCadastro,
@@ -102,6 +114,9 @@ public class EmpresaService
 
         existente.RazaoSocial = dto.RazaoSocial;
         existente.NomeFantasia = dto.NomeFantasia;
+        existente.Telefone = dto.Telefone;
+        existente.Email = dto.Email;
+        existente.Endereco = dto.Endereco;
         existente.QuantidadeUsuariosContratados = dto.QuantidadeUsuariosContratados;
 
         await _repository.AtualizarAsync(existente);
