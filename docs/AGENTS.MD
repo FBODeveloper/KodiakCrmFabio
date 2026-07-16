@@ -28,7 +28,17 @@ CRM para o KodiakERP, desenvolvido com .NET 10 (Backend) e React 19 (Frontend).
 - **Senha:** 123!asd
 - **Database:** kodiak_crm
 - **Schema:** snake_case, tabelas no singular
-- **Migrações:** 11 arquivos (001-011)
+- **Migrações:** 12 arquivos (001-012). Executar em ordem no PostgreSQL.
+
+### Como executar migrações
+```bash
+# Windows (psql no PATH ou usar caminho completo)
+$env:PGPASSWORD = "123!asd"; & "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d kodiak_crm -f database\012_fix_lead_columns.sql
+
+# Linux/Mac
+PGPASSWORD="123!asd" psql -U postgres -d kodiak_crm -f database/012_fix_lead_columns.sql
+```
+**IMPORTANTE:** As migrações usam `IF NOT EXISTS` / `IF EXISTS` para serem idempotentes. Seguro para executar múltiplas vezes.
 
 ## Convenções de Código
 
@@ -82,7 +92,7 @@ kodiak-crm/
 │           ├── pages/             # Todas as páginas
 │           ├── types/index.ts     # Interfaces TypeScript
 │           └── index.css          # CSS com dark mode
-├── database/                    # 11 migrações SQL (001-011)
+├── database/                    # 12 migrações SQL (001-012). Executar em ordem.
 └── docs/                        # Documentação
 ```
 
@@ -116,10 +126,11 @@ kodiak-crm/
 - `nome`, `empresa`, `email`, `telefone`, `source` VARCHAR
 - `status` VARCHAR ('novo', 'convertido')
 - `temperatura` VARCHAR ('quente', 'morno', 'frio')
-- `estagio_id` INTEGER FK → funil_estagio
+- `id_estagio` INTEGER FK → lead_estagio
 - `id_parceiro` INTEGER (nullable)
 - `responsavel_id` INTEGER FK → usuario
-- `observacao` TEXT, `ativo`, `data_cadastro`
+- `responsavel_nome` VARCHAR, `responsavel_avatar` TEXT (denormalizado para performance)
+- `observacao` TEXT, `ativo` BOOLEAN DEFAULT true, `data_cadastro`
 
 ### funil / funil_estagio / oportunidade / atividade / proposta / proposta_item
 - Seguem padrão multi-tenant com `id_empresa`
@@ -214,6 +225,7 @@ kodiak-crm/
 
 ### Fase 10: Notificações
 - Migração 011: tabela notificacao
+- Migração 012: corrige tabela lead (colunas ativo, responsavel_nome, responsavel_avatar)
 - NotificacaoService, NotificacaoController (CRUD + resumo)
 - Notificacoes.tsx, Layout badge vermelho (polling 30s)
 
