@@ -307,14 +307,14 @@ export default function Propostas() {
                 onClick={() => setShowRejeicaoModal(false)}
                 disabled={alterandoStatus}
               >
-                Cancelar
+                Não
               </button>
               <button
                 className="btn-danger"
                 onClick={handleConfirmarRejeicao}
                 disabled={alterandoStatus}
               >
-                {alterandoStatus ? 'Salvando...' : 'Confirmar Rejeição'}
+                {alterandoStatus ? 'Salvando...' : 'Sim'}
               </button>
             </div>
           </div>
