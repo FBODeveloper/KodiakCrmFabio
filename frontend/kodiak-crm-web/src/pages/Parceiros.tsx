@@ -55,8 +55,8 @@ export default function Parceiros() {
           <table className="tabela">
             <thead>
               <tr>
-                <th>Razão Social</th>
-                <th>Nome Fantasia</th>
+                <th>Nome/Razão Social</th>
+                <th>Apelido/Nome Fantasia</th>
                 <th>CPF/CNPJ</th>
                 <th>Email</th>
                 <th>Telefone</th>

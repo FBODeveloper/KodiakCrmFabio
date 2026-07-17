@@ -81,20 +81,17 @@ public class ClienteController : ControllerBase
             var idEmpresa = ObterIdEmpresa();
             var cliente = await _service.CriarAsync(dto, idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa());
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _historico.RegistrarAsync(
-                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                        "cliente", cliente.Id, "criado",
-                        $"Cliente \"{cliente.RazaoSocial}\" criado",
-                        dadosDepois: new { cliente.RazaoSocial, cliente.CnpjCpf, cliente.Email },
-                        usuarioId: ObterUsuarioId(),
-                        usuarioNome: ObterUsuarioNome());
-                }
-                catch { }
-            });
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "cliente", cliente.Id, "criado",
+                    $"Cliente \"{cliente.RazaoSocial}\" criado",
+                    dadosDepois: new { cliente.RazaoSocial, cliente.CnpjCpf, cliente.Email },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
 
             return CreatedAtAction(nameof(ObterPorId), new { id = cliente.Id }, cliente);
         }
@@ -118,20 +115,17 @@ public class ClienteController : ControllerBase
             if (cliente == null)
                 return NotFound(new { mensagem = "Cliente não encontrado" });
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _historico.RegistrarAsync(
-                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                        "cliente", id, "alterado",
-                        $"Cliente \"{cliente.RazaoSocial}\" atualizado",
-                        dadosDepois: new { cliente.RazaoSocial, cliente.CnpjCpf, cliente.Email },
-                        usuarioId: ObterUsuarioId(),
-                        usuarioNome: ObterUsuarioNome());
-                }
-                catch { }
-            });
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "cliente", id, "alterado",
+                    $"Cliente \"{cliente.RazaoSocial}\" atualizado",
+                    dadosDepois: new { cliente.RazaoSocial, cliente.CnpjCpf, cliente.Email },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
 
             return Ok(cliente);
         }
@@ -155,20 +149,17 @@ public class ClienteController : ControllerBase
 
             if (cliente != null)
             {
-                _ = Task.Run(async () =>
+                try
                 {
-                    try
-                    {
-                        await _historico.RegistrarAsync(
-                            idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                            "cliente", id, "excluido",
-                            $"Cliente \"{cliente.RazaoSocial}\" excluído",
-                            dadosAntes: new { cliente.RazaoSocial, cliente.CnpjCpf, cliente.Email },
-                            usuarioId: ObterUsuarioId(),
-                            usuarioNome: ObterUsuarioNome());
-                    }
-                    catch { }
-                });
+                    await _historico.RegistrarAsync(
+                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                        "cliente", id, "excluido",
+                        $"Cliente \"{cliente.RazaoSocial}\" excluído",
+                        dadosAntes: new { cliente.RazaoSocial, cliente.CnpjCpf, cliente.Email },
+                        usuarioId: ObterUsuarioId(),
+                        usuarioNome: ObterUsuarioNome());
+                }
+                catch { }
             }
 
             return NoContent();

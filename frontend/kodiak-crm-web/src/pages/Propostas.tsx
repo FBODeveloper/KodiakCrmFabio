@@ -141,6 +141,7 @@ export default function Propostas() {
   };
 
   const statusBotoes: { status: string; label: string; cor: string }[] = [
+    { status: 'pendente', label: 'Pendente', cor: '#f59e0b' },
     { status: 'enviada', label: 'Enviada', cor: '#3b82f6' },
     { status: 'aprovada', label: 'Aprovada', cor: '#10b981' },
     { status: 'rejeitada', label: 'Rejeitada', cor: '#ef4444' },
@@ -189,7 +190,9 @@ export default function Propostas() {
               </tr>
             </thead>
             <tbody>
-              {propostas.map((proposta) => (
+              {propostas.map((proposta) => {
+                const podeEditar = proposta.status === 'rascunho' || proposta.status === 'pendente';
+                return (
                 <tr key={proposta.id}>
                   <td>{proposta.numero || '-'}</td>
                   <td>{proposta.titulo}</td>
@@ -202,42 +205,39 @@ export default function Propostas() {
                   </td>
                   <td>{proposta.dataValidade ? new Date(proposta.dataValidade + 'T00:00:00').toLocaleDateString('pt-BR') : '-'}</td>
                   <td>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <span
-                        className="status-badge"
-                        style={{ backgroundColor: statusColors[proposta.status] || '#6b7280' }}
-                      >
-                        {proposta.status}
-                      </span>
-                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                        {statusBotoes.map((btn) => {
-                          if (proposta.status === btn.status) return null;
-                          return (
-                            <button
-                              key={btn.status}
-                              onClick={() => handleAlterarStatus(proposta.id, btn.status)}
-                              disabled={alterandoStatus}
-                              style={{
-                                fontSize: '0.65rem',
-                                padding: '2px 6px',
-                                borderRadius: '4px',
-                                border: `1px solid ${btn.cor}`,
-                                background: 'transparent',
-                                color: btn.cor,
-                                cursor: alterandoStatus ? 'not-allowed' : 'pointer',
-                                fontWeight: 600,
-                                opacity: alterandoStatus ? 0.6 : 1,
-                              }}
-                            >
-                              {btn.label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
+                    <span
+                      className="status-badge"
+                      style={{ backgroundColor: statusColors[proposta.status] || '#6b7280' }}
+                    >
+                      {proposta.status}
+                    </span>
                   </td>
                   <td>
-                    <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '2px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      {statusBotoes.map((btn) => {
+                        if (proposta.status === btn.status) return null;
+                        return (
+                          <button
+                            key={btn.status}
+                            onClick={() => handleAlterarStatus(proposta.id, btn.status)}
+                            disabled={alterandoStatus}
+                            title={btn.label}
+                            style={{
+                              fontSize: '0.65rem',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              border: `1px solid ${btn.cor}`,
+                              background: 'transparent',
+                              color: btn.cor,
+                              cursor: alterandoStatus ? 'not-allowed' : 'pointer',
+                              fontWeight: 600,
+                              opacity: alterandoStatus ? 0.6 : 1,
+                            }}
+                          >
+                            {btn.label}
+                          </button>
+                        );
+                      })}
                       <button
                         className="icon-btn"
                         title="Ver"
@@ -245,13 +245,15 @@ export default function Propostas() {
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                       </button>
-                      <button
-                        className="icon-btn"
-                        title="Editar"
-                        onClick={() => navigate(`/propostas/${proposta.id}`, { state: { from: location.pathname } })}
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                      </button>
+                      {podeEditar && (
+                        <button
+                          className="icon-btn"
+                          title="Editar"
+                          onClick={() => navigate(`/propostas/${proposta.id}`, { state: { from: location.pathname } })}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                      )}
                       <button
                         className="icon-btn icon-btn-danger"
                         title="Excluir"
@@ -262,7 +264,8 @@ export default function Propostas() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
 

@@ -43,7 +43,7 @@ export default function ParceiroDetalhes() {
       
       <div className="detalhes-grid">
         <div className="detalhes-campo">
-          <label>Nome Fantasia</label>
+          <label>Apelido/Nome Fantasia</label>
           <p>{parceiro.nomeFantasia || '-'}</p>
         </div>
         

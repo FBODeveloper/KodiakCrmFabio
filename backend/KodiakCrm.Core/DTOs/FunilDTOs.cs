@@ -40,7 +40,7 @@ public class OportunidadeDTO
     public int? FunilId { get; set; }
     public string? FunilNome { get; set; }
     public decimal? Valor { get; set; }
-    public DateTime? DataPrevisao { get; set; }
+    public DateOnly? DataPrevisao { get; set; }
     public int? ResponsavelId { get; set; }
     public string? ResponsavelNome { get; set; }
     public string? Observacao { get; set; }
@@ -56,7 +56,7 @@ public class OportunidadeCreateDTO
     public int? IdParceiro { get; set; }
     public int? IdEstagio { get; set; }
     public decimal? Valor { get; set; }
-    public DateTime? DataPrevisao { get; set; }
+    public DateOnly? DataPrevisao { get; set; }
     public string? Observacao { get; set; }
 }
 
@@ -66,7 +66,7 @@ public class OportunidadeUpdateDTO
     public int? IdParceiro { get; set; }
     public int? IdEstagio { get; set; }
     public decimal? Valor { get; set; }
-    public DateTime? DataPrevisao { get; set; }
+    public DateOnly? DataPrevisao { get; set; }
     public int? ResponsavelId { get; set; }
     public string? Observacao { get; set; }
     public string? MotivoPerda { get; set; }

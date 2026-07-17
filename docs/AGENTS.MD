@@ -276,12 +276,24 @@ kodiak-crm/
 - **GLOBAL**: todos os formulários com ?readonly=true (Lead, Cliente, Contato, Atividade, Proposta, Oportunidade)
 - **Arquivo de teste**: docs/Teste_Frontend_2.md
 
+### Fase 18: Correções Teste Frontend 3
+- **BUG CRÍTICO**: DateOnly vs DateTime no OportunidadeRepository (data_previsao) — corrigido `Oportunidade.DataPrevisao` para `DateOnly?` em entity, DTOs e LeadConverterDTO
+- **BUG CRÍTICO**: Histórico nunca gravava registros — `Task.Run` + `catch { }` silenciava erros de DI scope descartado. Removido de 7 controllers (~24 ocorrências)
+- **Proposta**: adicionados `ClienteNome`, `ContatoNome`, `ParceiroNome`, `OportunidadeTitulo` na entity para mapeamento Dapper; `MapearParaDTO` atualizado
+- **AtividadeForm**: endpoints corrigidos (`/clientes`→`/cliente`, `/usuarios`→`/usuariogestao` com `itensPorPagina: 9999`), status removido do form (sempre pendente), campos bloqueados quando finalizada
+- **Atividades lista**: botão editar só aparece para status `pendente`
+- **Propostas lista**: botões de status movidos para coluna Ações, adicionado botão "Pendente", edição restrita a `rascunho`/`pendente`, coluna Cliente/Contato usa `clienteNome || contatoNome`
+- **Contatos lista**: adicionada coluna Data Cadastro
+- **Labels globais**: "Razão Social"→"Nome/Razão Social" e "Nome Fantasia"→"Apelido/Nome Fantasia" em 8 arquivos (13 ocorrências)
+- **Leads.tsx**: removida variável `statusColors` não utilizada (erro TypeScript)
+- **Arquivo de teste**: docs/Teste_Frontend_3.md
+
 ## Git Remote
 - `https://github.com/FBODeveloper/KodiakCrmFabio.git` (main branch)
-- Último commit: `488f8bc`
 
 ## Pendente / Próximos Passos
-- Terceiro teste frontend para validar correções
+- Quarto teste frontend para validar correções Fase 18
+- Verificar criação de Funil/Estágios (OportunidadeForm: campo Funil vazio)
 - Exportação CSV dos relatórios
 - Dashboard personalizável
 - Audit log admin

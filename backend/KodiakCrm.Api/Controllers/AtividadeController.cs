@@ -83,20 +83,17 @@ public class AtividadeController : ControllerBase
         {
             var atividade = await _service.CriarAsync(dto, idEmpresa, idEstabelecimento, cnpjEmpresa, responsavelId);
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _historico.RegistrarAsync(
-                        idEmpresa, idEstabelecimento, cnpjEmpresa,
-                        "atividade", atividade.Id, "criado",
-                        $"Atividade \"{atividade.Titulo}\" criada",
-                        dadosDepois: new { atividade.Titulo, atividade.Tipo, atividade.DataInicio },
-                        usuarioId: responsavelId,
-                        usuarioNome: ObterUsuarioNome());
-                }
-                catch { }
-            });
+                await _historico.RegistrarAsync(
+                    idEmpresa, idEstabelecimento, cnpjEmpresa,
+                    "atividade", atividade.Id, "criado",
+                    $"Atividade \"{atividade.Titulo}\" criada",
+                    dadosDepois: new { atividade.Titulo, atividade.Tipo, atividade.DataInicio },
+                    usuarioId: responsavelId,
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
 
             return CreatedAtAction(nameof(ObterPorId), new { id = atividade.Id }, atividade);
         }
@@ -118,20 +115,17 @@ public class AtividadeController : ControllerBase
         if (atividade == null)
             return NotFound(new { mensagem = "Atividade não encontrada" });
 
-        _ = Task.Run(async () =>
+        try
         {
-            try
-            {
-                await _historico.RegistrarAsync(
-                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                    "atividade", id, "alterado",
-                    $"Atividade \"{atividade.Titulo}\" atualizada",
-                    dadosDepois: new { atividade.Titulo, atividade.Tipo, atividade.Concluida },
-                    usuarioId: ObterResponsavelId(),
-                    usuarioNome: ObterUsuarioNome());
-            }
-            catch { }
-        });
+            await _historico.RegistrarAsync(
+                idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                "atividade", id, "alterado",
+                $"Atividade \"{atividade.Titulo}\" atualizada",
+                dadosDepois: new { atividade.Titulo, atividade.Tipo, atividade.Concluida },
+                usuarioId: ObterResponsavelId(),
+                usuarioNome: ObterUsuarioNome());
+        }
+        catch { }
 
         return Ok(atividade);
     }
@@ -156,21 +150,18 @@ public class AtividadeController : ControllerBase
 
         var atividade = await _service.AlterarStatusAsync(id, dto.Status, idEmpresa);
 
-        _ = Task.Run(async () =>
+        try
         {
-            try
-            {
-                await _historico.RegistrarAsync(
-                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                    "atividade", id, "status_alterado",
-                    $"Atividade \"{atividade!.Titulo}\" status alterado para \"{dto.Status}\"",
-                    dadosAntes: new { Status = atividadeAtual.Status },
-                    dadosDepois: new { Status = dto.Status },
-                    usuarioId: ObterResponsavelId(),
-                    usuarioNome: ObterUsuarioNome());
-            }
-            catch { }
-        });
+            await _historico.RegistrarAsync(
+                idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                "atividade", id, "status_alterado",
+                $"Atividade \"{atividade!.Titulo}\" status alterado para \"{dto.Status}\"",
+                dadosAntes: new { Status = atividadeAtual.Status },
+                dadosDepois: new { Status = dto.Status },
+                usuarioId: ObterResponsavelId(),
+                usuarioNome: ObterUsuarioNome());
+        }
+        catch { }
 
         return Ok(atividade);
     }

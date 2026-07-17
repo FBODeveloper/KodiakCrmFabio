@@ -57,7 +57,7 @@ export default function AtividadeForm() {
 
   const carregarClientes = async () => {
     try {
-      const response = await api.get('/clientes');
+      const response = await api.get('/cliente', { params: { itensPorPagina: 9999 } });
       setClientes(response.data.itens || response.data || []);
     } catch (error) {
       console.error('Erro ao carregar clientes:', error);
@@ -66,7 +66,7 @@ export default function AtividadeForm() {
 
   const carregarUsuarios = async () => {
     try {
-      const response = await api.get('/usuarios');
+      const response = await api.get('/usuariogestao', { params: { itensPorPagina: 9999 } });
       setUsuarios(response.data.itens || response.data || []);
     } catch (error) {
       console.error('Erro ao carregar usuários:', error);
@@ -130,7 +130,7 @@ export default function AtividadeForm() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const podeEditarStatus = statusOriginal === 'pendente';
+  const isFinalizada = statusOriginal === 'concluido' || statusOriginal === 'cancelado';
   const podeDefinirResponsavel = isGerente;
   const responsavelDefault = !podeDefinirResponsavel && usuario ? usuario.id.toString() : form.responsavelId;
 
@@ -144,10 +144,15 @@ export default function AtividadeForm() {
       </div>
       
       <form onSubmit={handleSubmit} className="form">
+        {isFinalizada && (
+          <div className="alert alert-warning" style={{ marginBottom: 16, padding: '8px 12px', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '6px', color: '#f59e0b' }}>
+            Esta atividade está {statusOriginal === 'concluido' ? 'concluída' : 'cancelada'} e não pode ser alterada.
+          </div>
+        )}
         <div className="form-row">
           <div className="form-group">
             <label>Tipo *</label>
-            <select name="tipo" value={form.tipo} onChange={handleChange} disabled={readonly}>
+            <select name="tipo" value={form.tipo} onChange={handleChange} disabled={readonly || isFinalizada}>
               <option value="ligacao">Ligação</option>
               <option value="reuniao">Reunião</option>
               <option value="visita">Visita</option>
@@ -165,7 +170,7 @@ export default function AtividadeForm() {
               value={form.titulo}
               onChange={handleChange}
               required
-              disabled={readonly}
+              disabled={readonly || isFinalizada}
             />
           </div>
         </div>
@@ -177,14 +182,14 @@ export default function AtividadeForm() {
             value={form.descricao}
             onChange={handleChange}
             rows={4}
-            disabled={readonly}
+            disabled={readonly || isFinalizada}
           />
         </div>
 
         <div className="form-row">
           <div className="form-group">
             <label>Cliente</label>
-            <select name="clienteId" value={form.clienteId} onChange={handleChange} disabled={readonly}>
+            <select name="clienteId" value={form.clienteId} onChange={handleChange} disabled={readonly || isFinalizada}>
               <option value="">Nenhum</option>
               {clientes.map(c => (
                 <option key={c.id} value={c.id}>{c.nomeFantasia || c.razaoSocial}</option>
@@ -198,7 +203,7 @@ export default function AtividadeForm() {
               name="responsavelId"
               value={responsavelDefault}
               onChange={handleChange}
-              disabled={readonly || !podeDefinirResponsavel}
+              disabled={readonly || isFinalizada || !podeDefinirResponsavel}
             >
               <option value="">Nenhum</option>
               {usuarios.map(u => (
@@ -210,27 +215,13 @@ export default function AtividadeForm() {
 
         <div className="form-row">
           <div className="form-group">
-            <label>Status</label>
-            <select
-              name="status"
-              value={form.status}
-              onChange={handleChange}
-              disabled={readonly || !podeEditarStatus}
-            >
-              <option value="pendente">Pendente</option>
-              <option value="concluido">Concluído</option>
-              <option value="cancelado">Cancelado</option>
-            </select>
-          </div>
-
-          <div className="form-group">
             <label>Data/Hora Início</label>
             <input
               type="datetime-local"
               name="dataInicio"
               value={form.dataInicio}
               onChange={handleChange}
-              disabled={readonly}
+              disabled={readonly || isFinalizada}
             />
           </div>
           
@@ -241,14 +232,14 @@ export default function AtividadeForm() {
               name="dataFim"
               value={form.dataFim}
               onChange={handleChange}
-              disabled={readonly}
+              disabled={readonly || isFinalizada}
             />
           </div>
         </div>
         
         {erro && <div className="erro">{erro}</div>}
         
-        {!readonly && (
+        {!readonly && !isFinalizada && (
           <div className="form-actions">
             <button type="submit" className="btn-primary" disabled={carregando}>
               {carregando ? 'Salvando...' : 'Salvar'}

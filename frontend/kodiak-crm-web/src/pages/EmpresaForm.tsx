@@ -93,7 +93,7 @@ export default function EmpresaForm() {
           </div>
           
           <div className="form-group">
-            <label>Razão Social *</label>
+            <label>Nome/Razão Social *</label>
             <input
               type="text"
               name="razaoSocial"
@@ -106,7 +106,7 @@ export default function EmpresaForm() {
         
         <div className="form-row">
           <div className="form-group">
-            <label>Nome Fantasia</label>
+            <label>Apelido/Nome Fantasia</label>
             <input
               type="text"
               name="nomeFantasia"

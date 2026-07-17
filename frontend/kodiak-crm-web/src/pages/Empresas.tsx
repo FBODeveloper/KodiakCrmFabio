@@ -56,8 +56,8 @@ export default function Empresas() {
             <thead>
               <tr>
                 <th>CNPJ</th>
-                <th>Razão Social</th>
-                <th>Nome Fantasia</th>
+                <th>Nome/Razão Social</th>
+                <th>Apelido/Nome Fantasia</th>
                 <th>Usuários</th>
                 <th>Ações</th>
               </tr>

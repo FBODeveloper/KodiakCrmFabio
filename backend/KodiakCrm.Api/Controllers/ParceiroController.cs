@@ -64,20 +64,17 @@ public class ParceiroController : ControllerBase
 
             var parceiro = await _service.CriarAsync(dto, idEmpresa, idEstabelecimento, cnpjEmpresa);
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _historico.RegistrarAsync(
-                        idEmpresa, idEstabelecimento, cnpjEmpresa,
-                        "parceiro", parceiro.Id, "criado",
-                        $"Parceiro \"{parceiro.NomeFantasia}\" criado",
-                        dadosDepois: new { parceiro.NomeFantasia, parceiro.CpfCnpj, parceiro.Email },
-                        usuarioId: ObterUsuarioId(),
-                        usuarioNome: ObterUsuarioNome());
-                }
-                catch { }
-            });
+                await _historico.RegistrarAsync(
+                    idEmpresa, idEstabelecimento, cnpjEmpresa,
+                    "parceiro", parceiro.Id, "criado",
+                    $"Parceiro \"{parceiro.NomeFantasia}\" criado",
+                    dadosDepois: new { parceiro.NomeFantasia, parceiro.CpfCnpj, parceiro.Email },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
 
             return CreatedAtAction(nameof(ObterPorId), new { id = parceiro.Id }, parceiro);
         }
@@ -105,20 +102,17 @@ public class ParceiroController : ControllerBase
             if (parceiro == null)
                 return NotFound(new { mensagem = "Parceiro não encontrado" });
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _historico.RegistrarAsync(
-                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                        "parceiro", id, "alterado",
-                        $"Parceiro \"{parceiro.NomeFantasia}\" atualizado",
-                        dadosDepois: new { parceiro.NomeFantasia, parceiro.CpfCnpj, parceiro.Email },
-                        usuarioId: ObterUsuarioId(),
-                        usuarioNome: ObterUsuarioNome());
-                }
-                catch { }
-            });
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "parceiro", id, "alterado",
+                    $"Parceiro \"{parceiro.NomeFantasia}\" atualizado",
+                    dadosDepois: new { parceiro.NomeFantasia, parceiro.CpfCnpj, parceiro.Email },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
 
             return Ok(parceiro);
         }

@@ -22,7 +22,7 @@ public class Oportunidade : BaseEntity
     public int? IdParceiro { get; set; }
     public int? IdEstagio { get; set; }
     public decimal? Valor { get; set; }
-    public DateTime? DataPrevisao { get; set; }
+    public DateOnly? DataPrevisao { get; set; }
     public int? ResponsavelId { get; set; }
     public string? Observacao { get; set; }
     public string? MotivoPerda { get; set; }

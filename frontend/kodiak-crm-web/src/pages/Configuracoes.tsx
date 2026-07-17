@@ -171,21 +171,21 @@ export default function Configuracoes() {
             <h3>Dados da Empresa</h3>
             <div className="form-grid">
               <div className="form-group">
-                <label>Razão Social</label>
+                <label>Nome/Razão Social</label>
                 <input
                   type="text"
                   value={formEmpresa.razaoSocial}
                   onChange={e => setFormEmpresa({ ...formEmpresa, razaoSocial: e.target.value })}
-                  placeholder="Razão Social"
+                  placeholder="Nome/Razão Social"
                 />
               </div>
               <div className="form-group">
-                <label>Nome Fantasia</label>
+                <label>Apelido/Nome Fantasia</label>
                 <input
                   type="text"
                   value={formEmpresa.nomeFantasia}
                   onChange={e => setFormEmpresa({ ...formEmpresa, nomeFantasia: e.target.value })}
-                  placeholder="Nome Fantasia"
+                  placeholder="Apelido/Nome Fantasia"
                 />
               </div>
               <div className="form-group">

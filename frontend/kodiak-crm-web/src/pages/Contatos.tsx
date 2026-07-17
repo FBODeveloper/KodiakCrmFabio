@@ -65,6 +65,7 @@ export default function Contatos() {
                 <th>Email</th>
                 <th>Telefone</th>
                 <th>Cliente</th>
+                <th>Data Cadastro</th>
                 <th style={{ width: 100 }}>Ações</th>
               </tr>
             </thead>
@@ -76,6 +77,7 @@ export default function Contatos() {
                   <td>{contato.email || '-'}</td>
                   <td>{contato.telefone || contato.celular || '-'}</td>
                   <td>{contato.clienteNome || '-'}</td>
+                  <td>{contato.dataCadastro ? new Date(contato.dataCadastro).toLocaleDateString('pt-BR') : '-'}</td>
                   <td>
                     <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
                       <button className="icon-btn" title="Ver" onClick={() => navigate(`/contatos/${contato.id}?readonly=true`)}>
@@ -92,7 +94,7 @@ export default function Contatos() {
                 </tr>
               ))}
               {contatos.length === 0 && (
-                <tr><td colSpan={6} className="vazio">Nenhum contato encontrado</td></tr>
+                <tr><td colSpan={7} className="vazio">Nenhum contato encontrado</td></tr>
               )}
             </tbody>
           </table>

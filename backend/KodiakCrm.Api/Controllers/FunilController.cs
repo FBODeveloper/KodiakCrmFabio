@@ -148,20 +148,17 @@ public class OportunidadeController : ControllerBase
         {
             var oportunidade = await _service.CriarAsync(dto, idEmpresa, idEstabelecimento, cnpjEmpresa);
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _historico.RegistrarAsync(
-                        idEmpresa, idEstabelecimento, cnpjEmpresa,
-                        "oportunidade", oportunidade.Id, "criado",
-                        $"Oportunidade \"{oportunidade.Titulo}\" criada",
-                        dadosDepois: new { oportunidade.Titulo, oportunidade.Valor },
-                        usuarioId: ObterUsuarioId(),
-                        usuarioNome: ObterUsuarioNome());
-                }
-                catch { }
-            });
+                await _historico.RegistrarAsync(
+                    idEmpresa, idEstabelecimento, cnpjEmpresa,
+                    "oportunidade", oportunidade.Id, "criado",
+                    $"Oportunidade \"{oportunidade.Titulo}\" criada",
+                    dadosDepois: new { oportunidade.Titulo, oportunidade.Valor },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
 
             return CreatedAtAction(nameof(ObterPorId), new { id = oportunidade.Id }, oportunidade);
         }
@@ -183,20 +180,17 @@ public class OportunidadeController : ControllerBase
         if (oportunidade == null)
             return NotFound(new { mensagem = "Oportunidade não encontrada" });
 
-        _ = Task.Run(async () =>
+        try
         {
-            try
-            {
-                await _historico.RegistrarAsync(
-                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                    "oportunidade", id, "alterado",
-                    $"Oportunidade \"{oportunidade.Titulo}\" atualizada",
-                    dadosDepois: new { oportunidade.Titulo, oportunidade.Valor },
-                    usuarioId: ObterUsuarioId(),
-                    usuarioNome: ObterUsuarioNome());
-            }
-            catch { }
-        });
+            await _historico.RegistrarAsync(
+                idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                "oportunidade", id, "alterado",
+                $"Oportunidade \"{oportunidade.Titulo}\" atualizada",
+                dadosDepois: new { oportunidade.Titulo, oportunidade.Valor },
+                usuarioId: ObterUsuarioId(),
+                usuarioNome: ObterUsuarioNome());
+        }
+        catch { }
 
         return Ok(oportunidade);
     }
@@ -210,20 +204,17 @@ public class OportunidadeController : ControllerBase
         if (oportunidade == null)
             return NotFound(new { mensagem = "Oportunidade não encontrada" });
 
-        _ = Task.Run(async () =>
+        try
         {
-            try
-            {
-                await _historico.RegistrarAsync(
-                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                    "oportunidade", id, "etapa_alterada",
-                    $"Oportunidade \"{oportunidade.Titulo}\" movida para etapa {oportunidade.EstagioNome}",
-                    dadosDepois: new { oportunidade.IdEstagio, oportunidade.EstagioNome },
-                    usuarioId: ObterUsuarioId(),
-                    usuarioNome: ObterUsuarioNome());
-            }
-            catch { }
-        });
+            await _historico.RegistrarAsync(
+                idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                "oportunidade", id, "etapa_alterada",
+                $"Oportunidade \"{oportunidade.Titulo}\" movida para etapa {oportunidade.EstagioNome}",
+                dadosDepois: new { oportunidade.IdEstagio, oportunidade.EstagioNome },
+                usuarioId: ObterUsuarioId(),
+                usuarioNome: ObterUsuarioNome());
+        }
+        catch { }
 
         return Ok(oportunidade);
     }
@@ -240,20 +231,17 @@ public class OportunidadeController : ControllerBase
 
         if (oportunidade != null)
         {
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _historico.RegistrarAsync(
-                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                        "oportunidade", id, "excluido",
-                        $"Oportunidade \"{oportunidade.Titulo}\" excluída",
-                        dadosAntes: new { oportunidade.Titulo, oportunidade.Valor },
-                        usuarioId: ObterUsuarioId(),
-                        usuarioNome: ObterUsuarioNome());
-                }
-                catch { }
-            });
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "oportunidade", id, "excluido",
+                    $"Oportunidade \"{oportunidade.Titulo}\" excluída",
+                    dadosAntes: new { oportunidade.Titulo, oportunidade.Valor },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
         }
 
         return NoContent();

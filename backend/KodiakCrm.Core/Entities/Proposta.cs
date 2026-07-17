@@ -10,9 +10,13 @@ public class Proposta : BaseEntity
     public string? FormaPagamento { get; set; }
     public string? PrazoEntrega { get; set; }
     public int? IdParceiro { get; set; }
+    public string? ParceiroNome { get; set; }
     public int? IdOportunidade { get; set; }
+    public string? OportunidadeTitulo { get; set; }
     public int? ClienteId { get; set; }
+    public string? ClienteNome { get; set; }
     public int? ContatoId { get; set; }
+    public string? ContatoNome { get; set; }
     public decimal? ValorTotal { get; set; }
     public DateOnly? DataValidade { get; set; }
     public string Status { get; set; } = "rascunho";

@@ -110,7 +110,7 @@ public class LeadStatsDTO
 public class LeadConverterDTO
 {
     public decimal? Valor { get; set; }
-    public DateTime? DataPrevisao { get; set; }
+    public DateOnly? DataPrevisao { get; set; }
     public int? IdEstagio { get; set; }
     public string? Observacao { get; set; }
 }

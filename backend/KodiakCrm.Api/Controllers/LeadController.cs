@@ -102,31 +102,25 @@ public class LeadController : ControllerBase
 
             var lead = await _service.CriarAsync(dto, idEmpresa, idEstabelecimento, cnpjEmpresa);
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _historico.RegistrarAsync(
-                        idEmpresa, idEstabelecimento, cnpjEmpresa,
-                        "lead", lead.Id, "criado",
-                        $"Lead \"{lead.Nome}\" criado",
-                        dadosDepois: new { lead.Nome, lead.Email, lead.Telefone, lead.Empresa, lead.Temperatura },
-                        usuarioId: ObterUsuarioId(),
-                        usuarioNome: ObterUsuarioNome());
-                }
-                catch { }
-            });
+                await _historico.RegistrarAsync(
+                    idEmpresa, idEstabelecimento, cnpjEmpresa,
+                    "lead", lead.Id, "criado",
+                    $"Lead \"{lead.Nome}\" criado",
+                    dadosDepois: new { lead.Nome, lead.Email, lead.Telefone, lead.Empresa, lead.Temperatura },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _automacao.CriarFollowUpLeadAsync(
-                        idEmpresa, lead.Id, lead.Nome,
-                        lead.ResponsavelId, lead.ResponsavelNome ?? "Não atribuído");
-                }
-                catch { }
-            });
+                await _automacao.CriarFollowUpLeadAsync(
+                    idEmpresa, lead.Id, lead.Nome,
+                    lead.ResponsavelId, lead.ResponsavelNome ?? "Não atribuído");
+            }
+            catch { }
 
             return CreatedAtAction(nameof(ObterPorId), new { id = lead.Id }, lead);
         }
@@ -156,21 +150,18 @@ public class LeadController : ControllerBase
             if (lead == null)
                 return NotFound(new { mensagem = "Lead não encontrado" });
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _historico.RegistrarAsync(
-                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                        "lead", id, "alterado",
-                        $"Lead \"{lead.Nome}\" atualizado",
-                        dadosAntes: leadAntes != null ? new { leadAntes.Nome, leadAntes.Status, leadAntes.Temperatura } : null,
-                        dadosDepois: new { lead.Nome, lead.Status, lead.Temperatura },
-                        usuarioId: ObterUsuarioId(),
-                        usuarioNome: ObterUsuarioNome());
-                }
-                catch { }
-            });
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "lead", id, "alterado",
+                    $"Lead \"{lead.Nome}\" atualizado",
+                    dadosAntes: leadAntes != null ? new { leadAntes.Nome, leadAntes.Status, leadAntes.Temperatura } : null,
+                    dadosDepois: new { lead.Nome, lead.Status, lead.Temperatura },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
 
             return Ok(lead);
         }
@@ -195,20 +186,17 @@ public class LeadController : ControllerBase
 
             if (lead != null)
             {
-                _ = Task.Run(async () =>
+                try
                 {
-                    try
-                    {
-                        await _historico.RegistrarAsync(
-                            idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                            "lead", id, "excluido",
-                            $"Lead \"{lead.Nome}\" excluído",
-                            dadosAntes: new { lead.Nome, lead.Email, lead.Empresa, lead.Status },
-                            usuarioId: ObterUsuarioId(),
-                            usuarioNome: ObterUsuarioNome());
-                    }
-                    catch { }
-                });
+                    await _historico.RegistrarAsync(
+                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                        "lead", id, "excluido",
+                        $"Lead \"{lead.Nome}\" excluído",
+                        dadosAntes: new { lead.Nome, lead.Email, lead.Empresa, lead.Status },
+                        usuarioId: ObterUsuarioId(),
+                        usuarioNome: ObterUsuarioNome());
+                }
+                catch { }
             }
 
             return NoContent();
@@ -230,28 +218,25 @@ public class LeadController : ControllerBase
             if (resultado == null)
                 return NotFound(new { mensagem = "Lead não encontrado ou já convertido" });
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _historico.RegistrarAsync(
-                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                        "lead", id, "convertido",
-                        $"Lead \"{resultado.LeadNome}\" convertido em oportunidade \"{resultado.OportunidadeTitulo}\"",
-                        dadosDepois: new { resultado.LeadId, resultado.OportunidadeId, resultado.OportunidadeTitulo },
-                        usuarioId: ObterUsuarioId(),
-                        usuarioNome: ObterUsuarioNome());
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "lead", id, "convertido",
+                    $"Lead \"{resultado.LeadNome}\" convertido em oportunidade \"{resultado.OportunidadeTitulo}\"",
+                    dadosDepois: new { resultado.LeadId, resultado.OportunidadeId, resultado.OportunidadeTitulo },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
 
-                    await _historico.RegistrarAsync(
-                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                        "oportunidade", resultado.OportunidadeId, "criado",
-                        $"Oportunidade \"{resultado.OportunidadeTitulo}\" criada a partir do lead \"{resultado.LeadNome}\"",
-                        dadosDepois: new { resultado.OportunidadeTitulo, resultado.OportunidadeId },
-                        usuarioId: ObterUsuarioId(),
-                        usuarioNome: ObterUsuarioNome());
-                }
-                catch { }
-            });
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "oportunidade", resultado.OportunidadeId, "criado",
+                    $"Oportunidade \"{resultado.OportunidadeTitulo}\" criada a partir do lead \"{resultado.LeadNome}\"",
+                    dadosDepois: new { resultado.OportunidadeTitulo, resultado.OportunidadeId },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
 
             return Ok(resultado);
         }
@@ -276,20 +261,17 @@ public class LeadController : ControllerBase
             if (lead == null)
                 return NotFound(new { mensagem = "Lead não encontrado" });
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _historico.RegistrarAsync(
-                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                        "lead", id, "etapa_alterada",
-                        $"Lead \"{lead.Nome}\" movido para estágio {lead.EstagioNome}",
-                        dadosDepois: new { lead.IdEstagio, lead.EstagioNome },
-                        usuarioId: ObterUsuarioId(),
-                        usuarioNome: ObterUsuarioNome());
-                }
-                catch { }
-            });
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "lead", id, "etapa_alterada",
+                    $"Lead \"{lead.Nome}\" movido para estágio {lead.EstagioNome}",
+                    dadosDepois: new { lead.IdEstagio, lead.EstagioNome },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
 
             return Ok(lead);
         }

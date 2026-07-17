@@ -110,20 +110,17 @@ public class ContatoController : ControllerBase
             var idEmpresa = ObterIdEmpresa();
             var contato = await _service.CriarAsync(dto, idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa());
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _historico.RegistrarAsync(
-                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                        "contato", contato.Id, "criado",
-                        $"Contato \"{contato.Nome}\" criado",
-                        dadosDepois: new { contato.Nome, contato.Cargo, contato.Email },
-                        usuarioId: ObterUsuarioId(),
-                        usuarioNome: ObterUsuarioNome());
-                }
-                catch { }
-            });
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "contato", contato.Id, "criado",
+                    $"Contato \"{contato.Nome}\" criado",
+                    dadosDepois: new { contato.Nome, contato.Cargo, contato.Email },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
 
             return CreatedAtAction(nameof(ObterPorId), new { id = contato.Id }, contato);
         }
@@ -147,20 +144,17 @@ public class ContatoController : ControllerBase
             if (contato == null)
                 return NotFound(new { mensagem = "Contato não encontrado" });
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _historico.RegistrarAsync(
-                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                        "contato", id, "alterado",
-                        $"Contato \"{contato.Nome}\" atualizado",
-                        dadosDepois: new { contato.Nome, contato.Cargo, contato.Email },
-                        usuarioId: ObterUsuarioId(),
-                        usuarioNome: ObterUsuarioNome());
-                }
-                catch { }
-            });
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "contato", id, "alterado",
+                    $"Contato \"{contato.Nome}\" atualizado",
+                    dadosDepois: new { contato.Nome, contato.Cargo, contato.Email },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
 
             return Ok(contato);
         }
@@ -184,20 +178,17 @@ public class ContatoController : ControllerBase
 
             if (contato != null)
             {
-                _ = Task.Run(async () =>
+                try
                 {
-                    try
-                    {
-                        await _historico.RegistrarAsync(
-                            idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                            "contato", id, "excluido",
-                            $"Contato \"{contato.Nome}\" excluído",
-                            dadosAntes: new { contato.Nome, contato.Cargo, contato.Email },
-                            usuarioId: ObterUsuarioId(),
-                            usuarioNome: ObterUsuarioNome());
-                    }
-                    catch { }
-                });
+                    await _historico.RegistrarAsync(
+                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                        "contato", id, "excluido",
+                        $"Contato \"{contato.Nome}\" excluído",
+                        dadosAntes: new { contato.Nome, contato.Cargo, contato.Email },
+                        usuarioId: ObterUsuarioId(),
+                        usuarioNome: ObterUsuarioNome());
+                }
+                catch { }
             }
 
             return NoContent();

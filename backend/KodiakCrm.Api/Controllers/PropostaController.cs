@@ -72,20 +72,17 @@ public class PropostaController : ControllerBase
         {
             var proposta = await _service.CriarAsync(dto, idEmpresa, idEstabelecimento, cnpjEmpresa);
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _historico.RegistrarAsync(
-                        idEmpresa, idEstabelecimento, cnpjEmpresa,
-                        "proposta", proposta.Id, "criado",
-                        $"Proposta \"{proposta.Numero}\" criada",
-                        dadosDepois: new { proposta.Numero, proposta.Status, proposta.ValorTotal },
-                        usuarioId: ObterUsuarioId(),
-                        usuarioNome: ObterUsuarioNome());
-                }
-                catch { }
-            });
+                await _historico.RegistrarAsync(
+                    idEmpresa, idEstabelecimento, cnpjEmpresa,
+                    "proposta", proposta.Id, "criado",
+                    $"Proposta \"{proposta.Numero}\" criada",
+                    dadosDepois: new { proposta.Numero, proposta.Status, proposta.ValorTotal },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
 
             return CreatedAtAction(nameof(ObterPorId), new { id = proposta.Id }, proposta);
         }
@@ -107,20 +104,17 @@ public class PropostaController : ControllerBase
         if (proposta == null)
             return NotFound(new { mensagem = "Proposta não encontrada" });
 
-        _ = Task.Run(async () =>
+        try
         {
-            try
-            {
-                await _historico.RegistrarAsync(
-                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                    "proposta", id, "alterado",
-                    $"Proposta \"{proposta.Numero}\" atualizada",
-                    dadosDepois: new { proposta.Numero, proposta.Status, proposta.ValorTotal },
-                    usuarioId: ObterUsuarioId(),
-                    usuarioNome: ObterUsuarioNome());
-            }
-            catch { }
-        });
+            await _historico.RegistrarAsync(
+                idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                "proposta", id, "alterado",
+                $"Proposta \"{proposta.Numero}\" atualizada",
+                dadosDepois: new { proposta.Numero, proposta.Status, proposta.ValorTotal },
+                usuarioId: ObterUsuarioId(),
+                usuarioNome: ObterUsuarioNome());
+        }
+        catch { }
 
         return Ok(proposta);
     }
@@ -134,24 +128,21 @@ public class PropostaController : ControllerBase
         if (proposta == null)
             return NotFound(new { mensagem = "Proposta não encontrada" });
 
-        _ = Task.Run(async () =>
+        try
         {
-            try
-            {
-                var descricao = $"Proposta \"{proposta.Numero}\" status alterado para \"{dto.Status}\"";
-                if (!string.IsNullOrEmpty(dto.MotivoRejeicao))
-                    descricao += $" - Motivo: {dto.MotivoRejeicao}";
+            var descricao = $"Proposta \"{proposta.Numero}\" status alterado para \"{dto.Status}\"";
+            if (!string.IsNullOrEmpty(dto.MotivoRejeicao))
+                descricao += $" - Motivo: {dto.MotivoRejeicao}";
 
-                await _historico.RegistrarAsync(
-                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                    "proposta", id, "status_alterada",
-                    descricao,
-                    dadosDepois: new { proposta.Status, dto.MotivoRejeicao },
-                    usuarioId: ObterUsuarioId(),
-                    usuarioNome: ObterUsuarioNome());
-            }
-            catch { }
-        });
+            await _historico.RegistrarAsync(
+                idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                "proposta", id, "status_alterada",
+                descricao,
+                dadosDepois: new { proposta.Status, dto.MotivoRejeicao },
+                usuarioId: ObterUsuarioId(),
+                usuarioNome: ObterUsuarioNome());
+        }
+        catch { }
 
         return Ok(proposta);
     }
@@ -168,20 +159,17 @@ public class PropostaController : ControllerBase
 
         if (proposta != null)
         {
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _historico.RegistrarAsync(
-                        idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
-                        "proposta", id, "excluido",
-                        $"Proposta \"{proposta.Numero}\" excluída",
-                        dadosAntes: new { proposta.Numero, proposta.Status, proposta.ValorTotal },
-                        usuarioId: ObterUsuarioId(),
-                        usuarioNome: ObterUsuarioNome());
-                }
-                catch { }
-            });
+                await _historico.RegistrarAsync(
+                    idEmpresa, ObterIdEstabelecimento(), ObterCnpjEmpresa(),
+                    "proposta", id, "excluido",
+                    $"Proposta \"{proposta.Numero}\" excluída",
+                    dadosAntes: new { proposta.Numero, proposta.Status, proposta.ValorTotal },
+                    usuarioId: ObterUsuarioId(),
+                    usuarioNome: ObterUsuarioNome());
+            }
+            catch { }
         }
 
         return NoContent();

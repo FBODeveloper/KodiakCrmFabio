@@ -88,14 +88,6 @@ export default function Leads() {
     }
   };
 
-  const statusColors: Record<string, string> = {
-    novo: '#3b82f6',
-    contato: '#f59e0b',
-    qualificado: '#10b981',
-    convertido: '#6366f1',
-    perdido: '#ef4444'
-  };
-
   const temperaturaInfo: Record<string, { color: string; label: string }> = {
     quente: { color: '#ef4444', label: 'Quente' },
     morno: { color: '#f59e0b', label: 'Morno' },
