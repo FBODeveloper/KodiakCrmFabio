@@ -25,6 +25,8 @@ import Clientes from './pages/Clientes';
 import ClienteForm from './pages/ClienteForm';
 import Contatos from './pages/Contatos';
 import ContatoForm from './pages/ContatoForm';
+import Funis from './pages/Funis';
+import FunilForm from './pages/FunilForm';
 import Configuracoes from './pages/Configuracoes';
 import Relatorios from './pages/Relatorios';
 import Notificacoes from './pages/Notificacoes';
@@ -79,6 +81,10 @@ function AppRoutes() {
         <Route path="oportunidades" element={<Oportunidades />} />
         <Route path="oportunidades/novo" element={<OportunidadeForm />} />
         <Route path="oportunidades/:id" element={<OportunidadeForm />} />
+
+        <Route path="funis" element={<Funis />} />
+        <Route path="funis/novo" element={<FunilForm />} />
+        <Route path="funis/:id" element={<FunilForm />} />
 
         <Route path="atividades" element={<Atividades />} />
         <Route path="atividades/novo" element={<AtividadeForm />} />

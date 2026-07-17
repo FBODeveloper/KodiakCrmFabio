@@ -288,12 +288,20 @@ kodiak-crm/
 - **Leads.tsx**: removida variável `statusColors` não utilizada (erro TypeScript)
 - **Arquivo de teste**: docs/Teste_Frontend_3.md
 
+### Fase 19: Funil de Vendas
+- **Migração 015**: seed data — "Funil de Vendas" com 5 estágios (Prospecção, Qualificação, Proposta, Negociação, Fechamento) para cada empresa existente
+- **Backend**: `PUT /api/funil/{id}` para atualizar funil, `ExcluirEstagioAsync` no repository
+- **DTOs**: `FunilUpdateDTO` adicionado
+- **Frontend Funis.tsx**: página de listagem com tabela (Nome, Estágios, Status, Ações)
+- **Frontend FunilForm.tsx**: formulário com lista dinâmica de estágios (adicionar/remover/reordenar, nome + probabilidade 0-100)
+- **Sidebar**: NavLink "Funis" adicionado com ícone de funil após Oportunidades
+- **Rotas**: `/funis`, `/funis/novo`, `/funis/:id`
+
 ## Git Remote
 - `https://github.com/FBODeveloper/KodiakCrmFabio.git` (main branch)
 
 ## Pendente / Próximos Passos
-- Quarto teste frontend para validar correções Fase 18
-- Verificar criação de Funil/Estágios (OportunidadeForm: campo Funil vazio)
+- Quinto teste frontend para validar correções Fase 18 + Funis
 - Exportação CSV dos relatórios
 - Dashboard personalizável
 - Audit log admin

@@ -58,6 +58,21 @@ public class FunilController : ControllerBase
         }
     }
 
+    [HttpPut("{id}")]
+    public async Task<ActionResult<FunilDTO>> Atualizar(int id, [FromBody] FunilUpdateDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var idEmpresa = ObterIdEmpresa();
+        var funil = await _service.AtualizarAsync(id, dto, idEmpresa);
+
+        if (funil == null)
+            return NotFound(new { mensagem = "Funil não encontrado" });
+
+        return Ok(funil);
+    }
+
     [HttpDelete("{id}")]
     public async Task<ActionResult> Excluir(int id)
     {

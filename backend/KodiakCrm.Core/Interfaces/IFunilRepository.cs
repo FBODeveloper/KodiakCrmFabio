@@ -10,6 +10,7 @@ public interface IFunilRepository
     Task<int> CriarAsync(Funil funil);
     Task<int> CriarEstagioAsync(FunilEstagio estagio);
     Task AtualizarAsync(Funil funil);
+    Task ExcluirEstagioAsync(int idEstagio);
     Task ExcluirAsync(int id, string idEmpresa);
 }
 

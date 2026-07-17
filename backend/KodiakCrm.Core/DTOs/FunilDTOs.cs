@@ -14,6 +14,12 @@ public class FunilCreateDTO
     public List<FunilEstagioCreateDTO> Estagios { get; set; } = new();
 }
 
+public class FunilUpdateDTO
+{
+    public string Nome { get; set; } = string.Empty;
+    public List<FunilEstagioCreateDTO> Estagios { get; set; } = new();
+}
+
 public class FunilEstagioDTO
 {
     public int Id { get; set; }

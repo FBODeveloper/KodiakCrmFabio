@@ -101,6 +101,50 @@ public class FunilService
         };
     }
 
+    public async Task<FunilDTO?> AtualizarAsync(int id, FunilUpdateDTO dto, string idEmpresa)
+    {
+        var funil = await _repository.ObterPorIdAsync(id, idEmpresa);
+        if (funil == null) return null;
+
+        funil.Nome = dto.Nome;
+        await _repository.AtualizarAsync(funil);
+
+        var estagiosExistentes = await _repository.ObterEstagiosAsync(id);
+        foreach (var estagio in estagiosExistentes)
+        {
+            await _repository.ExcluirEstagioAsync(estagio.Id);
+        }
+
+        var estagios = new List<FunilEstagioDTO>();
+        foreach (var estagioDto in dto.Estagios)
+        {
+            var estagio = new FunilEstagio
+            {
+                IdFunil = id,
+                Nome = estagioDto.Nome,
+                Ordem = estagioDto.Ordem,
+                Probabilidade = estagioDto.Probabilidade
+            };
+
+            var estagioId = await _repository.CriarEstagioAsync(estagio);
+            estagios.Add(new FunilEstagioDTO
+            {
+                Id = estagioId,
+                Nome = estagio.Nome,
+                Ordem = estagio.Ordem,
+                Probabilidade = estagio.Probabilidade
+            });
+        }
+
+        return new FunilDTO
+        {
+            Id = funil.Id,
+            Nome = funil.Nome,
+            Ativo = funil.Ativo,
+            Estagios = estagios
+        };
+    }
+
     public async Task ExcluirAsync(int id, string idEmpresa)
     {
         await _repository.ExcluirAsync(id, idEmpresa);

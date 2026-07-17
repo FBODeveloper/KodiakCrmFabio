@@ -87,6 +87,13 @@ public class FunilRepository : IFunilRepository
         await connection.ExecuteAsync(sql, new { funil.Id, funil.IdEmpresa, funil.Nome });
     }
 
+    public async Task ExcluirEstagioAsync(int idEstagio)
+    {
+        using var connection = _database.GetConnection();
+        const string sql = "DELETE FROM funil_estagio WHERE id = @Id";
+        await connection.ExecuteAsync(sql, new { Id = idEstagio });
+    }
+
     public async Task ExcluirAsync(int id, string idEmpresa)
     {
         using var connection = _database.GetConnection();
