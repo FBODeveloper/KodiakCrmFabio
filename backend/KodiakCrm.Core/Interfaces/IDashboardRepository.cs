@@ -13,4 +13,5 @@ public interface IDashboardRepository
     Task<DashboardMetricaTicketMedioDTO> ObterTicketMedioAsync(string idEmpresa);
     Task<DashboardMetricaConversaoDTO> ObterMetricasConversaoAsync(string idEmpresa);
     Task<List<DashboardProdutividadeVendedorDTO>> ObterProdutividadeVendedoresAsync(string idEmpresa);
+    Task<List<TimelineItemDTO>> ObterTimelineAsync(string idEmpresa);
 }

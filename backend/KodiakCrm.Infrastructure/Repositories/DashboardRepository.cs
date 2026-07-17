@@ -155,4 +155,19 @@ public class DashboardRepository : IDashboardRepository
 
         return (await connection.QueryAsync<DashboardProdutividadeVendedorDTO>(sql, new { IdEmpresa = idEmpresa })).ToList();
     }
+
+    public async Task<List<TimelineItemDTO>> ObterTimelineAsync(string idEmpresa)
+    {
+        using var connection = _database.GetConnection();
+        const string sql = @"
+            SELECT TO_CHAR(data_cadastro, 'MM/YYYY') as Mes,
+                   COUNT(*) as Quantidade,
+                   COALESCE(SUM(valor), 0) as Valor
+            FROM oportunidade
+            WHERE id_empresa = @IdEmpresa AND ativo = true
+            GROUP BY TO_CHAR(data_cadastro, 'MM/YYYY'), DATE_TRUNC('month', data_cadastro)
+            ORDER BY DATE_TRUNC('month', data_cadastro)";
+
+        return (await connection.QueryAsync<TimelineItemDTO>(sql, new { IdEmpresa = idEmpresa })).ToList();
+    }
 }

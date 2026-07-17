@@ -91,4 +91,12 @@ public class DashboardController : ControllerBase
         var resultado = await _service.ObterProdutividadeVendedoresAsync(idEmpresa);
         return Ok(resultado);
     }
+
+    [HttpGet("timeline")]
+    public async Task<ActionResult<List<TimelineItemDTO>>> ObterTimeline()
+    {
+        var idEmpresa = ObterIdEmpresa();
+        var resultado = await _service.ObterTimelineAsync(idEmpresa);
+        return Ok(resultado);
+    }
 }

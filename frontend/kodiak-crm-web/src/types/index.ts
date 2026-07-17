@@ -289,6 +289,11 @@ export interface DashboardResumo {
   valorFunil: number;
   atividadesPendentes: number;
   propostasEnviadas: number;
+  ticketMedio: number;
+  totalOportunidadesGanhas: number;
+  totalOportunidadesPerdidas: number;
+  taxaConversaoLead: number;
+  totalClientes: number;
 }
 
 export interface LeadStats {
@@ -299,12 +304,11 @@ export interface LeadStats {
 }
 
 export interface DashboardLeadRecente {
-  id: number;
   nome: string;
   empresa?: string;
   telefone?: string;
+  email?: string;
   status: string;
-  dataCadastro: string;
 }
 
 export interface DashboardLeadsPorEstagio {
@@ -315,24 +319,44 @@ export interface DashboardLeadsPorEstagio {
 
 export interface DashboardTicketMedio {
   ticketMedio: number;
-  totalComValor: number;
+  quantidadeOportunidades: number;
 }
 
 export interface DashboardConversao {
-  totalLeads: number;
-  leadsConvertidos: number;
   taxaConversao: number;
   oportunidadesGanhas: number;
   oportunidadesPerdidas: number;
-  taxaSucesso: number;
+  totalOportunidades: number;
 }
 
 export interface DashboardProdutividade {
-  usuarioId: number;
-  usuarioNome: string;
+  vendedorId: number;
+  vendedorNome: string;
   totalOportunidades: number;
   oportunidadesGanhas: number;
   valorTotal: number;
+}
+
+export interface DashboardFunil {
+  estagio: string;
+  quantidade: number;
+  valor: number;
+}
+
+export interface DashboardLeadsStatus {
+  status: string;
+  quantidade: number;
+}
+
+export interface DashboardAtividadeTipo {
+  tipo: string;
+  quantidade: number;
+}
+
+export interface DashboardTimeline {
+  mes: string;
+  quantidade: number;
+  valor: number;
 }
 
 export interface Historico {

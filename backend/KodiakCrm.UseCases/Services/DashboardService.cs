@@ -56,4 +56,9 @@ public class DashboardService
     {
         return await _repository.ObterProdutividadeVendedoresAsync(idEmpresa);
     }
+
+    public async Task<List<TimelineItemDTO>> ObterTimelineAsync(string idEmpresa)
+    {
+        return await _repository.ObterTimelineAsync(idEmpresa);
+    }
 }

@@ -297,6 +297,18 @@ kodiak-crm/
 - **Sidebar**: NavLink "Funis" adicionado com ícone de funil após Oportunidades
 - **Rotas**: `/funis`, `/funis/novo`, `/funis/:id`
 
+### Fase 20: Dashboard Melhorado
+- **Recharts** instalado para gráficos profissionais
+- **Backend**: endpoint `GET /api/dashboard/timeline` — oportunidades por mês
+- **Dashboard.tsx** reescrito com 4 seções:
+  - **10 cards** de métricas (Leads, Oportunidades, Valor do Funil, Ticket Médio, Taxa Conversão, Ganhas, Perdidas, Clientes, Atividades Pendentes, Propostas)
+  - **Gráfico de Funil** (BarChart horizontal com cores progressivas)
+  - **Leads por Status** (PieChart com cores nomeadas)
+  - **Atividades por Tipo** (PieChart com cores por tipo)
+  - **Timeline de Oportunidades** (AreaChart com gradiente)
+  - **Tabelas**: Leads Recentes + Produtividade por Vendedor
+- **Tipos TypeScript**: DashboardFunil, DashboardLeadsStatus, DashboardAtividadeTipo, DashboardTimeline adicionados
+
 ## Git Remote
 - `https://github.com/FBODeveloper/KodiakCrmFabio.git` (main branch)
 

@@ -71,3 +71,10 @@ public class DashboardProdutividadeVendedorDTO
     public int OportunidadesGanhas { get; set; }
     public decimal ValorTotal { get; set; }
 }
+
+public class TimelineItemDTO
+{
+    public string Mes { get; set; } = string.Empty;
+    public int Quantidade { get; set; }
+    public decimal Valor { get; set; }
+}
